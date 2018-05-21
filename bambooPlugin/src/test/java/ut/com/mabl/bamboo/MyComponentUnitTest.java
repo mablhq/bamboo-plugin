@@ -1,8 +1,8 @@
 package ut.com.mabl.bamboo;
 
 import org.junit.Test;
-import com.mabl.bamboo.api.MyPluginComponent;
-import com.mabl.bamboo.impl.MyPluginComponentImpl;
+import plugin.api.MyPluginComponent;
+import plugin.impl.MyPluginComponentImpl;
 
 import static org.junit.Assert.assertEquals;
 
