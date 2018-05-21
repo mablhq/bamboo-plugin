@@ -1,4 +1,4 @@
-package com.mabl.bamboo.api;
+package plugin.api;
 
 public interface MyPluginComponent
 {

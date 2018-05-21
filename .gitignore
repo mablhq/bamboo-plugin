@@ -1,2 +1,8 @@
 # IntelliJ ignore
-.idea
+.idea/
+*.iml
+*.iws
+
+# Maven
+log/
+target/

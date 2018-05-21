@@ -20,5 +20,15 @@
 
         <context>bambooPlugin</context>
     </web-resource>
-    
+
+    <taskType key="myFirstTask" name="My First Task" class="com.mabl.MyFirstTask">
+        <description>A task that prints 'Hello, World!'</description>
+    </taskType>
+
+    <taskType key="test" name="createdeployment" class="com.mabl.CreateDeployment">
+        <description>A first crack at a Mabl Bamboo plugin</description>
+        <configuration class="com.mabl.CreateDeploymentConfigurator"/>
+        <resource type="freemarker" name="edit" location="editCreateDeployment.ftl"/>
+    </taskType>
+
 </atlassian-plugin>
