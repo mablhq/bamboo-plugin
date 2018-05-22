@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
@@ -32,14 +33,14 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
 
         final String restApiKeyValue = params.getString("restApiKey");
         if(StringUtils.isEmpty(restApiKeyValue)) {
-            errorCollection.addError("restApiKey", "DEBUG fill in restApiKeyError Message");
+            errorCollection.addError("restApiKey", "fill in restApiKey");
         }
 
         final String environmentIdValue = params.getString("environmentId");
         final String applicationIdValue = params.getString("applicationId");
         if(StringUtils.isEmpty(environmentIdValue) && StringUtils.isEmpty(applicationIdValue)) {
-            errorCollection.addError("environmentId", "DEBUG fill in environmentId Message");
-            errorCollection.addError("applicationId", "DEBUG fill in applicationId Message");
+            errorCollection.addError("environmentId", "fill in one of environmentId/applicationId");
+            errorCollection.addError("applicationId", "fill in one of environmentId/applicationId");
         }
     }
 
@@ -47,9 +48,9 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
     public void populateContextForCreate(@NotNull final Map<String, Object> context) {
         super.populateContextForCreate(context);
 
-        context.put("restApiKey", "ApiKey");
-        context.put("environmentId", "Input an environmentId (ends with -e)");
-        context.put("applicationId", "Input an applicationId (ends with -a)");
+        context.put("restApiKey", "");
+        context.put("environmentId", "");
+        context.put("applicationId", "");
     }
 
     @Override
