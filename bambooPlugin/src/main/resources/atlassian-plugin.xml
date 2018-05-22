@@ -8,7 +8,7 @@
     </plugin-info>
 
     <!-- add our i18n resource -->
-    <resource type="i18n" name="i18n" location="bambooPlugin"/>
+    <resource type="i18n" name="i18n" location="i18n"/>
     
     <!-- add our web resources -->
     <web-resource key="bambooPlugin-resources" name="bambooPlugin Web Resources">
@@ -16,7 +16,7 @@
         
         <resource type="download" name="bambooPlugin.css" location="/css/bambooPlugin.css"/>
         <resource type="download" name="bambooPlugin.js" location="/js/bambooPlugin.js"/>
-        <resource type="download" name="images/" location="/images"/>
+        <resource type="download" name="images/" location="/images" />
 
         <context>bambooPlugin</context>
     </web-resource>
@@ -25,10 +25,12 @@
         <description>A task that prints 'Hello, World!'</description>
     </taskType>
 
-    <taskType key="test" name="createdeployment" class="com.mabl.CreateDeployment">
+    <taskType key="createdeployment" name="Create Deployment" class="com.mabl.CreateDeployment">
         <description>A first crack at a Mabl Bamboo plugin</description>
+        <help link="mabl.task.help.link" title="mabl.task.help.title" />
         <configuration class="com.mabl.CreateDeploymentConfigurator"/>
         <resource type="freemarker" name="edit" location="editCreateDeployment.ftl"/>
+        <resource type="download" name="icon" location="/images/pluginIcon.png" />
     </taskType>
 
 </atlassian-plugin>

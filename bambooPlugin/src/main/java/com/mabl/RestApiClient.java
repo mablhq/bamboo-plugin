@@ -1,5 +1,9 @@
 package com.mabl;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.atlassian.extras.common.log.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mabl.domain.CreateDeploymentResult;
@@ -7,16 +11,16 @@ import com.mabl.domain.CreateDeploymentPayload;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
-import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;
 
+import com.mabl.domain.ExecutionResult;
 import org.apache.http.Header;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.AbstractHttpEntity;
@@ -26,71 +30,76 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.params.HttpParams;
 
+import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
 import static org.apache.commons.httpclient.HttpStatus.SC_CREATED;
 import static org.apache.commons.httpclient.HttpStatus.SC_NOT_FOUND;
 import static org.apache.commons.httpclient.HttpStatus.SC_OK;
 
 public class RestApiClient {
+    private final String restApiKey;
     private final CloseableHttpClient httpClient;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    {
+        objectMapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+    }
     private final Logger.Log log = Logger.getInstance(this.getClass());
 
-    private static final String DEPLOYMENT_TRIGGER_ENDPOINT = "/events/deployment";
-    private static final String REST_API_USERNAME_PLACEHOLDER = "key";
+    static final String DEPLOYMENT_TRIGGER_ENDPOINT = "/events/deployment";
+    static final String DEPLOYMENT_RESULT_ENDPOINT_TEMPLATE = "/execution/result/event/%s";
+    static final String REST_API_USERNAME_PLACEHOLDER = "key";
     private static final String restApiBaseUrl = "https://api.mabl.com";
-    private static final String restApiKey = "jMzlz6eUkPYX4S5wOhOn5w"; //TODO DEBUG REMOVE THIS
     private static final Header JSON_TYPE_HEADER = new BasicHeader("Content-Type", "application/json");
     private static final String PLUGIN_VERSION_UNKNOWN = "unknown";
     private static final String PLUGIN_USER_AGENT = "mabl-bamboo-plugin/" + PLUGIN_VERSION_UNKNOWN;
     private static final int REQUEST_TIMEOUT_MILLISECONDS = 60000;
 
-    private void log(String message) { // he said in quotes
-        throw new RuntimeException(message);
+    public RestApiClient(String restApiKey) {
+        this.restApiKey = restApiKey;
+        this.httpClient = getHttpClient(restApiKey);
     }
 
-    private String requestToString(HttpPost request) {
-        String result = String.format("DEBUG 52 Request" +
-                "url='%s'" +
-                "method='%s'",
-                request.getURI(),
-                request.getMethod()
-        );
-        Header[] headers = request.getAllHeaders();
-        for(Header header : headers) {
-            result += header.getName()+"="+header.getValue();
+    public CreateDeploymentResult createDeploymentEvent(final String environmentId, final String applicationId) {
+        final HttpPost request = buildPostRequest(restApiBaseUrl + DEPLOYMENT_TRIGGER_ENDPOINT);
+        request.setEntity(getCreateDeplotmentPayloadEntity(environmentId, applicationId));
+        request.addHeader(getBasicAuthHeader(restApiKey));
+        request.addHeader(JSON_TYPE_HEADER);
+        return parseApiResult(getResponse(request), CreateDeploymentResult.class);
+    }
+
+    public ExecutionResult getExecutionResults(final String eventId) {
+        final String url = restApiBaseUrl + String.format(DEPLOYMENT_RESULT_ENDPOINT_TEMPLATE, eventId);
+        return parseApiResult(getResponse(buildGetRequest(url)), ExecutionResult.class);
+    }
+
+    private HttpGet buildGetRequest(final String url) {
+        try {
+            final HttpGet request = new HttpGet(url);
+            request.addHeader(getBasicAuthHeader(restApiKey));
+            return request;
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(String.format("Unexpected status from mabl trying to build API url: %s", url));
         }
-        HttpParams params = request.getParams();
-        result += "params="+params.toString();
-        return result;
     }
 
-    public RestApiClient() {
-        this.httpClient = getHttpClient();
-    }
-
-    public CreateDeploymentResult createDeploymentEvent(final String restApiKey, final String environmentId, final String applicationId) {
-        final String url = restApiBaseUrl + DEPLOYMENT_TRIGGER_ENDPOINT;
-        final HttpPost request = new HttpPost(url);
-
+    private AbstractHttpEntity getCreateDeplotmentPayloadEntity(String environmentId, String applicationId) {
         try {
             final String jsonPayload = objectMapper.writeValueAsString(new CreateDeploymentPayload(environmentId, applicationId));
-            final AbstractHttpEntity payloadEntity = new ByteArrayEntity(jsonPayload.getBytes("UTF-8"));
-            request.setEntity(payloadEntity);
+            return new ByteArrayEntity(jsonPayload.getBytes("UTF-8"));
+
         } catch (IOException e) {
             log.error(String.format("Unable to create payloadEntity"));
             throw new RuntimeException(e.getMessage(), e);
         }
-
-        request.addHeader(getBasicAuthHeader(restApiKey));
-        request.addHeader(JSON_TYPE_HEADER);
-        log(requestToString(request));
-        HttpResponse response = getResponse(request);
-        return parseApiResult(response, CreateDeploymentResult.class);
     }
 
-    private CloseableHttpClient getHttpClient() {
+    private CloseableHttpClient getHttpClient(String restApiKey) {
         return HttpClients.custom()
                 .setRedirectStrategy(new DefaultRedirectStrategy())
                 .setServiceUnavailableRetryStrategy(getRetryHandler())
@@ -183,4 +192,14 @@ public class RestApiClient {
         }
     }
 
+    public void close() {
+        if (httpClient != null) {
+            try {
+                httpClient.close();
+            } catch (IOException e) {
+                // TODO cleaner exception handling
+                e.printStackTrace();
+            }
+        }
+    }
 }
