@@ -5,21 +5,11 @@ import com.atlassian.bamboo.task.TaskContext;
 import com.atlassian.bamboo.task.TaskResult;
 import com.atlassian.bamboo.task.TaskResultBuilder;
 import com.atlassian.bamboo.task.TaskType;
-import com.google.common.collect.ImmutableSet;
 import com.mabl.domain.CreateDeploymentResult;
 import com.mabl.domain.ExecutionResult;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Set;
-
 public class CreateDeployment implements TaskType {
-    private static final Set<String> COMPLETE_STATUSES = ImmutableSet.of(
-            "succeeded",
-            "failed",
-            "cancelled",
-            "completed",
-            "terminated"
-    );
 
     @NotNull
     @Override
@@ -28,37 +18,37 @@ public class CreateDeployment implements TaskType {
         final String formApiKey = taskContext.getConfigurationMap().get("restApiKey");
         final String environmentId = taskContext.getConfigurationMap().get("environmentId");
         final String applicationId = taskContext.getConfigurationMap().get("applicationId");
+        ExecutionResult executionResult;
 
-        RestApiClient apiClient = new RestApiClient(formApiKey);
-        CreateDeploymentResult deployment = apiClient.createDeploymentEvent(environmentId, applicationId);
-        buildLogger.addBuildLogEntry(String.format("Creating deployment with id '%s'", deployment.id));
+        try (RestApiClient apiClient = new RestApiClient(formApiKey)) {
 
-        try {
+            CreateDeploymentResult deployment = apiClient.createDeploymentEvent(environmentId, applicationId);
+            buildLogger.addBuildLogEntry(String.format("Creating deployment with id '%s'", deployment.id));
 
-            // Poll until we are successful or failed - note execution service is responsible for timeout
-            ExecutionResult executionResult;
             do {
-                Thread.sleep(10000);
+                Thread.sleep(MablConstants.EXECUTION_STATUS_POLLING_INTERNAL_MILLISECONDS);
                 executionResult = apiClient.getExecutionResults(deployment.id);
 
                 if (executionResult == null) {
-                    // No such id - this shouldn't happen
-                    throw new RuntimeException(String.format("No deployment event found for id [%s] in mabl.", deployment.id));
+                    buildLogger.addErrorLogEntry(String.format(
+                            "ERROR: No deployment event found for id '%s' in Mabl.",
+                            deployment.id
+                    ));
+
+                    return TaskResultBuilder.newBuilder(taskContext).failed().build();
                 }
 
                 logAllJourneyExecutionStatuses(executionResult, buildLogger);
 
             } while (!allPlansComplete(executionResult));
 
-            logFinalStatuses(executionResult, buildLogger);
+        } catch (RuntimeException | InterruptedException e) {
+            buildLogger.addErrorLogEntry(String.format("ERROR: Task Execution Exception: '%s'", e.getMessage()));
+            return TaskResultBuilder.newBuilder(taskContext).failed().build();
+        }
 
-            if (!allPlansSuccess(executionResult)) {
-                buildLogger.addErrorLogEntry("ERROR: One or more plans were unsuccessful");
-                return TaskResultBuilder.newBuilder(taskContext).failed().build();
-            }
-
-        } catch (InterruptedException e) {
-            buildLogger.addErrorLogEntry(String.format("ERROR: Interrupted Exception: '%s'", e.getMessage()));
+        if (!finalOutputStatusAllSuccesses(executionResult, buildLogger)) {
+            buildLogger.addErrorLogEntry("ERROR: One or more plans were unsuccessful");
             return TaskResultBuilder.newBuilder(taskContext).failed().build();
         }
 
@@ -66,47 +56,62 @@ public class CreateDeployment implements TaskType {
         return TaskResultBuilder.newBuilder(taskContext).success().build();
     }
 
-    private void logFinalStatuses(final ExecutionResult result, final BuildLogger buildLogger) {
-
-        buildLogger.addBuildLogEntry("The final Plan states in mabl:");
+    private boolean finalOutputStatusAllSuccesses(final ExecutionResult result, final BuildLogger buildLogger) {
+        boolean allPlansSuccess = true;
+        buildLogger.addBuildLogEntry("The final Plan states in Mabl:");
         for (ExecutionResult.ExecutionSummary summary : result.executions) {
-            final String successState = summary.success ? "SUCCESSFUL" : "FAILED";
+            final String successState = summary.success ? "SUCCEEDED" : "FAILED";
             if(summary.success) {
-                buildLogger.addBuildLogEntry(String.format("Plan [%s] is %s in state [%s]%n", safePlanName(summary), successState, summary.status));
+                buildLogger.addBuildLogEntry(String.format(
+                        "Plan '%s' has %s with state '%s'",
+                        safePlanName(summary),
+                        successState,
+                        summary.status
+                ));
             } else {
-                buildLogger.addErrorLogEntry(String.format("ERROR: Plan [%s] is %s in state [%s]%n", safePlanName(summary), successState, summary.status));
+                allPlansSuccess = false;
+                buildLogger.addErrorLogEntry(String.format(
+                        "ERROR: Plan '%s' has %s with state '%s'",
+                        safePlanName(summary),
+                        successState,
+                        summary.status
+                ));
             }
         }
+
+        return allPlansSuccess;
     }
 
     private boolean allPlansComplete(final ExecutionResult result) {
-
         boolean isComplete = true;
-
         for (ExecutionResult.ExecutionSummary summary : result.executions) {
-            isComplete &= COMPLETE_STATUSES.contains(summary.status.toLowerCase());
+            isComplete &= MablConstants.COMPLETE_STATUSES.contains(summary.status.toLowerCase());
         }
         return isComplete;
     }
 
-    private boolean allPlansSuccess(final ExecutionResult result) {
-
-        boolean isSuccess = true;
-
+    private void logAllJourneyExecutionStatuses(final ExecutionResult result, final BuildLogger buildLogger) {
+        buildLogger.addBuildLogEntry("Running Mabl journey(s) status update:");
         for (ExecutionResult.ExecutionSummary summary : result.executions) {
-            isSuccess &= summary.success;
+            logPlanExecutionStatuses(summary, buildLogger);
         }
-        return isSuccess;
     }
 
-    private void logAllJourneyExecutionStatuses(final ExecutionResult result, final BuildLogger buildLogger) {
-
-        buildLogger.addBuildLogEntry("Running mabl journey(s) status update:");
-        for (ExecutionResult.ExecutionSummary summary : result.executions) {
-            buildLogger.addBuildLogEntry(String.format("Plan [%s] is [%s]%n", safePlanName(summary), summary.status));
-            for (ExecutionResult.JourneyExecutionResult journeyResult : summary.journeyExecutions) {
-                buildLogger.addBuildLogEntry(String.format("Journey [%s] is [%s]%n", safeJourneyName(summary, journeyResult.id), journeyResult.status));
-            }
+    private void logPlanExecutionStatuses(
+            final ExecutionResult.ExecutionSummary planSummary,
+            final BuildLogger buildLogger
+    ) {
+        buildLogger.addBuildLogEntry(String.format(
+                "Plan '%s' is in state '%s'",
+                safePlanName(planSummary),
+                planSummary.status
+        ));
+        for (ExecutionResult.JourneyExecutionResult journeyResult : planSummary.journeyExecutions) {
+            buildLogger.addBuildLogEntry(String.format(
+                    "Journey '%s' is in state '%s'",
+                    safeJourneyName(planSummary, journeyResult.id),
+                    journeyResult.status
+            ));
         }
     }
 

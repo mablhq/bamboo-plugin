@@ -1,4 +1,4 @@
-package com.mabl.integration.jenkins;
+package com.mabl;
 
 /**
  * mabl custom build step

@@ -4,12 +4,13 @@ import com.atlassian.bamboo.collections.ActionParametersMap;
 import com.atlassian.bamboo.task.AbstractTaskConfigurator;
 import com.atlassian.bamboo.task.TaskDefinition;
 import com.atlassian.bamboo.utils.error.ErrorCollection;
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.Map;
+
+import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.endsWith;
 
 public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
 
@@ -22,26 +23,6 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
         config.put("environmentId", params.getString("environmentId"));
         config.put("applicationId", params.getString("applicationId"));
         return config;
-    }
-
-    @Override
-    public void validate(
-            @NotNull final ActionParametersMap params,
-            @NotNull final ErrorCollection errorCollection
-    ) {
-        super.validate(params, errorCollection);
-
-        final String restApiKeyValue = params.getString("restApiKey");
-        if(StringUtils.isEmpty(restApiKeyValue)) {
-            errorCollection.addError("restApiKey", "fill in restApiKey");
-        }
-
-        final String environmentIdValue = params.getString("environmentId");
-        final String applicationIdValue = params.getString("applicationId");
-        if(StringUtils.isEmpty(environmentIdValue) && StringUtils.isEmpty(applicationIdValue)) {
-            errorCollection.addError("environmentId", "fill in one of environmentId/applicationId");
-            errorCollection.addError("applicationId", "fill in one of environmentId/applicationId");
-        }
     }
 
     @Override
@@ -64,4 +45,52 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
         context.put("applicationId", taskDefinition.getConfiguration().get("applicationId"));
     }
 
+    @Override
+    public void validate(
+            @NotNull final ActionParametersMap params,
+            @NotNull final ErrorCollection errorCollection
+    ) {
+        super.validate(params, errorCollection);
+
+        final String restApiKeyValue = params.getString("restApiKey");
+        if(isEmpty(restApiKeyValue)) {
+            errorCollection.addError("restApiKey", "RestApiKey is required.");
+        }
+        if(!restApiKeyIsValid(restApiKeyValue)) {
+            errorCollection.addError("restApiKey", "The entered RestApiKey is invalid.");
+        }
+
+        final String environmentIdValue = params.getString("environmentId");
+        if(!environmentIdIsValid(environmentIdValue)) {
+            errorCollection.addError("environmentId", "The entered EnvironmentId is invalid.");
+
+        }
+        final String applicationIdValue = params.getString("applicationId");
+        if(!applicationIdIsValid(applicationIdValue)) {
+            errorCollection.addError("applicationId", "The entered ApplicationId is invalid.");
+        }
+
+        if(isEmpty(environmentIdValue) && isEmpty(applicationIdValue)) {
+            String error = "One of ApplicationId or EnvironmentId is required.";
+            errorCollection.addError("environmentId", error);
+            errorCollection.addError("applicationId", error);
+        }
+    }
+
+    private boolean restApiKeyIsValid(String restApiKey) {
+        try(RestApiClient apiClient = new RestApiClient(restApiKey)) {
+            String organizationId = apiClient.getApiKeyResult(restApiKey).organization_id;
+            return !isEmpty(organizationId ) && endsWith(organizationId, "-w");
+        } catch (RuntimeException e) {
+            return false;
+        }
+    }
+
+    private boolean environmentIdIsValid(String environmentId) {
+        return isEmpty(environmentId) || endsWith(environmentId, "-e");
+    }
+
+    private boolean applicationIdIsValid(String applicationId) {
+        return isEmpty(applicationId) || endsWith(applicationId, "-a");
+    }
 }
