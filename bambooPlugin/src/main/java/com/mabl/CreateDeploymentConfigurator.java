@@ -4,6 +4,9 @@ import com.atlassian.bamboo.collections.ActionParametersMap;
 import com.atlassian.bamboo.task.AbstractTaskConfigurator;
 import com.atlassian.bamboo.task.TaskDefinition;
 import com.atlassian.bamboo.utils.error.ErrorCollection;
+import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.atlassian.sal.api.message.I18nResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,8 +15,15 @@ import java.util.Map;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.endsWith;
 
+@Scanned
 public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
+    private I18nResolver i18nResolver;
 
+    public CreateDeploymentConfigurator(@ComponentImport I18nResolver i18nResolver) {
+        this.i18nResolver = i18nResolver;
+    }
+
+    @Override
     public Map<String, String> generateTaskConfigMap(
             @NotNull final ActionParametersMap params,
             @Nullable final TaskDefinition previousTaskDefinition
@@ -52,26 +62,37 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
     ) {
         super.validate(params, errorCollection);
 
+
         final String restApiKeyValue = params.getString("restApiKey");
+        final String restApiKeyLabel = getLabel("restApiKey");
         if(isEmpty(restApiKeyValue)) {
-            errorCollection.addError("restApiKey", "RestApiKey is required.");
-        }
-        if(!restApiKeyIsValid(restApiKeyValue)) {
-            errorCollection.addError("restApiKey", "The entered RestApiKey is invalid.");
+            errorCollection.addError("restApiKey", String.format("'%s' is required.", restApiKeyLabel));
+        } else if(!restApiKeyIsValid(restApiKeyValue)) {
+            errorCollection.addError("restApiKey", String.format("The entered '%s' is invalid.", restApiKeyLabel));
         }
 
         final String environmentIdValue = params.getString("environmentId");
+        final String environmentIdLabel = getLabel("environmentId");
         if(!environmentIdIsValid(environmentIdValue)) {
-            errorCollection.addError("environmentId", "The entered EnvironmentId is invalid.");
+            errorCollection.addError("environmentId", String.format(
+                    "The entered '%s' is invalid. %s",
+                    environmentIdLabel,
+                    i18nResolver.getText("createdeployment.environmentId.hint"))
+            );
 
         }
         final String applicationIdValue = params.getString("applicationId");
+        final String applicationIdLabel = getLabel("applicationId");
         if(!applicationIdIsValid(applicationIdValue)) {
-            errorCollection.addError("applicationId", "The entered ApplicationId is invalid.");
+            errorCollection.addError("applicationId", String.format(
+                    "The entered '%s' is invalid. %s",
+                    applicationIdLabel,
+                    i18nResolver.getText("createdeployment.applicationId.hint"))
+            );
         }
 
         if(isEmpty(environmentIdValue) && isEmpty(applicationIdValue)) {
-            String error = "One of ApplicationId or EnvironmentId is required.";
+            String error = String.format("One of '%s' or '%s' is required.", environmentIdLabel, applicationIdLabel);
             errorCollection.addError("environmentId", error);
             errorCollection.addError("applicationId", error);
         }
@@ -92,5 +113,9 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
 
     private boolean applicationIdIsValid(String applicationId) {
         return isEmpty(applicationId) || endsWith(applicationId, "-a");
+    }
+
+    private String getLabel(String key) {
+        return i18nResolver.getText(String.format("createdeployment.%s.label", key));
     }
 }
