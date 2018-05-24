@@ -5,9 +5,11 @@ package com.mabl;
  *
  */
 class MablTestConstants {
+
+    static final String EXPECTED_DEPLOYMENT_EVENT_ID = "d1To4-GYeZ4nl-4Ag1JyQg-v";
     static final String CREATE_DEPLOYMENT_EVENT_RESULT_JSON =
             "{" +
-            "  \"id\": \"d1To4-GYeZ4nl-4Ag1JyQg-v\"," +
+            "  \"id\": \""+EXPECTED_DEPLOYMENT_EVENT_ID+"\"," +
             "  \"environment_id\": \"xolMgRp4CwvHQjQUX_MOoA-e\"," +
             "  \"application_id\": \"smoTxTR8B9oh73qstERNyg-a\"," +
             "  \"received_time\": 1523541704649" +
@@ -64,6 +66,7 @@ class MablTestConstants {
             "  ]" +
             "}";
 
+    static final String ORGANIZATIONID_RESULT = "K8NWhtPqOyFnyvJTvCP0uw-w";
     static final String APIKEY_RESULT_JSON = "" +
             "{" +
             "   \"id\":\"XjO5GsxvWRi_zwbK3-h2PB\"," +
@@ -71,7 +74,7 @@ class MablTestConstants {
             "   \"created_by_id\":\"FYuRFw9hMzqhjI5xnFYH3A\"," +
             "   \"last_updated_time\":1526412082062," +
             "   \"last_updated_by_id\":\"FYuRFw9hMzqhjI5xnFYH3A\"," +
-            "   \"organization_id\":\"K8NWhtPqOyFnyvJTvCP0uw-w\"," +
+            "   \"organization_id\":\""+ORGANIZATIONID_RESULT+"\"," +
             "   \"name\":\"Default API Key\"," +
             "   \"scopes\":[" +
             "     {" +

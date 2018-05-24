@@ -99,7 +99,7 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
     }
 
     private boolean restApiKeyIsValid(String restApiKey) {
-        try(RestApiClient apiClient = new RestApiClient(restApiKey)) {
+        try(RestApiClient apiClient = new RestApiClient(MablConstants.MABL_REST_API_BASE_URL, restApiKey)) {
             String organizationId = apiClient.getApiKeyResult(restApiKey).organization_id;
             return !isEmpty(organizationId ) && endsWith(organizationId, "-w");
         } catch (RuntimeException e) {

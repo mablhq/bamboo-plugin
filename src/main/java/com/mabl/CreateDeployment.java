@@ -20,7 +20,7 @@ public class CreateDeployment implements TaskType {
         final String applicationId = taskContext.getConfigurationMap().get("applicationId");
         ExecutionResult executionResult;
 
-        try (RestApiClient apiClient = new RestApiClient(formApiKey)) {
+        try (RestApiClient apiClient = new RestApiClient(MablConstants.MABL_REST_API_BASE_URL, formApiKey)) {
 
             CreateDeploymentResult deployment = apiClient.createDeploymentEvent(environmentId, applicationId);
             buildLogger.addBuildLogEntry(String.format("Creating deployment with id '%s'", deployment.id));
