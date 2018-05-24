@@ -33,12 +33,12 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 
 import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
-import static com.mabl.MablConstants.MABL_REST_API_BASE_URL;
 import static com.mabl.MablConstants.REQUEST_TIMEOUT_MILLISECONDS;
 import static org.apache.commons.httpclient.HttpStatus.SC_CREATED;
 import static org.apache.commons.httpclient.HttpStatus.SC_OK;
 
 public class RestApiClient implements AutoCloseable {
+    private final String restApiBaseUrl;
     private final String restApiKey;
     private final CloseableHttpClient httpClient;
     private final Logger.Log log = Logger.getInstance(this.getClass());
@@ -52,19 +52,20 @@ public class RestApiClient implements AutoCloseable {
         objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
     }
 
-    private static final String DEPLOYMENT_TRIGGER_ENDPOINT = "/events/deployment";
-    private static final String DEPLOYMENT_RESULT_ENDPOINT_TEMPLATE = "/execution/result/event/%s";
-    private static final String GET_ORGANIZATION_ENDPOINT_TEMPLATE = "/apiKeys/%s";
-    private static final String REST_API_USERNAME_PLACEHOLDER = "key";
-    private static final Header JSON_TYPE_HEADER = new BasicHeader("Content-Type", "application/json");
+    static final String DEPLOYMENT_TRIGGER_ENDPOINT = "/events/deployment";
+    static final String DEPLOYMENT_RESULT_ENDPOINT_TEMPLATE = "/execution/result/event/%s";
+    static final String GET_API_KEY_ENDPOINT_TEMPLATE = "/apiKeys/%s";
+    static final String REST_API_USERNAME_PLACEHOLDER = "key";
+    static final Header JSON_TYPE_HEADER = new BasicHeader("Content-Type", "application/json");
 
-    public RestApiClient(String restApiKey) {
+    public RestApiClient(String restApiBaseUrl, String restApiKey) {
+        this.restApiBaseUrl = restApiBaseUrl;
         this.restApiKey = restApiKey;
         this.httpClient = getHttpClient(restApiKey);
     }
 
     public CreateDeploymentResult createDeploymentEvent(final String environmentId, final String applicationId) {
-        final HttpPost request = new HttpPost(MABL_REST_API_BASE_URL + DEPLOYMENT_TRIGGER_ENDPOINT);
+        final HttpPost request = new HttpPost(restApiBaseUrl + DEPLOYMENT_TRIGGER_ENDPOINT);
         request.setEntity(getCreateDeplotmentPayloadEntity(environmentId, applicationId));
         request.addHeader(getBasicAuthHeader(restApiKey));
         request.addHeader(JSON_TYPE_HEADER);
@@ -72,12 +73,12 @@ public class RestApiClient implements AutoCloseable {
     }
 
     public ExecutionResult getExecutionResults(final String eventId) {
-        final String url = MABL_REST_API_BASE_URL + String.format(DEPLOYMENT_RESULT_ENDPOINT_TEMPLATE, eventId);
+        final String url = restApiBaseUrl + String.format(DEPLOYMENT_RESULT_ENDPOINT_TEMPLATE, eventId);
         return parseApiResult(getResponse(buildGetRequest(url)), ExecutionResult.class);
     }
 
     public GetApiKeyResult getApiKeyResult(String formApiKey) {
-        final String url = MABL_REST_API_BASE_URL + String.format(GET_ORGANIZATION_ENDPOINT_TEMPLATE, formApiKey);
+        final String url = restApiBaseUrl + String.format(GET_API_KEY_ENDPOINT_TEMPLATE, formApiKey);
         return parseApiResult(getResponse(buildGetRequest(url)), GetApiKeyResult.class);
     }
 
