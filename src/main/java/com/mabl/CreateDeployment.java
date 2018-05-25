@@ -5,11 +5,22 @@ import com.atlassian.bamboo.task.TaskContext;
 import com.atlassian.bamboo.task.TaskResult;
 import com.atlassian.bamboo.task.TaskResultBuilder;
 import com.atlassian.bamboo.task.TaskType;
+import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.atlassian.sal.api.message.I18nResolver;
 import com.mabl.domain.CreateDeploymentResult;
 import com.mabl.domain.ExecutionResult;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
+
+@Scanned
 public class CreateDeployment implements TaskType {
+    private I18nResolver i18nResolver;
+
+    public CreateDeployment(@ComponentImport I18nResolver i18nResolver) {
+        this.i18nResolver = i18nResolver;
+    }
 
     @NotNull
     @Override
@@ -23,15 +34,15 @@ public class CreateDeployment implements TaskType {
         try (RestApiClient apiClient = new RestApiClient(MablConstants.MABL_REST_API_BASE_URL, formApiKey)) {
 
             CreateDeploymentResult deployment = apiClient.createDeploymentEvent(environmentId, applicationId);
-            buildLogger.addBuildLogEntry(String.format("Creating deployment with id '%s'", deployment.id));
+            buildLogger.addBuildLogEntry(createLogLine(false,"Creating deployment with id '%s'", deployment.id));
 
             do {
                 Thread.sleep(MablConstants.EXECUTION_STATUS_POLLING_INTERNAL_MILLISECONDS);
                 executionResult = apiClient.getExecutionResults(deployment.id);
 
                 if (executionResult == null) {
-                    buildLogger.addErrorLogEntry(String.format(
-                            "ERROR: No deployment event found for id '%s' in Mabl.",
+                    buildLogger.addErrorLogEntry(createLogLine(true,
+                            "No deployment event found for id '%s' in Mabl.",
                             deployment.id
                     ));
 
@@ -43,35 +54,35 @@ public class CreateDeployment implements TaskType {
             } while (!allPlansComplete(executionResult));
 
         } catch (RuntimeException | InterruptedException e) {
-            buildLogger.addErrorLogEntry(String.format("ERROR: Task Execution Exception: '%s'", e.getMessage()));
+            buildLogger.addErrorLogEntry(createLogLine(true, "Task Execution Exception: '%s'", e.getMessage()));
             return TaskResultBuilder.newBuilder(taskContext).failed().build();
         }
 
         if (!finalOutputStatusAllSuccesses(executionResult, buildLogger)) {
-            buildLogger.addErrorLogEntry("ERROR: One or more plans were unsuccessful");
+            buildLogger.addErrorLogEntry(createLogLine(true, "One or more plans were unsuccessful"));
             return TaskResultBuilder.newBuilder(taskContext).failed().build();
         }
 
-        buildLogger.addBuildLogEntry("All plans were successful.");
+        buildLogger.addBuildLogEntry(createLogLine(false, "All plans were successful."));
         return TaskResultBuilder.newBuilder(taskContext).success().build();
     }
 
     private boolean finalOutputStatusAllSuccesses(final ExecutionResult result, final BuildLogger buildLogger) {
         boolean allPlansSuccess = true;
-        buildLogger.addBuildLogEntry("The final Plan states in Mabl:");
+        buildLogger.addBuildLogEntry(createLogLine(false, "The final Plan states in Mabl:"));
         for (ExecutionResult.ExecutionSummary summary : result.executions) {
             final String successState = summary.success ? "SUCCEEDED" : "FAILED";
             if(summary.success) {
-                buildLogger.addBuildLogEntry(String.format(
-                        "Plan '%s' has %s with state '%s'",
+                buildLogger.addBuildLogEntry(createLogLine(false,
+                        "\tPlan '%s' has %s with state '%s'",
                         safePlanName(summary),
                         successState,
                         summary.status
                 ));
             } else {
                 allPlansSuccess = false;
-                buildLogger.addErrorLogEntry(String.format(
-                        "ERROR: Plan '%s' has %s with state '%s'",
+                buildLogger.addErrorLogEntry(createLogLine(true,
+                        "\tPlan '%s' has %s with state '%s'",
                         safePlanName(summary),
                         successState,
                         summary.status
@@ -91,7 +102,7 @@ public class CreateDeployment implements TaskType {
     }
 
     private void logAllJourneyExecutionStatuses(final ExecutionResult result, final BuildLogger buildLogger) {
-        buildLogger.addBuildLogEntry("Running Mabl journey(s) status update:");
+        buildLogger.addBuildLogEntry(createLogLine(false, "Running Mabl journey(s) status update:"));
         for (ExecutionResult.ExecutionSummary summary : result.executions) {
             logPlanExecutionStatuses(summary, buildLogger);
         }
@@ -101,14 +112,14 @@ public class CreateDeployment implements TaskType {
             final ExecutionResult.ExecutionSummary planSummary,
             final BuildLogger buildLogger
     ) {
-        buildLogger.addBuildLogEntry(String.format(
-                "Plan '%s' is in state '%s'",
+        buildLogger.addBuildLogEntry(createLogLine(false,
+                "\tPlan '%s' is in state '%s'",
                 safePlanName(planSummary),
                 planSummary.status
         ));
         for (ExecutionResult.JourneyExecutionResult journeyResult : planSummary.journeyExecutions) {
-            buildLogger.addBuildLogEntry(String.format(
-                    "Journey '%s' is in state '%s'",
+            buildLogger.addBuildLogEntry(createLogLine(false,
+                    "\t\tJourney '%s' is in state '%s'",
                     safeJourneyName(planSummary, journeyResult.id),
                     journeyResult.status
             ));
@@ -138,5 +149,18 @@ public class CreateDeployment implements TaskType {
         }
 
         return journeyName;
+    }
+
+    private String createLogLine(boolean isError, String log) {
+        return createLogLine(isError, log, new Object[0]);
+    }
+
+    private String createLogLine(boolean isError, String template, Object... args) {
+        String prefix = i18nResolver.getText("mabl.task.output.prefix");
+        template = prefix+template;
+        if(isError) {
+            template = "ERROR: " + template;
+        }
+        return String.format(template, args);
     }
 }
