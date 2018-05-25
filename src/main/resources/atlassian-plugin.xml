@@ -21,7 +21,21 @@
         <context>bambooPlugin</context>
     </web-resource>
 
-    <taskType key="createdeployment" name="Mabl Deployment" class="com.mabl.CreateDeployment">
+    <servlet name="Hello World Servlet" key="helloworld" class="com.mabl.FieldValueServlet">
+        <description>Says Hello World</description>
+        <url-pattern>/helloworld</url-pattern>
+        <init-param>
+            <param-name>defaultName</param-name>
+            <param-value>Australia</param-value>
+        </init-param>
+    </servlet>
+
+   <servlet name="Configurator Servlet" key="configurator" class="com.mabl.ConfiguratorServlet">
+       <description>Handles Ajax requests for the Configurator</description>
+       <url-pattern>/configurator</url-pattern>
+   </servlet>
+
+    <taskType key="createdeployment" name="A Mabl Deployment" class="com.mabl.CreateDeployment">
         <description>Launch Mabl test plan executions</description>
         <help link="mabl.task.help.link" title="mabl.task.help.title" />
         <configuration class="com.mabl.CreateDeploymentConfigurator"/>

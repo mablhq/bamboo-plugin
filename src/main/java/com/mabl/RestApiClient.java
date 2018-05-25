@@ -15,6 +15,8 @@ import java.util.concurrent.TimeUnit;
 
 import com.mabl.domain.ExecutionResult;
 import com.mabl.domain.GetApiKeyResult;
+import com.mabl.domain.GetApplicationsResult;
+import com.mabl.domain.GetEnvironmentsResult;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -52,16 +54,22 @@ public class RestApiClient implements AutoCloseable {
         objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
     }
 
+    static final String REST_API_USERNAME_PLACEHOLDER = "key";
+    static final Header JSON_TYPE_HEADER = new BasicHeader("Content-Type", "application/json");
     static final String DEPLOYMENT_TRIGGER_ENDPOINT = "/events/deployment";
     static final String DEPLOYMENT_RESULT_ENDPOINT_TEMPLATE = "/execution/result/event/%s";
     static final String GET_API_KEY_ENDPOINT_TEMPLATE = "/apiKeys/%s";
-    static final String REST_API_USERNAME_PLACEHOLDER = "key";
-    static final Header JSON_TYPE_HEADER = new BasicHeader("Content-Type", "application/json");
+    static final String GET_APPLICATIONS_ENDPOINT_TEMPLATE = "/applications?organization_id=%s";
+    static final String GET_ENVIRONMENTS_ENDPOINT_TEMPLATE = "/environments?organization_id=%s";
 
     public RestApiClient(String restApiBaseUrl, String restApiKey) {
         this.restApiBaseUrl = restApiBaseUrl;
         this.restApiKey = restApiKey;
         this.httpClient = getHttpClient(restApiKey);
+    }
+
+    public String getRestApiKey() {
+        return this.restApiKey;
     }
 
     public CreateDeploymentResult createDeploymentEvent(final String environmentId, final String applicationId) {
@@ -82,6 +90,16 @@ public class RestApiClient implements AutoCloseable {
         return parseApiResult(getResponse(buildGetRequest(url)), GetApiKeyResult.class);
     }
 
+    public GetApplicationsResult getApplicationsResult(String organizationId) {
+        final String url = restApiBaseUrl + String.format(GET_APPLICATIONS_ENDPOINT_TEMPLATE, organizationId);
+        return parseApiResult(getResponse(buildGetRequest(url)), GetApplicationsResult.class);
+    }
+
+    public GetEnvironmentsResult getEnvironmentsResult(String organizationId) {
+        final String url = restApiBaseUrl + String.format(GET_ENVIRONMENTS_ENDPOINT_TEMPLATE, organizationId);
+        return parseApiResult(getResponse(buildGetRequest(url)), GetEnvironmentsResult.class);
+    }
+
     private CloseableHttpClient getHttpClient(String restApiKey) {
         return HttpClients.custom()
                 .setRedirectStrategy(new DefaultRedirectStrategy())
@@ -93,7 +111,7 @@ public class RestApiClient implements AutoCloseable {
                 .build();
     }
 
-    private MablRestApiClientRetryHandler getRetryHandler() {
+    protected MablRestApiClientRetryHandler getRetryHandler() {
         return new MablRestApiClientRetryHandler(
                 MablConstants.RETRY_HANDLER_MAX_RETRIES,
                 MablConstants.RETRY_HANDLER_RETRY_INTERVAL

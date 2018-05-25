@@ -7,9 +7,12 @@ import com.atlassian.bamboo.utils.error.ErrorCollection;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.message.I18nResolver;
+import com.mabl.domain.GetApplicationsResult;
+import com.mabl.domain.GetEnvironmentsResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
@@ -50,9 +53,12 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
             @NotNull final TaskDefinition taskDefinition
     ) {
         super.populateContextForEdit(context, taskDefinition);
-        context.put("restApiKey", taskDefinition.getConfiguration().get("restApiKey"));
+        String restApiKey = taskDefinition.getConfiguration().get("restApiKey");
+        context.put("restApiKey", restApiKey);
         context.put("environmentId", taskDefinition.getConfiguration().get("environmentId"));
+        context.put("environmentsList", getEnvironmentsList(restApiKey));
         context.put("applicationId", taskDefinition.getConfiguration().get("applicationId"));
+        context.put("applicationsList", getApplicationsList(restApiKey));
     }
 
     @Override
@@ -96,6 +102,34 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
             errorCollection.addError("environmentId", error);
             errorCollection.addError("applicationId", error);
         }
+    }
+
+    public Map<String, String> getEnvironmentsList(String restApiKey) {
+        Map<String, String> envMap = new HashMap<>();
+        try(RestApiClient apiClient = new RestApiClient(MablConstants.MABL_REST_API_BASE_URL, restApiKey)) {
+            String organizationId = apiClient.getApiKeyResult(restApiKey).organization_id;
+            GetEnvironmentsResult results = apiClient.getEnvironmentsResult(organizationId);
+            for(GetEnvironmentsResult.Environment environment : results.environments) {
+                envMap.put(environment.id, environment.name);
+            }
+        } catch (RuntimeException e) {
+        }
+
+        return envMap;
+    }
+
+    public Map<String, String> getApplicationsList(String restApiKey) {
+        Map<String, String> envMap = new HashMap<>();
+        try(RestApiClient apiClient = new RestApiClient(MablConstants.MABL_REST_API_BASE_URL, restApiKey)) {
+            String organizationId = apiClient.getApiKeyResult(restApiKey).organization_id;
+            GetApplicationsResult results = apiClient.getApplicationsResult(organizationId);
+            for(GetApplicationsResult.Application application: results.applications) {
+                envMap.put(application.id, application.name);
+            }
+        } catch (RuntimeException e) {
+        }
+
+        return envMap;
     }
 
     private boolean restApiKeyIsValid(String restApiKey) {
