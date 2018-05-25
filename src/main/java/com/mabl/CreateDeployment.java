@@ -157,11 +157,12 @@ public class CreateDeployment implements TaskType {
     }
 
     private String createLogLine(boolean isError, String template, Object... args) {
-        String prefix = i18nResolver.getText("mabl.task.output.prefix");
-        template = prefix+template;
         if(isError) {
             template = "ERROR: " + template;
         }
+
+        String prefix = i18nResolver.getText("mabl.task.output.prefix");
+        template = prefix+template;
         return String.format(template, args);
     }
 }
