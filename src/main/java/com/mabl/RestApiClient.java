@@ -48,7 +48,7 @@ public class RestApiClient implements AutoCloseable {
     private final ObjectMapper objectMapper = new ObjectMapper();
     {
         objectMapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
         objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);

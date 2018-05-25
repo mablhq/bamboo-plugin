@@ -21,15 +21,6 @@
         <context>bambooPlugin</context>
     </web-resource>
 
-    <servlet name="Hello World Servlet" key="helloworld" class="com.mabl.FieldValueServlet">
-        <description>Says Hello World</description>
-        <url-pattern>/helloworld</url-pattern>
-        <init-param>
-            <param-name>defaultName</param-name>
-            <param-value>Australia</param-value>
-        </init-param>
-    </servlet>
-
    <servlet name="Configurator Servlet" key="configurator" class="com.mabl.ConfiguratorServlet">
        <description>Handles Ajax requests for the Configurator</description>
        <url-pattern>/configurator</url-pattern>
