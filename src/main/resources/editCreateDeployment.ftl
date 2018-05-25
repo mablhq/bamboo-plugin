@@ -1,4 +1,4 @@
-[@ww.textfield labelKey="createdeployment.restApiKey.label" name="restApiKey" required='true' onchange="helloworld(event)" /]
+[@ww.textfield labelKey="createdeployment.restApiKey.label" name="restApiKey" required='true' onchange="populateDropdowns(event)" /]
 
 [@s.select
     updateOn=restApiKey
@@ -6,6 +6,7 @@
     name="environmentId"
     list="environmentsList"
     required="false"
+    emptyOption="true"
 /]
 [@s.select
     showOn=restApiKey
@@ -13,33 +14,38 @@
     name="applicationId"
     list="applicationsList"
     required="false"
+    emptyOption="true"
 /]
 
 <script type="text/javascript">
-    function helloworld(event) {
+    function populateDropdowns(event) {
         var getData = {"ACTION" : "environments",  "restApiKey" : event.target.value };
         var url = "/bamboo/plugins/servlet/configurator";
         AJS.$.get(url, getData, function(data) {
-            helpers.buildDropdown(data, AJS.$('#environmentId'), 'Select an Environment');
+            helpers.buildDropdown(data, AJS.$('#environmentId'), 'Select Environment');
         })
-        .fail(function(data){console.log(data);})
+        .fail(helpers.clearDropdown(AJS.$('#environmentId'), ''));
 
         getData = {"ACTION" : "applications",  "restApiKey" : event.target.value };
         AJS.$.get(url, getData, function(data) {
-            helpers.buildDropdown(data, AJS.$('#applicationId'), 'Select an Application');
+            helpers.buildDropdown(data, AJS.$('#applicationId'), 'Select Application');
         })
-        .fail(function(data){console.log(data);})
+        .fail(helpers.clearDropdown(AJS.$('#applicationId'), ''));
     }
 
 var helpers =
 {
-    buildDropdown: function(result, dropdown, emptyMessage)
-    {
-        console.log("inside buildDropown");
+
+    clearDropdown: function(dropdown, emptyMessage) {
         // Remove current options
         dropdown.html('');
         // Add the empty option with the empty message
         dropdown.append('<option value="">' + emptyMessage + '</option>');
+    },
+
+    buildDropdown: function(result, dropdown, emptyMessage)
+    {
+        helpers.clearDropdown(dropdown, emptyMessage);
         // Check result isnt empty
         if(result != '')
         {

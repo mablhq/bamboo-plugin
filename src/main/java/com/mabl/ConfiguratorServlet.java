@@ -1,5 +1,7 @@
 package com.mabl;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mabl.domain.GetApiKeyResult;
 import com.mabl.domain.GetApplicationsResult;
@@ -37,9 +39,9 @@ public class ConfiguratorServlet extends HttpServlet {
         try {
             GetApiKeyResult getApiKeyResult = apiClient.getApiKeyResult(apiClient.getRestApiKey());
             GetEnvironmentsResult getEnvironmentsResult = apiClient.getEnvironmentsResult(getApiKeyResult.organization_id);
-            response.getWriter().write(objectMapper.writeValueAsString(getEnvironmentsResult.environments));
-        } catch (IOException | RuntimeException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            writeToWriter(response, objectMapper.writeValueAsString(getEnvironmentsResult.environments));
+        } catch (JsonProcessingException | RuntimeException e) {
+           writeToWriter(response, "[]");
         }
     }
 
@@ -47,8 +49,16 @@ public class ConfiguratorServlet extends HttpServlet {
         try {
             GetApiKeyResult getApiKeyResult = apiClient.getApiKeyResult(apiClient.getRestApiKey());
             GetApplicationsResult getApplicationsResult = apiClient.getApplicationsResult(getApiKeyResult.organization_id);
-            response.getWriter().write(objectMapper.writeValueAsString(getApplicationsResult.applications));
-        } catch (IOException | RuntimeException e) {
+            writeToWriter(response, objectMapper.writeValueAsString(getApplicationsResult.applications));
+        } catch (JsonProcessingException | RuntimeException e) {
+            writeToWriter(response, "[]");
+        }
+    }
+
+    private void writeToWriter(HttpServletResponse response, String message) {
+        try {
+            response.getWriter().write(message);
+        } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }

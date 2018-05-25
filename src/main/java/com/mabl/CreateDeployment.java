@@ -12,8 +12,6 @@ import com.mabl.domain.CreateDeploymentResult;
 import com.mabl.domain.ExecutionResult;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-
 @Scanned
 public class CreateDeployment implements TaskType {
     private I18nResolver i18nResolver;
@@ -74,7 +72,7 @@ public class CreateDeployment implements TaskType {
             final String successState = summary.success ? "SUCCEEDED" : "FAILED";
             if(summary.success) {
                 buildLogger.addBuildLogEntry(createLogLine(false,
-                        "\tPlan '%s' has %s with state '%s'",
+                        "Plan '%s' has %s with state '%s'",
                         safePlanName(summary),
                         successState,
                         summary.status
@@ -82,7 +80,7 @@ public class CreateDeployment implements TaskType {
             } else {
                 allPlansSuccess = false;
                 buildLogger.addErrorLogEntry(createLogLine(true,
-                        "\tPlan '%s' has %s with state '%s'",
+                        "Plan '%s' has %s with state '%s'",
                         safePlanName(summary),
                         successState,
                         summary.status
@@ -103,6 +101,9 @@ public class CreateDeployment implements TaskType {
 
     private void logAllJourneyExecutionStatuses(final ExecutionResult result, final BuildLogger buildLogger) {
         buildLogger.addBuildLogEntry(createLogLine(false, "Running Mabl journey(s) status update:"));
+        if(result.executions.size() == 0) {
+            buildLogger.addErrorLogEntry(createLogLine(true, "No executions exists for this plan."));
+        }
         for (ExecutionResult.ExecutionSummary summary : result.executions) {
             logPlanExecutionStatuses(summary, buildLogger);
         }
@@ -113,13 +114,13 @@ public class CreateDeployment implements TaskType {
             final BuildLogger buildLogger
     ) {
         buildLogger.addBuildLogEntry(createLogLine(false,
-                "\tPlan '%s' is in state '%s'",
+                "Plan '%s' is in state '%s'",
                 safePlanName(planSummary),
                 planSummary.status
         ));
         for (ExecutionResult.JourneyExecutionResult journeyResult : planSummary.journeyExecutions) {
             buildLogger.addBuildLogEntry(createLogLine(false,
-                    "\t\tJourney '%s' is in state '%s'",
+                    "Journey '%s' is in state '%s'",
                     safeJourneyName(planSummary, journeyResult.id),
                     journeyResult.status
             ));
