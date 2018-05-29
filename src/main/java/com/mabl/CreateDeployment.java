@@ -1,6 +1,8 @@
 package com.mabl;
 
 import com.atlassian.bamboo.build.logger.BuildLogger;
+import com.atlassian.bamboo.build.test.TestCollationService;
+import com.atlassian.bamboo.build.test.TestReportProvider;
 import com.atlassian.bamboo.task.TaskContext;
 import com.atlassian.bamboo.task.TaskResult;
 import com.atlassian.bamboo.task.TaskResultBuilder;
@@ -14,16 +16,23 @@ import org.jetbrains.annotations.NotNull;
 
 @Scanned
 public class CreateDeployment implements TaskType {
-    private I18nResolver i18nResolver;
+    private final I18nResolver i18nResolver;
+    private final TestCollationService testCollationService;
 
-    public CreateDeployment(@ComponentImport I18nResolver i18nResolver) {
+    public CreateDeployment(
+            @ComponentImport I18nResolver i18nResolver,
+            @ComponentImport TestCollationService testCollationService
+    ) {
         this.i18nResolver = i18nResolver;
+        this.testCollationService = testCollationService;
     }
 
     @NotNull
     @Override
     public TaskResult execute(@NotNull TaskContext taskContext) {
         final BuildLogger buildLogger = taskContext.getBuildLogger();
+        final TaskResultBuilder taskResultBuilder = TaskResultBuilder.newBuilder(taskContext);
+        final MablOutputProvider mablOutputProvider = new MablOutputProvider();
         final String formApiKey = taskContext.getConfigurationMap().get("restApiKey");
         final String environmentId = taskContext.getConfigurationMap().get("environmentId");
         final String applicationId = taskContext.getConfigurationMap().get("applicationId");
@@ -44,7 +53,7 @@ public class CreateDeployment implements TaskType {
                             deployment.id
                     ));
 
-                    return TaskResultBuilder.newBuilder(taskContext).failed().build();
+                    return taskResultBuilder.failed().build();
                 }
 
                 logAllJourneyExecutionStatuses(executionResult, buildLogger);
@@ -53,19 +62,24 @@ public class CreateDeployment implements TaskType {
 
         } catch (RuntimeException | InterruptedException e) {
             buildLogger.addErrorLogEntry(createLogLine(true, "Task Execution Exception: '%s'", e.getMessage()));
-            return TaskResultBuilder.newBuilder(taskContext).failed().build();
+            return taskResultBuilder.failed().build();
         }
 
-        if (!finalOutputStatusAllSuccesses(executionResult, buildLogger)) {
+        if (!finalOutputStatusAllSuccesses(executionResult, buildLogger, mablOutputProvider)) {
             buildLogger.addErrorLogEntry(createLogLine(true, "One or more plans were unsuccessful"));
-            return TaskResultBuilder.newBuilder(taskContext).failed().build();
+        } else {
+            buildLogger.addBuildLogEntry(createLogLine(false, "All plans were successful."));
         }
 
-        buildLogger.addBuildLogEntry(createLogLine(false, "All plans were successful."));
-        return TaskResultBuilder.newBuilder(taskContext).success().build();
+        testCollationService.collateTestResults(taskContext, mablOutputProvider);
+        return taskResultBuilder.checkTestFailures().build();
     }
 
-    private boolean finalOutputStatusAllSuccesses(final ExecutionResult result, final BuildLogger buildLogger) {
+    private boolean finalOutputStatusAllSuccesses(
+            final ExecutionResult result,
+            final BuildLogger buildLogger,
+            final MablOutputProvider outputProvider
+    ) {
         boolean allPlansSuccess = true;
         buildLogger.addBuildLogEntry(createLogLine(false, "The final Plan states in Mabl:"));
         for (ExecutionResult.ExecutionSummary summary : result.executions) {
@@ -85,6 +99,15 @@ public class CreateDeployment implements TaskType {
                         successState,
                         summary.status
                 ));
+            }
+
+            for(ExecutionResult.JourneyExecutionResult journeyResult : summary.journeyExecutions) {
+                long duration = summary.stopTime-summary.startTime;
+                if(journeyResult.success) {
+                    outputProvider.addSuccess(safePlanName(summary), safeJourneyName(summary, journeyResult.id), duration);
+                } else {
+                    outputProvider.addFailure(safePlanName(summary), safeJourneyName(summary, journeyResult.id), duration);
+                }
             }
         }
 
