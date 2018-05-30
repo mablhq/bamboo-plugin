@@ -24,6 +24,7 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
     }
 
     @Override
+    @NotNull
     public Map<String, String> generateTaskConfigMap(
             @NotNull final ActionParametersMap params,
             @Nullable final TaskDefinition previousTaskDefinition

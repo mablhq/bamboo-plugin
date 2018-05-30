@@ -11,7 +11,7 @@ import java.util.jar.Manifest;
 /**
  * mabl custom build step
  */
-public class MablConstants {
+class MablConstants {
 
     // CreateDeployment constants
     static final Set<String> COMPLETE_STATUSES = ImmutableSet.of(
