@@ -19,7 +19,7 @@
         <connection>scm:git:git@github.com:mablhq/bamboo-plugin.git</connection>
     </scm>
 
-    <name>bamboo-plugin</name>
+    <name>mabl deployment</name>
     <description>This is the mabl plugin for Atlassian Bamboo.</description>
     <packaging>atlassian-plugin</packaging>
 
