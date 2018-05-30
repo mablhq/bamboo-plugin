@@ -79,23 +79,8 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
 
         final String environmentIdValue = params.getString("environmentId");
         final String environmentIdLabel = getLabel("environmentId");
-        if(!environmentIdIsValid(environmentIdValue)) {
-            errorCollection.addError("environmentId", String.format(
-                    "The entered '%s' is invalid. %s",
-                    environmentIdLabel,
-                    i18nResolver.getText("createdeployment.environmentId.hint"))
-            );
-
-        }
         final String applicationIdValue = params.getString("applicationId");
         final String applicationIdLabel = getLabel("applicationId");
-        if(!applicationIdIsValid(applicationIdValue)) {
-            errorCollection.addError("applicationId", String.format(
-                    "The entered '%s' is invalid. %s",
-                    applicationIdLabel,
-                    i18nResolver.getText("createdeployment.applicationId.hint"))
-            );
-        }
 
         if(isEmpty(environmentIdValue) && isEmpty(applicationIdValue)) {
             String error = String.format("One of '%s' or '%s' is required.", environmentIdLabel, applicationIdLabel);
@@ -139,14 +124,6 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
         } catch (RuntimeException e) {
             return false;
         }
-    }
-
-    private boolean environmentIdIsValid(String environmentId) {
-        return isEmpty(environmentId) || endsWith(environmentId, "-e");
-    }
-
-    private boolean applicationIdIsValid(String applicationId) {
-        return isEmpty(applicationId) || endsWith(applicationId, "-a");
     }
 
     private String getLabel(String key) {
