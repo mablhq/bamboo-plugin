@@ -6,16 +6,16 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mabl.bamboo</groupId>
-    <artifactId>bambooPlugin</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <artifactId>bamboo-plugin</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
 
     <organization>
-        <name>Mabl</name>
-        <url>http://www.mabl.com/</url>
+        <name>mabl</name>
+        <url>https://www.mabl.com/</url>
     </organization>
 
-    <name>bambooPlugin</name>
-    <description>This is the com.mabl.bamboo:bambooPlugin plugin for Atlassian Bamboo.</description>
+    <name>bamboo-plugin</name>
+    <description>This is the mabl plugin for Atlassian Bamboo.</description>
     <packaging>atlassian-plugin</packaging>
 
     <properties>
