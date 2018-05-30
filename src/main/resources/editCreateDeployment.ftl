@@ -1,4 +1,4 @@
-[@ww.textfield labelKey="createdeployment.restApiKey.label" name="restApiKey" required='true' onchange="populateDropdowns(event)" /]
+[@ww.password labelKey="createdeployment.restApiKey.label" name="restApiKey" required='true' onchange="populateDropdowns(event)" /]
 
 [@s.select
     updateOn=restApiKey
