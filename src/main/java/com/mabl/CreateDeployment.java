@@ -12,6 +12,8 @@ import com.mabl.domain.CreateDeploymentResult;
 import com.mabl.domain.ExecutionResult;
 import org.jetbrains.annotations.NotNull;
 
+import static org.apache.commons.lang.StringUtils.isEmpty;
+
 @Scanned
 public class CreateDeployment implements TaskType {
     private I18nResolver i18nResolver;
@@ -40,7 +42,7 @@ public class CreateDeployment implements TaskType {
 
                 if (executionResult == null) {
                     buildLogger.addErrorLogEntry(createLogLine(true,
-                            "No deployment event found for id '%s' in Mabl.",
+                            "No deployment event found for id '%s' in mabl.",
                             deployment.id
                     ));
 
@@ -52,6 +54,7 @@ public class CreateDeployment implements TaskType {
             } while (!allPlansComplete(executionResult));
 
         } catch (RuntimeException | InterruptedException e) {
+            Thread.currentThread().interrupt();
             buildLogger.addErrorLogEntry(createLogLine(true, "Task Execution Exception: '%s'", e.getMessage()));
             return TaskResultBuilder.newBuilder(taskContext).failed().build();
         }
@@ -67,7 +70,7 @@ public class CreateDeployment implements TaskType {
 
     private boolean finalOutputStatusAllSuccesses(final ExecutionResult result, final BuildLogger buildLogger) {
         boolean allPlansSuccess = true;
-        buildLogger.addBuildLogEntry(createLogLine(false, "The final Plan states in Mabl:"));
+        buildLogger.addBuildLogEntry(createLogLine(false, "The final Plan states in mabl:"));
         for (ExecutionResult.ExecutionSummary summary : result.executions) {
             final String successState = summary.success ? "SUCCEEDED" : "FAILED";
             if(summary.success) {
@@ -100,7 +103,7 @@ public class CreateDeployment implements TaskType {
     }
 
     private void logAllJourneyExecutionStatuses(final ExecutionResult result, final BuildLogger buildLogger) {
-        buildLogger.addBuildLogEntry(createLogLine(false, "Running Mabl journey(s) status update:"));
+        buildLogger.addBuildLogEntry(createLogLine(false, "Running mabl journey(s) status update:"));
         if(result.executions.size() == 0) {
             buildLogger.addErrorLogEntry(createLogLine(true, "No executions exists for this plan."));
         }
@@ -129,11 +132,7 @@ public class CreateDeployment implements TaskType {
 
     private String safePlanName(final ExecutionResult.ExecutionSummary summary) {
         // Defensive treatment of possibly malformed future payloads
-        return summary.plan != null &&
-                summary.plan.name != null &&
-                !summary.plan.name.isEmpty()
-                ? summary.plan.name :
-                "<Unnamed Plan>";
+        return summary.plan != null && !isEmpty(summary.plan.name) ? summary.plan.name : "<Unnamed Plan>";
     }
 
     private String safeJourneyName(
