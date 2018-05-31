@@ -4,6 +4,7 @@ import com.atlassian.bamboo.collections.ActionParametersMap;
 import com.atlassian.bamboo.task.AbstractTaskConfigurator;
 import com.atlassian.bamboo.task.TaskDefinition;
 import com.atlassian.bamboo.utils.error.ErrorCollection;
+import com.atlassian.extras.common.log.Logger;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.message.I18nResolver;
@@ -21,6 +22,7 @@ import static org.apache.commons.lang.StringUtils.endsWith;
 @Scanned
 public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
     private I18nResolver i18nResolver;
+    private final Logger.Log log = Logger.getInstance(this.getClass());
 
     public CreateDeploymentConfigurator(@ComponentImport I18nResolver i18nResolver) {
         this.i18nResolver = i18nResolver;
@@ -113,23 +115,25 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
                 envMap.put(environment.id, environment.name);
             }
         } catch (RuntimeException e) {
+            log.error(String.format("Unexpected results trying to fetch EnvironmentsList: Reason '%s'", e.getMessage()));
         }
 
         return envMap;
     }
 
     public Map<String, String> getApplicationsList(String restApiKey) {
-        Map<String, String> envMap = new HashMap<>();
+        Map<String, String> appMap = new HashMap<>();
         try(RestApiClient apiClient = new RestApiClient(MablConstants.MABL_REST_API_BASE_URL, restApiKey)) {
             String organizationId = apiClient.getApiKeyResult(restApiKey).organization_id;
             GetApplicationsResult results = apiClient.getApplicationsResult(organizationId);
             for(GetApplicationsResult.Application application: results.applications) {
-                envMap.put(application.id, application.name);
+                appMap.put(application.id, application.name);
             }
         } catch (RuntimeException e) {
+            log.error(String.format("Unexpected results trying to fetch ApplicationsList: Reason '%s'", e.getMessage()));
         }
 
-        return envMap;
+        return appMap;
     }
 
     private boolean restApiKeyIsValid(String restApiKey) {
@@ -137,6 +141,7 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
             String organizationId = apiClient.getApiKeyResult(restApiKey).organization_id;
             return !isEmpty(organizationId ) && endsWith(organizationId, "-w");
         } catch (RuntimeException e) {
+            log.error(String.format("Unexpected results trying to validate ApiKey: Reason '%s'", e.getMessage()));
             return false;
         }
     }

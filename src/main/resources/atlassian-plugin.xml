@@ -26,8 +26,8 @@
        <url-pattern>/configurator</url-pattern>
    </servlet>
 
-    <taskType key="createdeployment" name="A Mabl Deployment" class="com.mabl.CreateDeployment">
-        <description>Launch Mabl test plan executions</description>
+    <taskType key="createdeployment" name="A mabl Deployment" class="com.mabl.CreateDeployment">
+        <description>Launch mabl test plan executions</description>
         <help link="mabl.task.help.link" title="mabl.task.help.title" />
         <configuration class="com.mabl.CreateDeploymentConfigurator"/>
         <resource type="freemarker" name="edit" location="editCreateDeployment.ftl"/>

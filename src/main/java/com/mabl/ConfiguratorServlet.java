@@ -1,6 +1,6 @@
 package com.mabl;
 
-import com.fasterxml.jackson.core.JsonParseException;
+import com.atlassian.extras.common.log.Logger;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mabl.domain.GetApiKeyResult;
@@ -14,7 +14,8 @@ import java.io.IOException;
 
 public class ConfiguratorServlet extends HttpServlet {
 
-    ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private final Logger.Log log = Logger.getInstance(this.getClass());
 
     @Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) {
@@ -41,7 +42,8 @@ public class ConfiguratorServlet extends HttpServlet {
             GetEnvironmentsResult getEnvironmentsResult = apiClient.getEnvironmentsResult(getApiKeyResult.organization_id);
             writeToWriter(response, objectMapper.writeValueAsString(getEnvironmentsResult.environments));
         } catch (JsonProcessingException | RuntimeException e) {
-           writeToWriter(response, "[]");
+            log.error(String.format("Unexpected status returned from doGetEnvironments: Reason '%s'", e.getMessage()));
+            writeToWriter(response, "[]");
         }
     }
 
@@ -51,6 +53,7 @@ public class ConfiguratorServlet extends HttpServlet {
             GetApplicationsResult getApplicationsResult = apiClient.getApplicationsResult(getApiKeyResult.organization_id);
             writeToWriter(response, objectMapper.writeValueAsString(getApplicationsResult.applications));
         } catch (JsonProcessingException | RuntimeException e) {
+            log.error(String.format("Unexpected status returned from doGetApplications: Reason '%s'", e.getMessage()));
             writeToWriter(response, "[]");
         }
     }

@@ -1,8 +1,8 @@
-[@ww.password labelKey="createdeployment.restApiKey.label" name="restApiKey" required='true' onchange="populateDropdowns(event)" /]
+[@ww.password showPassword="true" labelKey="createdeployment.restApiKey.label" name="restApiKey" required="true" onchange="populateDropdowns(event)" /]
 
 [@s.select
     updateOn=restApiKey
-    labelKey='createdeployment.environmentId.label'
+    labelKey="createdeployment.environmentId.label"
     name="environmentId"
     list="environmentsList"
     required="false"
@@ -10,7 +10,7 @@
 /]
 [@s.select
     showOn=restApiKey
-    labelKey='createdeployment.applicationId.label'
+    labelKey="createdeployment.applicationId.label"
     name="applicationId"
     list="applicationsList"
     required="false"
@@ -19,18 +19,18 @@
 
 <script type="text/javascript">
     function populateDropdowns(event) {
-        var getData = {"ACTION" : "environments",  "restApiKey" : event.target.value };
+        var getEnvData = {ACTION : "environments",  restApiKey : event.target.value };
         var url = "/bamboo/plugins/servlet/configurator";
-        AJS.$.get(url, getData, function(data) {
-            helpers.buildDropdown(data, AJS.$('#environmentId'), 'Select Environment');
+        AJS.$.get(url, getEnvData, function(data) {
+            helpers.buildDropdown(data, AJS.$("#environmentId"), "Select Environment");
         })
-        .fail(helpers.clearDropdown(AJS.$('#environmentId'), ''));
+        .fail(helpers.clearDropdown(AJS.$("#environmentId"), ""));
 
-        getData = {"ACTION" : "applications",  "restApiKey" : event.target.value };
-        AJS.$.get(url, getData, function(data) {
-            helpers.buildDropdown(data, AJS.$('#applicationId'), 'Select Application');
+        var getAppData = {ACTION : "applications",  restApiKey : event.target.value };
+        AJS.$.get(url, getAppData, function(data) {
+            helpers.buildDropdown(data, AJS.$("#applicationId"), "Select Application");
         })
-        .fail(helpers.clearDropdown(AJS.$('#applicationId'), ''));
+        .fail(helpers.clearDropdown(AJS.$("#applicationId"), ""));
     }
 
 var helpers =
@@ -38,7 +38,7 @@ var helpers =
 
     clearDropdown: function(dropdown, emptyMessage) {
         // Remove current options
-        dropdown.html('');
+        dropdown.html("");
         // Add the empty option with the empty message
         dropdown.append('<option value="">' + emptyMessage + '</option>');
     },
@@ -46,8 +46,8 @@ var helpers =
     buildDropdown: function(result, dropdown, emptyMessage)
     {
         helpers.clearDropdown(dropdown, emptyMessage);
-        // Check result isnt empty
-        if(result != '')
+        // Check result isn't empty
+        if(result !== "")
         {
             // Loop through each of the results and append the option to the dropdown
             AJS.$.each(result, function(k, v) {
