@@ -1,17 +1,21 @@
-[@ww.password showPassword="true" labelKey="createdeployment.restApiKey.label" name="restApiKey" required="true" onchange="populateDropdowns(event)" /]
+[@ww.password
+    showPassword="true"
+    labelKey="createdeployment.restapikey.label"
+    name="mablRestApiKey"
+    required="true"
+    onchange="populateDropdowns(event)"
+/]
 
 [@s.select
-    updateOn=restApiKey
-    labelKey="createdeployment.environmentId.label"
-    name="environmentId"
+    labelKey="createdeployment.environmentid.label"
+    name="mablEnvironmentId"
     list="environmentsList"
     required="false"
     emptyOption="true"
 /]
 [@s.select
-    showOn=restApiKey
-    labelKey="createdeployment.applicationId.label"
-    name="applicationId"
+    labelKey="createdeployment.applicationid.label"
+    name="mablApplicationId"
     list="applicationsList"
     required="false"
     emptyOption="true"
@@ -22,15 +26,15 @@
         var getEnvData = {ACTION : "environments",  restApiKey : event.target.value };
         var url = "/bamboo/plugins/servlet/configurator";
         AJS.$.get(url, getEnvData, function(data) {
-            helpers.buildDropdown(data, AJS.$("#environmentId"), "Select Environment");
+            helpers.buildDropdown(data, AJS.$("#mablEnvironmentId"), "Select Environment");
         })
-        .fail(helpers.clearDropdown(AJS.$("#environmentId"), ""));
+        .fail(helpers.clearDropdown(AJS.$(), "#mablEnvironmentId"));
 
         var getAppData = {ACTION : "applications",  restApiKey : event.target.value };
         AJS.$.get(url, getAppData, function(data) {
-            helpers.buildDropdown(data, AJS.$("#applicationId"), "Select Application");
+            helpers.buildDropdown(data, AJS.$("#mablApplicationId"), "Select Application");
         })
-        .fail(helpers.clearDropdown(AJS.$("#applicationId"), ""));
+        .fail(helpers.clearDropdown(AJS.$("#mablApplicationId"), ""));
     }
 
 var helpers =

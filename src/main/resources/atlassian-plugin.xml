@@ -9,6 +9,7 @@
 
     <!-- add our i18n resource -->
     <resource type="i18n" name="i18n" location="i18n"/>
+
     
     <!-- add our web resources -->
     <web-resource key="bambooPlugin-resources" name="bambooPlugin Web Resources">
