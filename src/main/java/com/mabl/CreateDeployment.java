@@ -19,6 +19,7 @@ import static com.mabl.MablConstants.EXECUTION_STATUS_POLLING_INTERNAL_MILLISECO
 import static com.mabl.MablConstants.MABL_LOG_OUTPUT_PREFIX;
 import static com.mabl.MablConstants.MABL_REST_API_BASE_URL;
 import static com.mabl.MablConstants.REST_API_KEY_FIELD;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 @Scanned
 public class CreateDeployment implements TaskType {
@@ -64,6 +65,7 @@ public class CreateDeployment implements TaskType {
             } while (!allPlansComplete(executionResult));
 
         } catch (RuntimeException | InterruptedException e) {
+            Thread.currentThread().interrupt();
             buildLogger.addErrorLogEntry(createLogErrorLine("Task Execution Exception: '%s'", e.getMessage()));
             return taskResultBuilder.failed().build();
         }
@@ -155,11 +157,7 @@ public class CreateDeployment implements TaskType {
 
     private String safePlanName(final ExecutionResult.ExecutionSummary summary) {
         // Defensive treatment of possibly malformed future payloads
-        return summary.plan != null &&
-                summary.plan.name != null &&
-                !summary.plan.name.isEmpty()
-                ? summary.plan.name :
-                "<Unnamed Plan>";
+        return summary.plan != null && !isEmpty(summary.plan.name) ? summary.plan.name : "<Unnamed Plan>";
     }
 
     private String safeJourneyName(
