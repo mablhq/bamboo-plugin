@@ -7,14 +7,19 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mabl.bamboo</groupId>
     <artifactId>bamboo-plugin</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
 
     <organization>
         <name>mabl</name>
         <url>https://www.mabl.com/</url>
     </organization>
 
-    <name>bamboo-plugin</name>
+    <scm>
+        <url>https://github.com/mablhq/bamboo-plugin.git</url>
+        <connection>scm:git:git@github.com:mablhq/bamboo-plugin.git</connection>
+    </scm>
+
+    <name>mabl deployment</name>
     <description>This is the mabl plugin for Atlassian Bamboo.</description>
     <packaging>atlassian-plugin</packaging>
 

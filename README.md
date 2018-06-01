@@ -27,3 +27,8 @@ Install the [Atlassian SDK](https://developer.atlassian.com/server/framework/atl
   ```
 ### IDE setup
 You'll need to [follow here](https://community.developer.atlassian.com/t/configure-idea-to-use-the-sdk/10610) to setup your IDE to use atlas-mvn
+
+### Deployment
+1. Merge code into master and push
+2. Run `atlas-mvn release:prepare`
+3. Upload the resulting `target/bamboo-plugin-$VERSION.jar` to the [atlassian marketplace](https://marketplace.atlassian.com/manage/apps/1219102/versions)
