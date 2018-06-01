@@ -9,6 +9,7 @@
 
     <!-- add our i18n resource -->
     <resource type="i18n" name="i18n" location="i18n"/>
+
     
     <!-- add our web resources -->
     <web-resource key="bambooPlugin-resources" name="bambooPlugin Web Resources">
@@ -21,7 +22,12 @@
         <context>bambooPlugin</context>
     </web-resource>
 
-    <taskType key="createdeployment" name="mabl Deployment" class="com.mabl.CreateDeployment">
+   <servlet name="Configurator Servlet" key="configurator" class="com.mabl.ConfiguratorServlet">
+       <description>Handles Ajax requests for the Configurator</description>
+       <url-pattern>/configurator</url-pattern>
+   </servlet>
+
+    <taskType key="createdeployment" name="A mabl Deployment" class="com.mabl.CreateDeployment">
         <description>Launch mabl test plan executions</description>
         <help link="mabl.task.help.link" title="mabl.task.help.title" />
         <configuration class="com.mabl.CreateDeploymentConfigurator"/>
