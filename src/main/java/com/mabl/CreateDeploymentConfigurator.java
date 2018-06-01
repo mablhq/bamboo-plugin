@@ -78,7 +78,6 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
     ) {
         super.validate(params, errorCollection);
 
-
         final String restApiKeyValue = params.getString(REST_API_KEY_FIELD);
         final String restApiKeyLabel = getLabel(REST_API_KEY_LABEL_PROPERTY);
         if(isEmpty(restApiKeyValue)) {

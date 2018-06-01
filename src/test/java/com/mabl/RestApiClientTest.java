@@ -190,17 +190,21 @@ public class RestApiClientTest extends AbstractWiremockTest {
         assertEquals(1, result.environments.size());
     }
 
-
-
     @Test(expected = RuntimeException.class)
-    public void apiClientDoesntRetryOn503() {
-        registerPostCreateRetryMappings("/events/deployment", "503", 503, 1);
+    public void apiClientDoesntRetryOn500() {
+        registerPostCreateRetryMappings("/events/deployment", "500", 500, 1);
         assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId);
     }
 
     @Test
     public void apiClientRetriesOn501() {
         registerPostCreateRetryMappings("/events/deployment", "501", 501, 1);
+        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId);
+    }
+
+    @Test
+    public void apiClientDoesRetryOn503() {
+        registerPostCreateRetryMappings("/events/deployment", "503", 503, 1);
         assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId);
     }
 
