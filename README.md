@@ -32,3 +32,6 @@ You'll need to [follow here](https://community.developer.atlassian.com/t/configu
 1. Merge code into master and push
 2. Run `atlas-mvn release:prepare`
 3. Upload the resulting `target/bamboo-plugin-$VERSION.jar` to the [atlassian marketplace](https://marketplace.atlassian.com/manage/apps/1219102/versions)
+
+Making these updates will require being added as an admin to the mablhq vendor account. 
+Create an Atlassian user account and have one of the mablhq admins add you as an admin.
