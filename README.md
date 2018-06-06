@@ -1,12 +1,15 @@
-# bamboo-plugin
-A mabl bamboo plugin
+![mabl logo](https://avatars3.githubusercontent.com/u/25963599?s=100&v=4)
+# mabl Bamboo Plugin
+
+This plugin allows easy launching of [mabl](https://www.mabl.com) journeys as a step in your Bamboo build. Your Bamboo build success or failure will be dependant on the success or failure of your mabl test deployment event.
 
 ## Using
-1. From any plan's 'Configre tasks' page, add a new task.
+1. From any plan's 'Configre tasks' page, add a new task
 2. Select the 'Mabl Deployment' task
-3. Input the ApiKey, EnvironmentId, and ApplicationId for your deployment
+3. Input the ApiKey and unselect the field, this will populate the Environment and Application drop-downs
+4. Select at least 1 environment or application to proceed
 4. Hit Save
-5. Enable the task and the plan.
+5. Enable the task and the plan
 
 <img src="https://github.com/mablhq/bamboo-plugin/raw/master/src/main/resources/images/BambooTaskSelectionV1.png" alt="Select Mabl Deployment" width="40%"/>
 <img src="https://github.com/mablhq/bamboo-plugin/raw/master/src/main/resources/images/BambooTaskConfigurationV1.png" alt="Input Configuration" width="40%"/>
@@ -15,7 +18,10 @@ Now builds from this plan will trigger Mabl test plan executions of the chosen c
 
 ## Installation
 
-### Installing Locally
+### From the marketplace
+See the [Atlassian Docs](https://marketplace.atlassian.com/apps/1219102/mabl-deployment?hosting=server&tab=installation) about installing from the marketplace.
+
+### Building from source
 Install the [Atlassian SDK](https://developer.atlassian.com/server/framework/atlassian-sdk/set-up-the-atlassian-plugin-sdk-and-build-a-project/)
 1. Clone this repo && cd into it
 2. Build this repo by running `atlas-mvn package`
@@ -33,5 +39,5 @@ You'll need to [follow here](https://community.developer.atlassian.com/t/configu
 2. Run `atlas-mvn release:prepare`
 3. Upload the resulting `target/bamboo-plugin-$VERSION.jar` to the [atlassian marketplace](https://marketplace.atlassian.com/manage/apps/1219102/versions)
 
-Making these updates will require being added as an admin to the mablhq vendor account. 
-Create an Atlassian user account and have one of the mablhq admins add you as an admin.
+Uploading will require an admin to the mablhq Atlassian vendor account. 
+  
