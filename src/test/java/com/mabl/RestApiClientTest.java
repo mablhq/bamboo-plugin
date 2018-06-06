@@ -10,6 +10,8 @@ import com.mabl.domain.GetApplicationsResult;
 import com.mabl.domain.GetEnvironmentsResult;
 import org.junit.Test;
 
+import java.util.HashMap;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -61,7 +63,7 @@ public class RestApiClientTest extends AbstractWiremockTest {
 
     @Test
     public void createDeploymentAllParametersHappyPathTest() {
-        final String expectedBody = "{\"environment_id\":\""+fakeEnvironmentId+"\",\"application_id\":\""+fakeApplicationId+"\"}";
+        final String expectedBody = "{\"environment_id\":\""+fakeEnvironmentId+"\",\"application_id\":\""+fakeApplicationId+"\",\"properties\":{\"source\":\"mabl-bamboo-plugin/unknown\"}}";
 
         registerPostMapping(
                 RestApiClient.DEPLOYMENT_TRIGGER_ENDPOINT,
@@ -76,7 +78,7 @@ public class RestApiClientTest extends AbstractWiremockTest {
 
     @Test
     public void createDeploymentOnlyEnvironmentIdHappyPathTest() {
-        final String expectedBody = "{\"environment_id\":\""+fakeEnvironmentId+"\"}";
+        final String expectedBody = "{\"environment_id\":\""+fakeEnvironmentId+"\",\"properties\":{\"source\":\"mabl-bamboo-plugin/unknown\"}}";
         final String nullApplicationId = null;
 
         registerPostMapping(
@@ -92,7 +94,7 @@ public class RestApiClientTest extends AbstractWiremockTest {
 
     @Test
     public void createDeploymentOnlyApplicationIdHappyPathTest() {
-        final String expectedBody = "{\"application_id\":\""+fakeApplicationId+"\"}";
+        final String expectedBody = "{\"application_id\":\""+fakeApplicationId+"\",\"properties\":{\"source\":\"mabl-bamboo-plugin/unknown\"}}";
         final String nullEnvironmentId = null;
 
         registerPostMapping(
@@ -108,7 +110,9 @@ public class RestApiClientTest extends AbstractWiremockTest {
 
     private void assertSuccessfulCreateDeploymentRequest(final String environmentId, final String applicationId) {
         RestApiClient client = new PartialRestApiClient(getBaseUrl(), fakeRestApiKey);
-        CreateDeploymentResult result = client.createDeploymentEvent(environmentId, applicationId);
+        HashMap<String, String> properties = new HashMap<>();
+        properties.put("source", MablConstants.PLUGIN_USER_AGENT);
+        CreateDeploymentResult result = client.createDeploymentEvent(environmentId, applicationId, properties);
         assertEquals(MablTestConstants.EXPECTED_DEPLOYMENT_EVENT_ID, result.id);
 
         verifyExpectedUrls();
