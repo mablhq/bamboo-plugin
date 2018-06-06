@@ -11,7 +11,7 @@ This plugin allows easy launching of [mabl](https://www.mabl.com) journeys as a 
 4. Hit Save
 5. Enable the task and the plan
 
-<img src="https://github.com/mablhq/bamboo-plugin/raw/master/src/main/resources/images/BambooTaskSelectionV1.png" alt="Select Mabl Deployment" width="40%"/>
+<img src="https://github.com/mablhq/bamboo-plugin/raw/master/src/main/resources/images/BambooTaskSelectionV2.png" alt="Select Mabl Deployment" width="40%"/>
 <img src="https://github.com/mablhq/bamboo-plugin/raw/master/src/main/resources/images/BambooTaskConfigurationV2.png" alt="Input Configuration" width="40%"/>
 
 Now builds from this plan will trigger Mabl test plan executions of the chosen configuration.
