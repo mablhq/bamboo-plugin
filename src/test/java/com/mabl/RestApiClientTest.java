@@ -2,6 +2,7 @@ package com.mabl;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
+import com.mabl.domain.CreateDeploymentProperties;
 import com.mabl.domain.CreateDeploymentResult;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.mabl.domain.ExecutionResult;
@@ -63,7 +64,7 @@ public class RestApiClientTest extends AbstractWiremockTest {
 
     @Test
     public void createDeploymentAllParametersHappyPathTest() {
-        final String expectedBody = "{\"environment_id\":\""+fakeEnvironmentId+"\",\"application_id\":\""+fakeApplicationId+"\",\"properties\":{\"source\":\"mabl-bamboo-plugin/unknown\"}}";
+        final String expectedBody = "{\"environment_id\":\""+fakeEnvironmentId+"\",\"application_id\":\""+fakeApplicationId+"\",\"properties\":{\"deployment_source\":\"mabl-bamboo-plugin/unknown\"}}";
 
         registerPostMapping(
                 RestApiClient.DEPLOYMENT_TRIGGER_ENDPOINT,
@@ -78,7 +79,7 @@ public class RestApiClientTest extends AbstractWiremockTest {
 
     @Test
     public void createDeploymentOnlyEnvironmentIdHappyPathTest() {
-        final String expectedBody = "{\"environment_id\":\""+fakeEnvironmentId+"\",\"properties\":{\"source\":\"mabl-bamboo-plugin/unknown\"}}";
+        final String expectedBody = "{\"environment_id\":\""+fakeEnvironmentId+"\",\"properties\":{\"deployment_source\":\"mabl-bamboo-plugin/unknown\"}}";
         final String nullApplicationId = null;
 
         registerPostMapping(
@@ -94,7 +95,7 @@ public class RestApiClientTest extends AbstractWiremockTest {
 
     @Test
     public void createDeploymentOnlyApplicationIdHappyPathTest() {
-        final String expectedBody = "{\"application_id\":\""+fakeApplicationId+"\",\"properties\":{\"source\":\"mabl-bamboo-plugin/unknown\"}}";
+        final String expectedBody = "{\"application_id\":\""+fakeApplicationId+"\",\"properties\":{\"deployment_source\":\"mabl-bamboo-plugin/unknown\"}}";
         final String nullEnvironmentId = null;
 
         registerPostMapping(
@@ -110,8 +111,8 @@ public class RestApiClientTest extends AbstractWiremockTest {
 
     private void assertSuccessfulCreateDeploymentRequest(final String environmentId, final String applicationId) {
         RestApiClient client = new PartialRestApiClient(getBaseUrl(), fakeRestApiKey);
-        HashMap<String, String> properties = new HashMap<>();
-        properties.put("source", MablConstants.PLUGIN_USER_AGENT);
+        CreateDeploymentProperties properties = new CreateDeploymentProperties();
+        properties.setDeploymentSource(MablConstants.PLUGIN_USER_AGENT);
         CreateDeploymentResult result = client.createDeploymentEvent(environmentId, applicationId, properties);
         assertEquals(MablTestConstants.EXPECTED_DEPLOYMENT_EVENT_ID, result.id);
 

@@ -6,12 +6,12 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.atlassian.extras.common.log.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mabl.domain.CreateDeploymentProperties;
 import com.mabl.domain.CreateDeploymentResult;
 import com.mabl.domain.CreateDeploymentPayload;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 import com.mabl.domain.ExecutionResult;
@@ -76,7 +76,7 @@ public class RestApiClient implements AutoCloseable {
     public CreateDeploymentResult createDeploymentEvent(
             final String environmentId,
             final String applicationId,
-            final HashMap<String, String> properties) {
+            final CreateDeploymentProperties properties) {
         final HttpPost request = new HttpPost(restApiBaseUrl + DEPLOYMENT_TRIGGER_ENDPOINT);
         request.setEntity(getCreateDeplotmentPayloadEntity(environmentId, applicationId, properties));
         request.addHeader(getBasicAuthHeader(restApiKey));
@@ -142,7 +142,7 @@ public class RestApiClient implements AutoCloseable {
     private AbstractHttpEntity getCreateDeplotmentPayloadEntity(
             String environmentId,
             String applicationId,
-            HashMap<String, String> properties
+            CreateDeploymentProperties properties
     ) {
         try {
             final String jsonPayload = objectMapper.writeValueAsString(

@@ -1,16 +1,14 @@
 package com.mabl.domain;
 
-import java.util.HashMap;
-
 public class CreateDeploymentPayload {
     public final String environmentId;
     public final String applicationId;
-    public final HashMap<String, String> properties;
+    public final CreateDeploymentProperties properties;
 
     public CreateDeploymentPayload(
             String environmentId,
             String applicationId,
-            HashMap<String, String> properties
+            CreateDeploymentProperties properties
     ) {
         this.environmentId = environmentId;
         this.applicationId = applicationId;

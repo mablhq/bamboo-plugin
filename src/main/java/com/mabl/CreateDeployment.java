@@ -6,13 +6,13 @@ import com.atlassian.bamboo.task.TaskContext;
 import com.atlassian.bamboo.task.TaskResult;
 import com.atlassian.bamboo.task.TaskResultBuilder;
 import com.atlassian.bamboo.task.TaskType;
+import com.atlassian.bamboo.variable.CustomVariableContext;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.mabl.domain.CreateDeploymentProperties;
 import com.mabl.domain.CreateDeploymentResult;
 import com.mabl.domain.ExecutionResult;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.HashMap;
 
 import static com.mabl.MablConstants.APPLICATION_ID_FIELD;
 import static com.mabl.MablConstants.COMPLETE_STATUSES;
@@ -26,11 +26,14 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 @Scanned
 public class CreateDeployment implements TaskType {
     private final TestCollationService testCollationService;
+    private CustomVariableContext customVariableContext;
 
     public CreateDeployment(
-            @ComponentImport TestCollationService testCollationService
+            @ComponentImport TestCollationService testCollationService,
+            @ComponentImport CustomVariableContext customVariableContext
     ) {
         this.testCollationService = testCollationService;
+        this.customVariableContext = customVariableContext;
     }
 
     @NotNull
@@ -42,7 +45,7 @@ public class CreateDeployment implements TaskType {
         final String formApiKey = taskContext.getConfigurationMap().get(REST_API_KEY_FIELD);
         final String environmentId = taskContext.getConfigurationMap().get(ENVIRONMENT_ID_FIELD);
         final String applicationId = taskContext.getConfigurationMap().get(APPLICATION_ID_FIELD);
-        final HashMap<String, String> properties = getMablProperties(taskContext);
+        final CreateDeploymentProperties properties = getMablProperties();
         ExecutionResult executionResult;
 
         try (RestApiClient apiClient = new RestApiClient(MABL_REST_API_BASE_URL, formApiKey)) {
@@ -83,12 +86,10 @@ public class CreateDeployment implements TaskType {
         return taskResultBuilder.checkTestFailures().build();
     }
 
-    private HashMap<String, String> getMablProperties(TaskContext taskContext) {
-        HashMap<String, String> properties = new HashMap<>();
-        properties.put("source", MablConstants.PLUGIN_USER_AGENT);
-        for(HashMap.Entry entry : taskContext.getConfigurationMap().entrySet()) {
-            System.out.println(entry.getKey()+"="+entry.getValue());
-        }
+     private CreateDeploymentProperties getMablProperties() {
+        CreateDeploymentProperties properties = Converter
+                .customVariableContextToCreateDeploymentProperties.apply(this.customVariableContext);
+        properties.setDeploymentSource(MablConstants.PLUGIN_USER_AGENT);
         return properties;
     }
 
