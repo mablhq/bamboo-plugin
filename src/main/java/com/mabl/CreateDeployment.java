@@ -89,7 +89,7 @@ public class CreateDeployment implements TaskType {
      private CreateDeploymentProperties getMablProperties() {
         CreateDeploymentProperties properties = Converter
                 .customVariableContextToCreateDeploymentProperties.apply(this.customVariableContext);
-        properties.setDeploymentSource(MablConstants.PLUGIN_USER_AGENT);
+        properties.setDeploymentOrigin(MablConstants.PLUGIN_USER_AGENT);
         return properties;
     }
 

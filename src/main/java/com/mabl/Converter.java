@@ -15,16 +15,35 @@ public class Converter {
         public CreateDeploymentProperties apply(CustomVariableContext customVariableContext) {
             Map<String, VariableDefinitionContext> vars = customVariableContext.getVariableContexts();
             CreateDeploymentProperties props = new CreateDeploymentProperties();
-            props.setBranchName(vars.get("planRepository.branchName").getValue());
-            props.setRevisionNumber(vars.get("planRepository.revision").getValue());
-            props.setRepositoryUrl(vars.get("planRepository.repositoryUrl").getValue());
-            props.setRepositoryName(vars.get("planRepository.name").getValue());
-            props.setPreviousRevisionNumber(vars.get("planRepository.previousRevision").getValue());
-            props.setCommitUsername(vars.get("planRepository.username").getValue());
-            props.setBuildPlanNumber(vars.get("buildNumber").getValue());
-            props.setBuildPlanKey(vars.get("buildKey").getValue());
-            props.setBuildResultUrl(vars.get("buildResultsUrl").getValue());
+
+            // Repository specific props (Only exists because of other non-mabl steps)
+            props.setRepositoryBranchName(getProperty("planRepository.branchName", vars));
+            props.setRepositoryRevisionNumber(getProperty("planRepository.revision", vars));
+            props.setRepositoryUrl(getProperty("planRepository.repositoryUrl", vars));
+            props.setRepositoryName(getProperty("planRepository.name", vars));
+            props.setRepositoryPreviousRevisionNumber(getProperty("planRepository.previousRevision", vars));
+            props.setRepositoryCommitUsername(getProperty("planRepository.username", vars));
+
+            // Bamboo info about the mabl step that should be there no matter what
+            props.setBuildPlanId(getProperty("planKey", vars));
+            props.setBuildPlanName(getProperty("planName", vars));
+            props.setBuildPlanJobId(getProperty("shortJobKey", vars));
+            props.setBuildPlanJobName(getProperty("shortJobName", vars));
+            props.setBuildPlanNumber(getProperty("buildNumber", vars));
+            props.setBuildPlanResultUrl(getProperty("buildResultsUrl", vars));
+
             return props;
+        }
+
+        private String getProperty(
+                String propertyToGet,
+                Map<String, VariableDefinitionContext> context
+        ) {
+           if(context.containsKey(propertyToGet)) {
+               return context.get(propertyToGet).getValue();
+           }
+
+           return null;
         }
     };
 }

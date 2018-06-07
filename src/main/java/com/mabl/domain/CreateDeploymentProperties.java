@@ -1,28 +1,30 @@
 package com.mabl.domain;
 
 public class CreateDeploymentProperties {
-    private String deploymentSource;
-    private String branchName;
-    private String revisionNumber;
+    private String deploymentOrigin;
+    private String repositoryBranchName;
+    private String repositoryRevisionNumber;
     private String repositoryUrl;
     private String repositoryName;
-    private String previousRevisionNumber;
-    private String commitUsername;
+    private String repositoryPreviousRevisionNumber;
+    private String repositoryCommitUsername;
+    private String buildPlanId;
+    private String buildPlanName;
+    private String buildPlanJobId;
+    private String buildPlanJobName;
     private String buildPlanNumber;
-    private String buildPlanKey;
-    private String buildResultUrl;
+    private String buildPlanResultUrl;
 
-
-    public void setDeploymentSource(String pluginSource) {
-        this.deploymentSource = pluginSource;
+    public void setDeploymentOrigin(String plugin) {
+        this.deploymentOrigin = plugin;
     }
 
-    public void setBranchName(String branchName) {
-        this.branchName = branchName;
+    public void setRepositoryBranchName(String repositoryBranchName) {
+        this.repositoryBranchName = repositoryBranchName;
     }
 
-    public void setRevisionNumber(String revisionNumber) {
-        this.revisionNumber = revisionNumber;
+    public void setRepositoryRevisionNumber(String repositoryRevisionNumber) {
+        this.repositoryRevisionNumber = repositoryRevisionNumber;
     }
 
     public void setRepositoryUrl(String repositoryUrl) {
@@ -33,23 +35,37 @@ public class CreateDeploymentProperties {
         this.repositoryName = repositoryName;
     }
 
-    public void setPreviousRevisionNumber(String previousRevisionNumber) {
-        this.previousRevisionNumber = previousRevisionNumber;
+    public void setRepositoryPreviousRevisionNumber(String repositoryPreviousRevisionNumber) {
+        this.repositoryPreviousRevisionNumber = repositoryPreviousRevisionNumber;
     }
 
-    public void setCommitUsername(String commitUsername) {
-        this.commitUsername = commitUsername;
+    public void setRepositoryCommitUsername(String repositoryCommitUsername) {
+        this.repositoryCommitUsername = repositoryCommitUsername;
+    }
+
+    public void setBuildPlanId(String buildPlanId) {
+        this.buildPlanId = buildPlanId;
+    }
+
+    public void setBuildPlanName(String buildPlanName) {
+        this.buildPlanName = buildPlanName;
+    }
+
+    public void setBuildPlanJobId(String buildPlanJobId) {
+        this.buildPlanJobId = buildPlanJobId;
+    }
+
+    public void setBuildPlanJobName(String buildPlanJobName) {
+        this.buildPlanJobName = buildPlanJobName;
     }
 
     public void setBuildPlanNumber(String buildPlanNumber) {
         this.buildPlanNumber = buildPlanNumber;
     }
 
-    public void setBuildPlanKey(String buildPlanKey) {
-        this.buildPlanKey = buildPlanKey;
+    public void setBuildPlanResultUrl(String buildPlanResultUrl) {
+        this.buildPlanResultUrl = buildPlanResultUrl;
     }
 
-    public void setBuildResultUrl(String buildResultUrl) {
-        this.buildResultUrl = buildResultUrl;
-    }
+
 }

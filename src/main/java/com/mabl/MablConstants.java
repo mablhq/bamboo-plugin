@@ -40,7 +40,7 @@ class MablConstants {
     static final String MABL_LOG_OUTPUT_PREFIX = "[mabl]";
 
 
-    private static final String PLUGIN_ARTIFACT_NAME = "mabl-integration";
+    private static final String PLUGIN_SYMBOLIC_NAME = "com.mabl.bamboo.plugin";
     /**
      * Dynamically grab the plugin version, so we can't forget to update it on release.
      *
@@ -52,9 +52,9 @@ class MablConstants {
             while (resources.hasMoreElements()) {
                 final Manifest manifest = new Manifest(resources.nextElement().openStream());
 
-                String title = manifest.getMainAttributes().getValue("Implementation-title");
-                if (PLUGIN_ARTIFACT_NAME.equalsIgnoreCase(title)) {
-                    final String version = manifest.getMainAttributes().getValue("Implementation-Version");
+                String title = manifest.getMainAttributes().getValue("Bundle-SymbolicName");
+                if (PLUGIN_SYMBOLIC_NAME.equalsIgnoreCase(title)) {
+                    final String version = manifest.getMainAttributes().getValue("Bundle-Version");
                     return version != null && !version.isEmpty() ? version : PLUGIN_VERSION_UNKNOWN;
                 }
             }
