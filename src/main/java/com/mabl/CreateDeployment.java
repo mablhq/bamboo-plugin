@@ -20,14 +20,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.mabl.MablConstants.APPLICATION_ID_FIELD;
+import static com.mabl.MablConstants.APPLICATION_FIELD;
 import static com.mabl.MablConstants.COMPLETE_STATUSES;
-import static com.mabl.MablConstants.ENVIRONMENT_ID_FIELD;
+import static com.mabl.MablConstants.ENVIRONMENT_FIELD;
 import static com.mabl.MablConstants.EXECUTION_STATUS_POLLING_INTERNAL_MILLISECONDS;
 import static com.mabl.MablConstants.MABL_LOG_OUTPUT_PREFIX;
 import static com.mabl.MablConstants.MABL_REST_API_BASE_URL;
 import static com.mabl.MablConstants.PLAN_TAGS_FIELD;
 import static com.mabl.MablConstants.REST_API_KEY_FIELD;
+import static com.mabl.MablConstants.URI_FIELD;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 @Scanned
@@ -50,14 +51,15 @@ public class CreateDeployment implements TaskType {
         final TaskResultBuilder taskResultBuilder = TaskResultBuilder.newBuilder(taskContext);
         final MablOutputProvider mablOutputProvider = new MablOutputProvider();
         final String formApiKey = taskContext.getConfigurationMap().get(REST_API_KEY_FIELD);
-        final String environmentId = taskContext.getConfigurationMap().get(ENVIRONMENT_ID_FIELD);
-        final String applicationId = taskContext.getConfigurationMap().get(APPLICATION_ID_FIELD);
+        final String uri = taskContext.getConfigurationMap().get(URI_FIELD);
+        final String environmentName = taskContext.getConfigurationMap().get(ENVIRONMENT_FIELD);
+        final String applicationName = taskContext.getConfigurationMap().get(APPLICATION_FIELD);
         List<List<String>> planTags = getPlanTags(taskContext, buildLogger);
         final CreateDeploymentProperties properties = getMablProperties();
         ExecutionResult executionResult;
 
         try (RestApiClient apiClient = new RestApiClient(MABL_REST_API_BASE_URL, formApiKey)) {
-            CreateDeploymentResult deployment = apiClient.createDeploymentEvent(environmentId, applicationId, properties, planTags);
+            CreateDeploymentResult deployment = apiClient.createDeploymentEvent(uri, environmentName, applicationName, properties, planTags);
             buildLogger.addBuildLogEntry(createLogLine("Creating deployment with id '%s'", deployment.id));
 
             do {

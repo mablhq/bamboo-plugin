@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 import com.mabl.domain.ExecutionResult;
 import com.mabl.domain.GetApiKeyResult;
 import com.mabl.domain.GetApplicationsResult;
+import com.mabl.domain.GetDeploymentsResult;
 import com.mabl.domain.GetEnvironmentsResult;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -61,6 +62,7 @@ public class RestApiClient implements AutoCloseable {
     static final String DEPLOYMENT_TRIGGER_ENDPOINT = "/events/deployment";
     static final String DEPLOYMENT_RESULT_ENDPOINT_TEMPLATE = "/execution/result/event/%s";
     static final String GET_API_KEY_ENDPOINT_TEMPLATE = "/apiKeys/%s";
+    static final String GET_DEPLOYMENTS_ENDPOINT_TEMPLATE = "/deployments?organization_id=%s";
     static final String GET_APPLICATIONS_ENDPOINT_TEMPLATE = "/applications?organization_id=%s";
     static final String GET_ENVIRONMENTS_ENDPOINT_TEMPLATE = "/environments?organization_id=%s";
 
@@ -75,13 +77,14 @@ public class RestApiClient implements AutoCloseable {
     }
 
     public CreateDeploymentResult createDeploymentEvent(
-            final String environmentId,
-            final String applicationId,
+            final String uri,
+            final String environmentName,
+            final String applicationName,
             final CreateDeploymentProperties properties,
             final List<List<String>> planTags
     ) {
         final HttpPost request = new HttpPost(restApiBaseUrl + DEPLOYMENT_TRIGGER_ENDPOINT);
-        request.setEntity(getCreateDeplotmentPayloadEntity(environmentId, applicationId, properties, planTags));
+        request.setEntity(getCreateDeploymentPayloadEntity(uri, environmentName, applicationName, properties, planTags));
         request.addHeader(getBasicAuthHeader(restApiKey));
         request.addHeader(JSON_TYPE_HEADER);
         return parseApiResult(getResponse(request), CreateDeploymentResult.class);
@@ -95,6 +98,11 @@ public class RestApiClient implements AutoCloseable {
     public GetApiKeyResult getApiKeyResult(String formApiKey) {
         final String url = restApiBaseUrl + String.format(GET_API_KEY_ENDPOINT_TEMPLATE, formApiKey);
         return parseApiResult(getResponse(buildGetRequest(url)), GetApiKeyResult.class);
+    }
+
+    public GetDeploymentsResult getDeploymentsResult(String organizationId) {
+        final String url = restApiBaseUrl + String.format(GET_DEPLOYMENTS_ENDPOINT_TEMPLATE, organizationId);
+        return parseApiResult(getResponse(buildGetRequest(url)), GetDeploymentsResult.class);
     }
 
     public GetApplicationsResult getApplicationsResult(String organizationId) {
@@ -142,15 +150,16 @@ public class RestApiClient implements AutoCloseable {
                 .build();
     }
 
-    private AbstractHttpEntity getCreateDeplotmentPayloadEntity(
-            String environmentId,
-            String applicationId,
+    private AbstractHttpEntity getCreateDeploymentPayloadEntity(
+            String uri,
+            String environmentName,
+            String applicationName,
             CreateDeploymentProperties properties,
             List<List<String>> planTags
     ) {
         try {
             final String jsonPayload = objectMapper.writeValueAsString(
-                    new CreateDeploymentPayload(environmentId, applicationId, properties, planTags)
+                    new CreateDeploymentPayload(uri, environmentName, applicationName, properties, planTags)
             );
 
             return new ByteArrayEntity(jsonPayload.getBytes("UTF-8"));

@@ -30,8 +30,9 @@ import static org.apache.commons.httpclient.HttpStatus.SC_CREATED;
 
 public class RestApiClientTest extends AbstractWiremockTest {
     private static final String fakeRestApiKey = "fakeApiKey";
-    private static final String fakeEnvironmentId = "fakeEnvironmentId-e";
-    private static final String fakeApplicationId = "fakeApplicationId-a";
+    private static final String fakeUri = "http://www.uri.com";
+    private static final String fakeEnvironmentName = "fakeEnvironmentName";
+    private static final String fakeApplicationName = "fakeApplicationName";
     private static final String fakeEventId = "fakeEventId";
     private static final String fakeProperties = "{\"deployment_origin\":\""+MablConstants.PLUGIN_USER_AGENT+"\"}";
 
@@ -66,7 +67,7 @@ public class RestApiClientTest extends AbstractWiremockTest {
 
     @Test
     public void createDeploymentAllParametersHappyPathTest() {
-        final String expectedBody = "{\"environment_id\":\""+fakeEnvironmentId+"\",\"application_id\":\""+fakeApplicationId+"\",\"properties\":"+fakeProperties+"}";
+        final String expectedBody = "{\"uri\":\""+fakeUri+"\",\"environment_name\":\""+fakeEnvironmentName+"\",\"application_name\":\""+fakeApplicationName+"\",\"properties\":"+fakeProperties+"}";
 
         registerPostMapping(
                 RestApiClient.DEPLOYMENT_TRIGGER_ENDPOINT,
@@ -76,13 +77,13 @@ public class RestApiClientTest extends AbstractWiremockTest {
                 expectedBody
         );
 
-        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId);
+        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentName, fakeApplicationName);
     }
 
     @Test
-    public void createDeploymentOnlyEnvironmentIdHappyPathTest() {
-        final String expectedBody = "{\"environment_id\":\""+fakeEnvironmentId+"\",\"properties\":"+fakeProperties+"}";
-        final String nullApplicationId = null;
+    public void createDeploymentOnlyEnvironmentNotHappyPathTest() {
+        final String expectedBody = "{\"uri\":\""+fakeUri+"\",\"environment_name\":\""+fakeEnvironmentName+"\",\"properties\":"+fakeProperties+"}";
+        final String nullApplicationName = null;
 
         registerPostMapping(
                 RestApiClient.DEPLOYMENT_TRIGGER_ENDPOINT,
@@ -92,13 +93,13 @@ public class RestApiClientTest extends AbstractWiremockTest {
                 expectedBody
         );
 
-        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, nullApplicationId);
+        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentName, nullApplicationName);
     }
 
     @Test
-    public void createDeploymentOnlyApplicationIdHappyPathTest() {
-        final String expectedBody = "{\"application_id\":\""+fakeApplicationId+"\",\"properties\":"+fakeProperties+"}";
-        final String nullEnvironmentId = null;
+    public void createDeploymentOnlyApplicationNotHappyPathTest() {
+        final String expectedBody = "{\"uri\":\""+fakeUri+"\",\"application_name\":\""+fakeApplicationName+"\",\"properties\":"+fakeProperties+"}";
+        final String nullEnvironmentName = null;
 
         registerPostMapping(
                 RestApiClient.DEPLOYMENT_TRIGGER_ENDPOINT,
@@ -108,15 +109,15 @@ public class RestApiClientTest extends AbstractWiremockTest {
                 expectedBody
         );
 
-        assertSuccessfulCreateDeploymentRequest(nullEnvironmentId, fakeApplicationId);
+        assertSuccessfulCreateDeploymentRequest(nullEnvironmentName, fakeApplicationName);
     }
 
-    private void assertSuccessfulCreateDeploymentRequest(final String environmentId, final String applicationId) {
+    private void assertSuccessfulCreateDeploymentRequest(final String environmentName, final String applicationName) {
         RestApiClient client = new PartialRestApiClient(getBaseUrl(), fakeRestApiKey);
         CreateDeploymentProperties properties = new CreateDeploymentProperties();
         properties.setDeploymentOrigin(MablConstants.PLUGIN_USER_AGENT);
         List<List<String>> planTags = new ArrayList<>();
-        CreateDeploymentResult result = client.createDeploymentEvent(environmentId, applicationId, properties, planTags);
+        CreateDeploymentResult result = client.createDeploymentEvent(fakeUri, environmentName, applicationName, properties, planTags);
         assertEquals(MablTestConstants.EXPECTED_DEPLOYMENT_EVENT_ID, result.id);
 
         verifyExpectedUrls();
@@ -201,31 +202,31 @@ public class RestApiClientTest extends AbstractWiremockTest {
     @Test(expected = RuntimeException.class)
     public void apiClientDoesntRetryOn500() {
         registerPostCreateRetryMappings("/events/deployment", "500", 500, 1);
-        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId);
+        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentName, fakeApplicationName);
     }
 
     @Test
     public void apiClientRetriesOn501() {
         registerPostCreateRetryMappings("/events/deployment", "501", 501, 1);
-        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId);
+        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentName, fakeApplicationName);
     }
 
     @Test
     public void apiClientDoesRetryOn503() {
         registerPostCreateRetryMappings("/events/deployment", "503", 503, 1);
-        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId);
+        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentName, fakeApplicationName);
     }
 
     @Test
     public void apiClientRetriesOn501MaxtimesSuccess() {
         registerPostCreateRetryMappings("/events/deployment", "501", 501, 5);
-        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId);
+        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentName, fakeApplicationName);
     }
 
     @Test(expected = RuntimeException.class)
     public void apiClientRetriesOn501OverMaxtimesFailure() {
         registerPostCreateRetryMappings("/events/deployment", "501", 501, 6);
-        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId);
+        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentName, fakeApplicationName);
     }
 
     private void registerPostCreateRetryMappings(

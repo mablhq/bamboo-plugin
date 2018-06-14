@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mabl.domain.GetApiKeyResult;
 import com.mabl.domain.GetApplicationsResult;
+import com.mabl.domain.GetDeploymentsResult;
 import com.mabl.domain.GetEnvironmentsResult;
 
 import javax.servlet.http.HttpServlet;
@@ -26,6 +27,9 @@ public class ConfiguratorServlet extends HttpServlet {
         RestApiClient apiClient = new RestApiClient(MablConstants.MABL_REST_API_BASE_URL, restApiKey);
 
         switch (action) {
+            case "uris":
+                doGetUris(apiClient, response);
+                break;
             case "environments":
                 doGetEnvironments(apiClient, response);
                 break;
@@ -35,6 +39,17 @@ public class ConfiguratorServlet extends HttpServlet {
         }
 
 	}
+
+    private void doGetUris(RestApiClient apiClient, HttpServletResponse response) {
+        try {
+            GetApiKeyResult getApiKeyResult = apiClient.getApiKeyResult(apiClient.getRestApiKey());
+            GetDeploymentsResult getDeploymentsResult = apiClient.getDeploymentsResult(getApiKeyResult.organization_id);
+            writeToWriter(response, objectMapper.writeValueAsString(getDeploymentsResult.deployments));
+        } catch (JsonProcessingException | RuntimeException e) {
+            log.error(String.format("Unexpected status returned from doGetUris: Reason '%s'", e.getMessage()));
+            writeToWriter(response, "[]");
+        }
+    }
 
 	private void doGetEnvironments(RestApiClient apiClient, HttpServletResponse response) {
         try {
