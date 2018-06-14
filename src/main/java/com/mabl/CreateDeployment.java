@@ -12,7 +12,13 @@ import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.mabl.domain.CreateDeploymentProperties;
 import com.mabl.domain.CreateDeploymentResult;
 import com.mabl.domain.ExecutionResult;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.mabl.MablConstants.APPLICATION_ID_FIELD;
 import static com.mabl.MablConstants.COMPLETE_STATUSES;
@@ -20,6 +26,7 @@ import static com.mabl.MablConstants.ENVIRONMENT_ID_FIELD;
 import static com.mabl.MablConstants.EXECUTION_STATUS_POLLING_INTERNAL_MILLISECONDS;
 import static com.mabl.MablConstants.MABL_LOG_OUTPUT_PREFIX;
 import static com.mabl.MablConstants.MABL_REST_API_BASE_URL;
+import static com.mabl.MablConstants.PLAN_TAGS_FIELD;
 import static com.mabl.MablConstants.REST_API_KEY_FIELD;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
@@ -45,12 +52,12 @@ public class CreateDeployment implements TaskType {
         final String formApiKey = taskContext.getConfigurationMap().get(REST_API_KEY_FIELD);
         final String environmentId = taskContext.getConfigurationMap().get(ENVIRONMENT_ID_FIELD);
         final String applicationId = taskContext.getConfigurationMap().get(APPLICATION_ID_FIELD);
+        List<List<String>> planTags = getPlanTags(taskContext, buildLogger);
         final CreateDeploymentProperties properties = getMablProperties();
         ExecutionResult executionResult;
 
         try (RestApiClient apiClient = new RestApiClient(MABL_REST_API_BASE_URL, formApiKey)) {
-
-            CreateDeploymentResult deployment = apiClient.createDeploymentEvent(environmentId, applicationId, properties);
+            CreateDeploymentResult deployment = apiClient.createDeploymentEvent(environmentId, applicationId, properties, planTags);
             buildLogger.addBuildLogEntry(createLogLine("Creating deployment with id '%s'", deployment.id));
 
             do {
@@ -91,6 +98,20 @@ public class CreateDeployment implements TaskType {
                 .customVariableContextToCreateDeploymentProperties.apply(this.customVariableContext);
         properties.setDeploymentOrigin(MablConstants.PLUGIN_USER_AGENT);
         return properties;
+    }
+
+    private List<List<String>> getPlanTags(TaskContext taskContext, BuildLogger buildLogger) {
+        final String planTagsInput = taskContext.getConfigurationMap().get(PLAN_TAGS_FIELD);
+        List<List<String>> planTags = new ArrayList<>();
+        if(!planTagsInput.isEmpty()) {
+            try {
+                planTags = new ObjectMapper().readValue(planTagsInput, new TypeReference<List<List<String>>>() {});
+            } catch (IOException e) {
+                buildLogger.addErrorLogEntry(createLogErrorLine("Couldn't read '%s' into planTags", PLAN_TAGS_FIELD));
+            }
+        }
+
+        return planTags;
     }
 
     private boolean finalOutputStatusAllSuccesses(

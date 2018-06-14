@@ -21,6 +21,13 @@
     emptyOption="true"
 /]
 
+[@ww.textarea
+    labelKey="createdeployment.plantags.label"
+    name="mablPlanTags"
+    required="false"
+    rows="6"
+/]
+
 <script type="text/javascript">
 
 var mabl =

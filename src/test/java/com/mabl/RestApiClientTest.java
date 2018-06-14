@@ -11,6 +11,9 @@ import com.mabl.domain.GetApplicationsResult;
 import com.mabl.domain.GetEnvironmentsResult;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -112,7 +115,8 @@ public class RestApiClientTest extends AbstractWiremockTest {
         RestApiClient client = new PartialRestApiClient(getBaseUrl(), fakeRestApiKey);
         CreateDeploymentProperties properties = new CreateDeploymentProperties();
         properties.setDeploymentOrigin(MablConstants.PLUGIN_USER_AGENT);
-        CreateDeploymentResult result = client.createDeploymentEvent(environmentId, applicationId, properties);
+        List<List<String>> planTags = new ArrayList<>();
+        CreateDeploymentResult result = client.createDeploymentEvent(environmentId, applicationId, properties, planTags);
         assertEquals(MablTestConstants.EXPECTED_DEPLOYMENT_EVENT_ID, result.id);
 
         verifyExpectedUrls();

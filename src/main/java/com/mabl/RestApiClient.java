@@ -12,6 +12,7 @@ import com.mabl.domain.CreateDeploymentPayload;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.mabl.domain.ExecutionResult;
@@ -76,9 +77,11 @@ public class RestApiClient implements AutoCloseable {
     public CreateDeploymentResult createDeploymentEvent(
             final String environmentId,
             final String applicationId,
-            final CreateDeploymentProperties properties) {
+            final CreateDeploymentProperties properties,
+            final List<List<String>> planTags
+    ) {
         final HttpPost request = new HttpPost(restApiBaseUrl + DEPLOYMENT_TRIGGER_ENDPOINT);
-        request.setEntity(getCreateDeplotmentPayloadEntity(environmentId, applicationId, properties));
+        request.setEntity(getCreateDeplotmentPayloadEntity(environmentId, applicationId, properties, planTags));
         request.addHeader(getBasicAuthHeader(restApiKey));
         request.addHeader(JSON_TYPE_HEADER);
         return parseApiResult(getResponse(request), CreateDeploymentResult.class);
@@ -142,11 +145,12 @@ public class RestApiClient implements AutoCloseable {
     private AbstractHttpEntity getCreateDeplotmentPayloadEntity(
             String environmentId,
             String applicationId,
-            CreateDeploymentProperties properties
+            CreateDeploymentProperties properties,
+            List<List<String>> planTags
     ) {
         try {
             final String jsonPayload = objectMapper.writeValueAsString(
-                    new CreateDeploymentPayload(environmentId, applicationId, properties)
+                    new CreateDeploymentPayload(environmentId, applicationId, properties, planTags)
             );
 
             return new ByteArrayEntity(jsonPayload.getBytes("UTF-8"));

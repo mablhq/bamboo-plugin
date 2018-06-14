@@ -10,10 +10,14 @@ import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.message.I18nResolver;
 import com.mabl.domain.GetApplicationsResult;
 import com.mabl.domain.GetEnvironmentsResult;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.mabl.MablConstants.APPLICATION_ID_FIELD;
@@ -21,6 +25,8 @@ import static com.mabl.MablConstants.APPLICATION_ID_LABEL_PROPERTY;
 import static com.mabl.MablConstants.ENVIRONMENT_ID_FIELD;
 import static com.mabl.MablConstants.ENVIRONMENT_ID_LABEL_PROPERTY;
 import static com.mabl.MablConstants.MABL_REST_API_BASE_URL;
+import static com.mabl.MablConstants.PLAN_TAGS_FIELD;
+import static com.mabl.MablConstants.PLAN_TAGS_LABEL_PROPERTY;
 import static com.mabl.MablConstants.REST_API_KEY_FIELD;
 import static com.mabl.MablConstants.REST_API_KEY_LABEL_PROPERTY;
 import static org.apache.commons.lang.StringUtils.isEmpty;
@@ -45,6 +51,7 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
         config.put(REST_API_KEY_FIELD, params.getString(REST_API_KEY_FIELD));
         config.put(ENVIRONMENT_ID_FIELD, params.getString(ENVIRONMENT_ID_FIELD));
         config.put(APPLICATION_ID_FIELD, params.getString(APPLICATION_ID_FIELD));
+        config.put(PLAN_TAGS_FIELD, params.getString(PLAN_TAGS_FIELD));
         return config;
     }
 
@@ -55,6 +62,7 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
         context.put(REST_API_KEY_FIELD, "");
         context.put(ENVIRONMENT_ID_FIELD, "");
         context.put(APPLICATION_ID_FIELD, "");
+        context.put(PLAN_TAGS_FIELD, "");
     }
 
     @Override
@@ -69,6 +77,7 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
         context.put("environmentsList", getEnvironmentsList(restApiKeyValue));
         context.put(APPLICATION_ID_FIELD, taskDefinition.getConfiguration().get(APPLICATION_ID_FIELD));
         context.put("applicationsList", getApplicationsList(restApiKeyValue));
+        context.put(PLAN_TAGS_FIELD, taskDefinition.getConfiguration().get(PLAN_TAGS_FIELD));
     }
 
     @Override
@@ -96,6 +105,18 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
             );
             errorCollection.addError(ENVIRONMENT_ID_FIELD, error);
             errorCollection.addError(APPLICATION_ID_FIELD, error);
+        }
+
+        final String planTags = params.getString(PLAN_TAGS_FIELD);
+        if(!isEmpty(planTags)) {
+            try {
+                List<List<String>> planTagList = new ObjectMapper().readValue(planTags, new TypeReference<List<List<String>>>() {});
+            } catch (IOException e) {
+                errorCollection.addError(PLAN_TAGS_FIELD, String.format("'%s' is malformed and should have the structure '%s'",
+                        getLabel(PLAN_TAGS_LABEL_PROPERTY),
+                        "[[\"tag1.1\",\"tag1.2\"],[\"tag2.1\",\"tag2.2\",\"tag2.3\"]]"
+                ));
+            }
         }
     }
 

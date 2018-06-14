@@ -37,6 +37,8 @@ class MablConstants {
     static final String ENVIRONMENT_ID_LABEL_PROPERTY = "createdeployment.environmentid.label";
     static final String APPLICATION_ID_FIELD = "mablApplicationId";
     static final String APPLICATION_ID_LABEL_PROPERTY = "createdeployment.applicationid.label";
+    static final String PLAN_TAGS_LABEL_PROPERTY = "createdeployment.plantags.label";
+    static final String PLAN_TAGS_FIELD = "mablPlanTags";
     static final String MABL_LOG_OUTPUT_PREFIX = "[mabl]";
 
 
