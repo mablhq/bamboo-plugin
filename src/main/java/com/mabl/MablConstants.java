@@ -31,6 +31,7 @@ class MablConstants {
     static final int CONNECTION_SECONDS_TO_LIVE = 30;
     static final int RETRY_HANDLER_MAX_RETRIES = 5;
     static final long RETRY_HANDLER_RETRY_INTERVAL = 6000L;
+    static final String MABL_SEND_VARIABLES_FIELD = "mabl.sendvariables";
     static final String REST_API_KEY_FIELD = "mablRestApiKey";
     static final String REST_API_KEY_LABEL_PROPERTY = "createdeployment.restapikey.label";
     static final String ENVIRONMENT_ID_FIELD = "mablEnvironmentId";

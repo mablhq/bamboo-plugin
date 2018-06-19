@@ -1,5 +1,7 @@
 package com.mabl.domain;
 
+import java.lang.reflect.Field;
+
 public class CreateDeploymentProperties {
     private String deploymentOrigin;
     private String repositoryBranchName;
@@ -14,6 +16,7 @@ public class CreateDeploymentProperties {
     private String buildPlanJobName;
     private String buildPlanNumber;
     private String buildPlanResultUrl;
+    private CreateDeploymentProperties properties;
 
     public void setDeploymentOrigin(String plugin) {
         this.deploymentOrigin = plugin;
@@ -67,5 +70,21 @@ public class CreateDeploymentProperties {
         this.buildPlanResultUrl = buildPlanResultUrl;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for(Field field : this.getClass().getDeclaredFields()) {
+            try {
+                if(field.get(this) != null) {
+                    stringBuilder.append(field.getName());
+                    stringBuilder.append("=");
+                    stringBuilder.append(field.get(this).toString());
+                    stringBuilder.append(", ");
+                }
+            } catch (IllegalAccessException e) {
+            }
+        }
 
+        return stringBuilder.toString();
+    }
 }
