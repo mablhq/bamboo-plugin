@@ -31,6 +31,7 @@ class MablConstants {
     static final int CONNECTION_SECONDS_TO_LIVE = 30;
     static final int RETRY_HANDLER_MAX_RETRIES = 5;
     static final long RETRY_HANDLER_RETRY_INTERVAL = 6000L;
+    static final String MABL_SEND_VARIABLES_FIELD = "mabl.sendvariables";
     static final String REST_API_KEY_FIELD = "mablRestApiKey";
     static final String REST_API_KEY_LABEL_PROPERTY = "createdeployment.restapikey.label";
     static final String ENVIRONMENT_ID_FIELD = "mablEnvironmentId";
@@ -40,7 +41,7 @@ class MablConstants {
     static final String MABL_LOG_OUTPUT_PREFIX = "[mabl]";
 
 
-    private static final String PLUGIN_ARTIFACT_NAME = "mabl-integration";
+    private static final String PLUGIN_SYMBOLIC_NAME = "com.mabl.bamboo.plugin";
     /**
      * Dynamically grab the plugin version, so we can't forget to update it on release.
      *
@@ -52,9 +53,9 @@ class MablConstants {
             while (resources.hasMoreElements()) {
                 final Manifest manifest = new Manifest(resources.nextElement().openStream());
 
-                String title = manifest.getMainAttributes().getValue("Implementation-title");
-                if (PLUGIN_ARTIFACT_NAME.equalsIgnoreCase(title)) {
-                    final String version = manifest.getMainAttributes().getValue("Implementation-Version");
+                String title = manifest.getMainAttributes().getValue("Bundle-SymbolicName");
+                if (PLUGIN_SYMBOLIC_NAME.equalsIgnoreCase(title)) {
+                    final String version = manifest.getMainAttributes().getValue("Bundle-Version");
                     return version != null && !version.isEmpty() ? version : PLUGIN_VERSION_UNKNOWN;
                 }
             }

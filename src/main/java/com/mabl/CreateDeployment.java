@@ -6,8 +6,12 @@ import com.atlassian.bamboo.task.TaskContext;
 import com.atlassian.bamboo.task.TaskResult;
 import com.atlassian.bamboo.task.TaskResultBuilder;
 import com.atlassian.bamboo.task.TaskType;
+import com.atlassian.bamboo.variable.CustomVariableContext;
+import com.atlassian.bamboo.variable.VariableDefinition;
+import com.atlassian.bamboo.variable.VariableDefinitionManager;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.mabl.domain.CreateDeploymentProperties;
 import com.mabl.domain.CreateDeploymentResult;
 import com.mabl.domain.ExecutionResult;
 import org.jetbrains.annotations.NotNull;
@@ -24,11 +28,17 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 @Scanned
 public class CreateDeployment implements TaskType {
     private final TestCollationService testCollationService;
+    private final CustomVariableContext customVariableContext;
+    private final VariableDefinitionManager variableDefinitionManager;
 
     public CreateDeployment(
-            @ComponentImport TestCollationService testCollationService
+            @ComponentImport TestCollationService testCollationService,
+            @ComponentImport CustomVariableContext customVariableContext,
+            @ComponentImport VariableDefinitionManager variableDefinitionManager
     ) {
         this.testCollationService = testCollationService;
+        this.customVariableContext = customVariableContext;
+        this.variableDefinitionManager = variableDefinitionManager;
     }
 
     @NotNull
@@ -40,11 +50,24 @@ public class CreateDeployment implements TaskType {
         final String formApiKey = taskContext.getConfigurationMap().get(REST_API_KEY_FIELD);
         final String environmentId = taskContext.getConfigurationMap().get(ENVIRONMENT_ID_FIELD);
         final String applicationId = taskContext.getConfigurationMap().get(APPLICATION_ID_FIELD);
+        final boolean sendEnvVars = getSendEnvVarsValue();
+        final CreateDeploymentProperties properties = getMablProperties(sendEnvVars);
+        if (sendEnvVars) {
+            buildLogger.addBuildLogEntry(createLogLine("'%s' is set to true. Sending the following properties: '%s'",
+                    MablConstants.MABL_SEND_VARIABLES_FIELD,
+                    properties.toString()
+            ));
+        } else {
+            buildLogger.addBuildLogEntry(createLogLine("'%s' is set to false. Only sending the following properties: '%s'",
+                    MablConstants.MABL_SEND_VARIABLES_FIELD,
+                    properties.toString()
+            ));
+        }
         ExecutionResult executionResult;
 
         try (RestApiClient apiClient = new RestApiClient(MABL_REST_API_BASE_URL, formApiKey)) {
 
-            CreateDeploymentResult deployment = apiClient.createDeploymentEvent(environmentId, applicationId);
+            CreateDeploymentResult deployment = apiClient.createDeploymentEvent(environmentId, applicationId, properties);
             buildLogger.addBuildLogEntry(createLogLine("Creating deployment with id '%s'", deployment.id));
 
             do {
@@ -78,6 +101,25 @@ public class CreateDeployment implements TaskType {
 
         testCollationService.collateTestResults(taskContext, mablOutputProvider);
         return taskResultBuilder.checkTestFailures().build();
+    }
+
+     private CreateDeploymentProperties getMablProperties(boolean sendEnvVars) {
+        CreateDeploymentProperties properties = new CreateDeploymentProperties();
+        if(sendEnvVars) {
+            properties = Converter
+                    .customVariableContextToCreateDeploymentProperties.apply(this.customVariableContext);
+        }
+        properties.setDeploymentOrigin(MablConstants.PLUGIN_USER_AGENT);
+        return properties;
+    }
+
+    private boolean getSendEnvVarsValue() {
+        VariableDefinition sendVars = variableDefinitionManager.getGlobalVariableByKey(MablConstants.MABL_SEND_VARIABLES_FIELD);
+        if(sendVars == null) {
+            return false;
+        }
+
+        return Boolean.valueOf(sendVars.getValue());
     }
 
     private boolean finalOutputStatusAllSuccesses(

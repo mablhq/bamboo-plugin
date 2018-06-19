@@ -11,6 +11,7 @@ import org.junit.Rule;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.mabl.MablConstants.PLUGIN_USER_AGENT;
 import static com.github.tomakehurst.wiremock.client.WireMock.created;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
@@ -24,7 +25,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.verify;
  * Common Wiremock testing harness
  */
 public abstract class AbstractWiremockTest {
-    static final String PLUGIN_USER_AGENT = "mabl-bamboo-plugin/unknown";
     // Annotation used only for static rules, so we only startup a single Wiremock instance
     @ClassRule
     public static WireMockClassRule wireMockRule = new WireMockClassRule();
