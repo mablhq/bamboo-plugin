@@ -24,7 +24,6 @@ import static com.mabl.MablConstants.MABL_REST_API_BASE_URL;
 import static com.mabl.MablConstants.REST_API_KEY_FIELD;
 import static com.mabl.MablConstants.REST_API_KEY_LABEL_PROPERTY;
 import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.StringUtils.endsWith;
 
 @Scanned
 public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
@@ -132,7 +131,7 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
     private boolean restApiKeyIsValid(String restApiKey) {
         try(RestApiClient apiClient = new RestApiClient(MABL_REST_API_BASE_URL, restApiKey)) {
             String organizationId = apiClient.getApiKeyResult(restApiKey).organization_id;
-            return !isEmpty(organizationId ) && endsWith(organizationId, "-w");
+            return !isEmpty(organizationId);
         } catch (RuntimeException e) {
             log.error(String.format("Unexpected results trying to validate ApiKey: Reason '%s'", e.getMessage()));
             return false;
