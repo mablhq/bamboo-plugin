@@ -36,8 +36,9 @@ You'll need to [follow here](https://community.developer.atlassian.com/t/configu
 
 ### Deployment
 1. Merge code into master and push
-2. Run `atlas-mvn release:prepare`
-3. Upload the resulting `target/bamboo-plugin-$VERSION.jar` to the [atlassian marketplace](https://marketplace.atlassian.com/manage/apps/1219102/versions)
+2. Run `atlas-mvn clean install`
+3. Run `atlas-mvn release:prepare`
+4. Upload the resulting `target/bamboo-plugin-$VERSION.jar` to the [atlassian marketplace](https://marketplace.atlassian.com/manage/apps/1219102/versions)
 
 Uploading will require an admin to the mablhq Atlassian vendor account. 
   
