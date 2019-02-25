@@ -4,8 +4,8 @@
 This plugin allows easy launching of [mabl](https://www.mabl.com) journeys as a step in your Bamboo build. Your Bamboo build success or failure will be dependant on the success or failure of your mabl test deployment event.
 
 ## Using
-1. Within Bamboo, from any plan's 'Configure tasks' page, add a new task
-2. Select 'A Mabl Deployment' task
+1. Within Bamboo, from any plan's `Configure tasks` page, add a new task
+2. Select `A Mabl Deployment` task
 3. Input the ApiKey and unselect the field, this will populate the Environment and Application drop-downs
 4. Select at least 1 environment or application to proceed
 4. Hit Save
