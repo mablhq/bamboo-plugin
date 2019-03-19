@@ -24,7 +24,7 @@
 
     <distributionManagement>
         <repository>
-            <id>mablhq/bamboo-plugin</id>
+            <id>mablhq_bamboo-plugin</id>
             <name>mabl bamboo plugin repository</name>
             <url>https://github.com/mablhq/bamboo-plugin</url>
             <layout>default</layout>
