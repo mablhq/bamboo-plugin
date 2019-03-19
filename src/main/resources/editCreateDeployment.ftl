@@ -27,7 +27,7 @@ var mabl =
 {
     populateDropdowns: function(event) {
         var getEnvData = {ACTION : "environments",  restApiKey : event.target.value };
-        var url = "/bamboo/plugins/servlet/configurator";
+        var url = "${req.contextPath}/plugins/servlet/configurator";
         AJS.$.get(url, getEnvData, function(data) {
             mabl.helpers.buildDropdown(data, AJS.$("#mablEnvironmentId"), "Select Environment");
         })
