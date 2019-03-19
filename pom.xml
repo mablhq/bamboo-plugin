@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mabl.bamboo</groupId>
     <artifactId>bamboo-plugin</artifactId>
-    <version>0.0.6-SNAPSHOT</version>
+    <version>0.0.6</version>
 
     <organization>
         <name>mabl</name>
@@ -17,12 +15,21 @@
     <scm>
         <url>https://github.com/mablhq/bamboo-plugin.git</url>
         <connection>scm:git:git@github.com:mablhq/bamboo-plugin.git</connection>
-      <tag>HEAD</tag>
+        <tag>bamboo-plugin-0.0.6</tag>
     </scm>
 
     <name>mabl deployment</name>
     <description>This is the mabl plugin for Atlassian Bamboo.</description>
     <packaging>atlassian-plugin</packaging>
+
+    <distributionManagement>
+        <repository>
+            <id>mablhq/bamboo-plugin</id>
+            <name>mabl bamboo plugin repository</name>
+            <url>https://github.com/mablhq/bamboo-plugin</url>
+            <layout>default</layout>
+        </repository>
+    </distributionManagement>
 
     <properties>
         <bamboo.version>6.3.2</bamboo.version>

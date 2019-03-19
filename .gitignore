@@ -1,8 +1,17 @@
 # IntelliJ ignore
-.idea/
+.idea
 *.iml
 *.iws
 
 # Maven
-log/
-target/
+log
+target
+build
+
+.settings
+.project
+.classpath
+*.iml
+*.ipr
+*.iws
+work
