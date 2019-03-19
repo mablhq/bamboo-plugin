@@ -22,15 +22,6 @@
     <description>This is the mabl plugin for Atlassian Bamboo.</description>
     <packaging>atlassian-plugin</packaging>
 
-    <distributionManagement>
-        <repository>
-            <id>mablhq_bamboo-plugin</id>
-            <name>mabl bamboo plugin repository</name>
-            <url>https://github.com/mablhq/bamboo-plugin</url>
-            <layout>default</layout>
-        </repository>
-    </distributionManagement>
-
     <properties>
         <bamboo.version>6.3.2</bamboo.version>
         <bamboo.data.version>6.3.2</bamboo.data.version>
