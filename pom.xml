@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mabl.bamboo</groupId>
     <artifactId>bamboo-plugin</artifactId>
-    <version>0.0.7</version>
+    <version>0.0.8</version>
 
     <organization>
         <name>mabl</name>
@@ -16,7 +16,7 @@
         <url>https://github.com/mablhq/bamboo-plugin.git</url>
         <connection>scm:git:git@github.com:mablhq/bamboo-plugin.git</connection>
         <developerConnection>scm:git:git@github.com:mablhq/bamboo-plugin.git</developerConnection>
-        <tag>bamboo-plugin-0.0.7</tag>
+        <tag>bamboo-plugin-0.0.8</tag>
     </scm>
 
     <name>mabl deployment</name>
@@ -142,6 +142,9 @@
 
                         <!-- Add package import here -->
                         <Import-Package>
+                            com.atlassian.bamboo.build.test.*;resolution:="optional",
+                            com.atlassian.bamboo.variable.*;resolution:="optional",
+                            com.atlassian.sal.api.*;resolution:="optional",
                             org.springframework.osgi.*;resolution:="optional",
                             org.eclipse.gemini.blueprint.*;resolution:="optional",
                             javax.servlet*;version="2.5";resolution:="optional",
