@@ -56,7 +56,6 @@ public class CreateDeployment implements TaskType {
         final String environmentId = taskContext.getConfigurationMap().get(ENVIRONMENT_ID_FIELD);
         final String applicationId = taskContext.getConfigurationMap().get(APPLICATION_ID_FIELD);
         final Set<String> planLabels = new HashSet<>(Arrays.asList(taskContext.getConfigurationMap().get(PLAN_LABELS_FIELD).split(",")));
-        System.out.println("DEBUG planLabels="+planLabels.toString());
         final boolean sendEnvVars = getSendEnvVarsValue();
         final CreateDeploymentProperties properties = getMablProperties(sendEnvVars);
         buildLogger.addBuildLogEntry(createLogLine("'%s' is set to '%b'. Sending the following properties: '%s'",

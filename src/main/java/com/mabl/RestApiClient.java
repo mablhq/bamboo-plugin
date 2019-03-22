@@ -85,7 +85,6 @@ public class RestApiClient implements AutoCloseable {
         request.setEntity(getCreateDeplotmentPayloadEntity(environmentId, applicationId, planLabels, properties));
         request.addHeader(getBasicAuthHeader(restApiKey));
         request.addHeader(JSON_TYPE_HEADER);
-        System.out.println("DEBUG requestEntity="+getCreateDeplotmentPayloadEntity(environmentId, applicationId, planLabels, properties).toString());
         return parseApiResult(getResponse(request), CreateDeploymentResult.class);
     }
 

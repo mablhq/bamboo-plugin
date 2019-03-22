@@ -52,8 +52,6 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
         config.put(ENVIRONMENT_ID_FIELD, params.getString(ENVIRONMENT_ID_FIELD));
         config.put(APPLICATION_ID_FIELD, params.getString(APPLICATION_ID_FIELD));
         config.put(PLAN_LABELS_FIELD, join(params.getStringArray(PLAN_LABELS_FIELD), ","));
-        System.out.println("DEBUG env="+config.get(ENVIRONMENT_ID_FIELD));
-        System.out.println("DEBUG labels="+config.get(PLAN_LABELS_FIELD));
         return config;
     }
 
@@ -81,9 +79,6 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
         context.put("applicationsList", getApplicationsList(restApiKeyValue));
         context.put(PLAN_LABELS_FIELD, split(taskDefinition.getConfiguration().get(PLAN_LABELS_FIELD), ","));
         context.put("planLabelsList", getPlanLabelsList(restApiKeyValue));
-
-        System.out.println("DEBUG PLF="+context.get(PLAN_LABELS_FIELD));
-        System.out.println("DEBUG pLL="+context.get("planLabelsList"));
     }
 
     @Override
