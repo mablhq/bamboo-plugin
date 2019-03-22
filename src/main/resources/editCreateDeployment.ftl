@@ -24,10 +24,11 @@
     labelKey="createdeployment.planlabels.label"
     name="mablPlanLabels"
     list="planLabelsList"
+    size="6"
     multiple="true"
     required="false"
-    emptyOption="false"
 /]
+<a style="position: relative; bottom: 12px; left: 4px;" onclick="mabl.clearPlanLabels(event)">clear labels</a>
 <script type="text/javascript">
 
 var mabl =
@@ -38,7 +39,7 @@ var mabl =
         AJS.$.get(url, getEnvData, function(data) {
             mabl.helpers.buildDropdown(data, AJS.$("#mablEnvironmentId"), "Select Environment");
         })
-        .fail(mabl.helpers.clearDropdown(AJS.$(), "#mablEnvironmentId"));
+        .fail(mabl.helpers.clearDropdown(AJS.$(), "#mablEnvironmentId"), "");
 
         var getAppData = {ACTION : "applications",  restApiKey : event.target.value };
         AJS.$.get(url, getAppData, function(data) {
@@ -50,7 +51,11 @@ var mabl =
         AJS.$.get(url, getLabelData, function(data) {
             mabl.helpers.buildDropdown(data, AJS.$("#mablPlanLabels"));
         })
-            .fail(mabl.helpers.clearDropdown(AJS.$("#mablPlanLabels"), ""));
+            .fail(mabl.helpers.clearDropdown(AJS.$("#mablPlanLabels")));
+    },
+
+    clearPlanLabels: function(event) {
+      AJS.$("#mablPlanLabels option:selected").prop("selected", false);
     },
 
     helpers: {

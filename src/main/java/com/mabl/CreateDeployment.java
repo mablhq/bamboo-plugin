@@ -55,7 +55,10 @@ public class CreateDeployment implements TaskType {
         final String formApiKey = taskContext.getConfigurationMap().get(REST_API_KEY_FIELD);
         final String environmentId = taskContext.getConfigurationMap().get(ENVIRONMENT_ID_FIELD);
         final String applicationId = taskContext.getConfigurationMap().get(APPLICATION_ID_FIELD);
-        final Set<String> planLabels = new HashSet<>(Arrays.asList(taskContext.getConfigurationMap().get(PLAN_LABELS_FIELD).split(",")));
+        Set<String> planLabels = null;
+        if(!isEmpty(taskContext.getConfigurationMap().get(PLAN_LABELS_FIELD))) {
+            planLabels = new HashSet<>(Arrays.asList(taskContext.getConfigurationMap().get(PLAN_LABELS_FIELD).split(",")));
+        }
         final boolean sendEnvVars = getSendEnvVarsValue();
         final CreateDeploymentProperties properties = getMablProperties(sendEnvVars);
         buildLogger.addBuildLogEntry(createLogLine("'%s' is set to '%b'. Sending the following properties: '%s'",
@@ -68,7 +71,7 @@ public class CreateDeployment implements TaskType {
         try (RestApiClient apiClient = new RestApiClient(MABL_REST_API_BASE_URL, formApiKey)) {
 
             CreateDeploymentResult deployment = apiClient.createDeploymentEvent(environmentId, applicationId, planLabels, properties);
-            buildLogger.addBuildLogEntry(createLogLine("Creating deployment with id '%s'", deployment.id));
+            buildLogger.addBuildLogEntry(createLogLine("Created deployment with id '%s' and triggered '%d' plans.", deployment.id, deployment.triggeredPlanRunSummaries.size()));
 
             do {
                 Thread.sleep(EXECUTION_STATUS_POLLING_INTERNAL_MILLISECONDS);

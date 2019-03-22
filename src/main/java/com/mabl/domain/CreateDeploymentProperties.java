@@ -1,6 +1,10 @@
 package com.mabl.domain;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import static org.apache.commons.lang3.StringUtils.join;
 
 public class CreateDeploymentProperties {
     private String deploymentOrigin;
@@ -72,19 +76,6 @@ public class CreateDeploymentProperties {
 
     @Override
     public String toString() {
-        StringBuilder stringBuilder = new StringBuilder();
-        for(Field field : this.getClass().getDeclaredFields()) {
-            try {
-                if(field.get(this) != null) {
-                    stringBuilder.append(field.getName());
-                    stringBuilder.append("=");
-                    stringBuilder.append(field.get(this).toString());
-                    stringBuilder.append(", ");
-                }
-            } catch (IllegalAccessException e) {
-            }
-        }
-
-        return stringBuilder.toString();
+        return join(Arrays.stream(this.getClass().getDeclaredFields()).map(Field::getName).collect(Collectors.toList()));
     }
 }

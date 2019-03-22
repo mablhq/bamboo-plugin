@@ -14,10 +14,8 @@ import com.mabl.domain.GetLabelsResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static com.mabl.MablConstants.APPLICATION_ID_FIELD;
 import static com.mabl.MablConstants.APPLICATION_ID_LABEL_PROPERTY;
@@ -25,12 +23,11 @@ import static com.mabl.MablConstants.ENVIRONMENT_ID_FIELD;
 import static com.mabl.MablConstants.ENVIRONMENT_ID_LABEL_PROPERTY;
 import static com.mabl.MablConstants.MABL_REST_API_BASE_URL;
 import static com.mabl.MablConstants.PLAN_LABELS_FIELD;
-import static com.mabl.MablConstants.PLAN_LABELS_LABEL_PROPERTY;
 import static com.mabl.MablConstants.REST_API_KEY_FIELD;
 import static com.mabl.MablConstants.REST_API_KEY_LABEL_PROPERTY;
-import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.StringUtils.join;
-import static org.apache.commons.lang.StringUtils.split;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.join;
+import static org.apache.commons.lang3.StringUtils.split;
 
 @Scanned
 public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
