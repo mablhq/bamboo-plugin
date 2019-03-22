@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mabl.domain.GetApiKeyResult;
 import com.mabl.domain.GetApplicationsResult;
 import com.mabl.domain.GetEnvironmentsResult;
+import com.mabl.domain.GetLabelsResult;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -26,15 +27,29 @@ public class ConfiguratorServlet extends HttpServlet {
         RestApiClient apiClient = new RestApiClient(MablConstants.MABL_REST_API_BASE_URL, restApiKey);
 
         switch (action) {
+            case "applications":
+                doGetApplications(apiClient, response);
+                break;
             case "environments":
                 doGetEnvironments(apiClient, response);
                 break;
-            case "applications":
-                doGetApplications(apiClient, response);
+            case "labels":
+                doGetLabels(apiClient, response);
                 break;
         }
 
 	}
+
+    private void doGetApplications(RestApiClient apiClient, HttpServletResponse response) {
+        try {
+            GetApiKeyResult getApiKeyResult = apiClient.getApiKeyResult(apiClient.getRestApiKey());
+            GetApplicationsResult getApplicationsResult = apiClient.getApplicationsResult(getApiKeyResult.organization_id);
+            writeToWriter(response, objectMapper.writeValueAsString(getApplicationsResult.applications));
+        } catch (JsonProcessingException | RuntimeException e) {
+            log.error(String.format("Unexpected status returned from doGetApplications: Reason '%s'", e.getMessage()));
+            writeToWriter(response, "[]");
+        }
+    }
 
 	private void doGetEnvironments(RestApiClient apiClient, HttpServletResponse response) {
         try {
@@ -47,13 +62,13 @@ public class ConfiguratorServlet extends HttpServlet {
         }
     }
 
-    private void doGetApplications(RestApiClient apiClient, HttpServletResponse response) {
+    private void doGetLabels(RestApiClient apiClient, HttpServletResponse response) {
         try {
             GetApiKeyResult getApiKeyResult = apiClient.getApiKeyResult(apiClient.getRestApiKey());
-            GetApplicationsResult getApplicationsResult = apiClient.getApplicationsResult(getApiKeyResult.organization_id);
-            writeToWriter(response, objectMapper.writeValueAsString(getApplicationsResult.applications));
+            GetLabelsResult getLabelsResult = apiClient.getLabelsResult(getApiKeyResult.organization_id);
+            writeToWriter(response, objectMapper.writeValueAsString(getLabelsResult.labels));
         } catch (JsonProcessingException | RuntimeException e) {
-            log.error(String.format("Unexpected status returned from doGetApplications: Reason '%s'", e.getMessage()));
+            log.error(String.format("Unexpected status returned from doGetLabels: Reason '%s'", e.getMessage()));
             writeToWriter(response, "[]");
         }
     }

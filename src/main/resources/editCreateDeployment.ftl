@@ -20,7 +20,14 @@
     required="false"
     emptyOption="true"
 /]
-
+[@s.select
+    labelKey="createdeployment.planlabels.label"
+    name="mablPlanLabels"
+    list="planLabelsList"
+    multiple="true"
+    required="false"
+    emptyOption="false"
+/]
 <script type="text/javascript">
 
 var mabl =
@@ -38,6 +45,12 @@ var mabl =
             mabl.helpers.buildDropdown(data, AJS.$("#mablApplicationId"), "Select Application");
         })
         .fail(mabl.helpers.clearDropdown(AJS.$("#mablApplicationId"), ""));
+
+        var getLabelData = {ACTION : "labels",  restApiKey : event.target.value };
+        AJS.$.get(url, getLabelData, function(data) {
+            mabl.helpers.buildDropdown(data, AJS.$("#mablPlanLabels"));
+        })
+            .fail(mabl.helpers.clearDropdown(AJS.$("#mablPlanLabels"), ""));
     },
 
     helpers: {
@@ -46,7 +59,9 @@ var mabl =
             // Remove current options
             dropdown.html("");
             // Add the empty option with the empty message
-            dropdown.append('<option value="">' + emptyMessage + '</option>');
+            if(emptyMessage) {
+                dropdown.append('<option value="">' + emptyMessage + '</option>');
+            }
         },
 
         buildDropdown: function(result, dropdown, emptyMessage) {
@@ -56,7 +71,8 @@ var mabl =
             {
                 // Loop through each of the results and append the option to the dropdown
                 AJS.$.each(result, function(k, v) {
-                    dropdown.append('<option value="' + v.id + '">' + v.name + '</option>');
+                    var id = v.id ? v.id : v.name;
+                    dropdown.append('<option value="' + id + '">' + v.name + '</option>');
                 });
             }
         }

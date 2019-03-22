@@ -16,12 +16,17 @@ import com.mabl.domain.CreateDeploymentResult;
 import com.mabl.domain.ExecutionResult;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import static com.mabl.MablConstants.APPLICATION_ID_FIELD;
 import static com.mabl.MablConstants.COMPLETE_STATUSES;
 import static com.mabl.MablConstants.ENVIRONMENT_ID_FIELD;
 import static com.mabl.MablConstants.EXECUTION_STATUS_POLLING_INTERNAL_MILLISECONDS;
 import static com.mabl.MablConstants.MABL_LOG_OUTPUT_PREFIX;
 import static com.mabl.MablConstants.MABL_REST_API_BASE_URL;
+import static com.mabl.MablConstants.PLAN_LABELS_FIELD;
 import static com.mabl.MablConstants.REST_API_KEY_FIELD;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
@@ -50,24 +55,20 @@ public class CreateDeployment implements TaskType {
         final String formApiKey = taskContext.getConfigurationMap().get(REST_API_KEY_FIELD);
         final String environmentId = taskContext.getConfigurationMap().get(ENVIRONMENT_ID_FIELD);
         final String applicationId = taskContext.getConfigurationMap().get(APPLICATION_ID_FIELD);
+        final Set<String> planLabels = new HashSet<>(Arrays.asList(taskContext.getConfigurationMap().get(PLAN_LABELS_FIELD).split(",")));
+        System.out.println("DEBUG planLabels="+planLabels.toString());
         final boolean sendEnvVars = getSendEnvVarsValue();
         final CreateDeploymentProperties properties = getMablProperties(sendEnvVars);
-        if (sendEnvVars) {
-            buildLogger.addBuildLogEntry(createLogLine("'%s' is set to true. Sending the following properties: '%s'",
-                    MablConstants.MABL_SEND_VARIABLES_FIELD,
-                    properties.toString()
-            ));
-        } else {
-            buildLogger.addBuildLogEntry(createLogLine("'%s' is set to false. Only sending the following properties: '%s'",
-                    MablConstants.MABL_SEND_VARIABLES_FIELD,
-                    properties.toString()
-            ));
-        }
+        buildLogger.addBuildLogEntry(createLogLine("'%s' is set to '%b'. Sending the following properties: '%s'",
+                MablConstants.MABL_SEND_VARIABLES_FIELD,
+                sendEnvVars,
+                properties.toString()
+        ));
         ExecutionResult executionResult;
 
         try (RestApiClient apiClient = new RestApiClient(MABL_REST_API_BASE_URL, formApiKey)) {
 
-            CreateDeploymentResult deployment = apiClient.createDeploymentEvent(environmentId, applicationId, properties);
+            CreateDeploymentResult deployment = apiClient.createDeploymentEvent(environmentId, applicationId, planLabels, properties);
             buildLogger.addBuildLogEntry(createLogLine("Creating deployment with id '%s'", deployment.id));
 
             do {

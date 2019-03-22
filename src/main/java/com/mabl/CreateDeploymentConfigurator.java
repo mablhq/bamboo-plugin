@@ -10,20 +10,27 @@ import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.message.I18nResolver;
 import com.mabl.domain.GetApplicationsResult;
 import com.mabl.domain.GetEnvironmentsResult;
+import com.mabl.domain.GetLabelsResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.mabl.MablConstants.APPLICATION_ID_FIELD;
 import static com.mabl.MablConstants.APPLICATION_ID_LABEL_PROPERTY;
 import static com.mabl.MablConstants.ENVIRONMENT_ID_FIELD;
 import static com.mabl.MablConstants.ENVIRONMENT_ID_LABEL_PROPERTY;
 import static com.mabl.MablConstants.MABL_REST_API_BASE_URL;
+import static com.mabl.MablConstants.PLAN_LABELS_FIELD;
+import static com.mabl.MablConstants.PLAN_LABELS_LABEL_PROPERTY;
 import static com.mabl.MablConstants.REST_API_KEY_FIELD;
 import static com.mabl.MablConstants.REST_API_KEY_LABEL_PROPERTY;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.join;
+import static org.apache.commons.lang.StringUtils.split;
 
 @Scanned
 public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
@@ -44,6 +51,9 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
         config.put(REST_API_KEY_FIELD, params.getString(REST_API_KEY_FIELD));
         config.put(ENVIRONMENT_ID_FIELD, params.getString(ENVIRONMENT_ID_FIELD));
         config.put(APPLICATION_ID_FIELD, params.getString(APPLICATION_ID_FIELD));
+        config.put(PLAN_LABELS_FIELD, join(params.getStringArray(PLAN_LABELS_FIELD), ","));
+        System.out.println("DEBUG env="+config.get(ENVIRONMENT_ID_FIELD));
+        System.out.println("DEBUG labels="+config.get(PLAN_LABELS_FIELD));
         return config;
     }
 
@@ -54,6 +64,7 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
         context.put(REST_API_KEY_FIELD, "");
         context.put(ENVIRONMENT_ID_FIELD, "");
         context.put(APPLICATION_ID_FIELD, "");
+        context.put(PLAN_LABELS_FIELD, "");
     }
 
     @Override
@@ -68,6 +79,11 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
         context.put("environmentsList", getEnvironmentsList(restApiKeyValue));
         context.put(APPLICATION_ID_FIELD, taskDefinition.getConfiguration().get(APPLICATION_ID_FIELD));
         context.put("applicationsList", getApplicationsList(restApiKeyValue));
+        context.put(PLAN_LABELS_FIELD, split(taskDefinition.getConfiguration().get(PLAN_LABELS_FIELD), ","));
+        context.put("planLabelsList", getPlanLabelsList(restApiKeyValue));
+
+        System.out.println("DEBUG PLF="+context.get(PLAN_LABELS_FIELD));
+        System.out.println("DEBUG pLL="+context.get("planLabelsList"));
     }
 
     @Override
@@ -98,6 +114,21 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
         }
     }
 
+    private Map<String, String> getApplicationsList(String restApiKey) {
+        Map<String, String> appMap = new HashMap<>();
+        try(RestApiClient apiClient = new RestApiClient(MABL_REST_API_BASE_URL, restApiKey)) {
+            String organizationId = apiClient.getApiKeyResult(restApiKey).organization_id;
+            GetApplicationsResult results = apiClient.getApplicationsResult(organizationId);
+            for(GetApplicationsResult.Application application: results.applications) {
+                appMap.put(application.id, application.name);
+            }
+        } catch (RuntimeException e) {
+            log.error(String.format("Unexpected results trying to fetch ApplicationsList: Reason '%s'", e.getMessage()));
+        }
+
+        return appMap;
+    }
+
     private Map<String, String> getEnvironmentsList(String restApiKey) {
         Map<String, String> envMap = new HashMap<>();
         try(RestApiClient apiClient = new RestApiClient(MABL_REST_API_BASE_URL, restApiKey)) {
@@ -113,19 +144,19 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
         return envMap;
     }
 
-    private Map<String, String> getApplicationsList(String restApiKey) {
-        Map<String, String> appMap = new HashMap<>();
+    private Map<String, String> getPlanLabelsList(String restApiKey) {
+        Map<String, String> envMap = new HashMap<>();
         try(RestApiClient apiClient = new RestApiClient(MABL_REST_API_BASE_URL, restApiKey)) {
             String organizationId = apiClient.getApiKeyResult(restApiKey).organization_id;
-            GetApplicationsResult results = apiClient.getApplicationsResult(organizationId);
-            for(GetApplicationsResult.Application application: results.applications) {
-                appMap.put(application.id, application.name);
+            GetLabelsResult results = apiClient.getLabelsResult(organizationId);
+            for(GetLabelsResult.Label label : results.labels) {
+                envMap.put(label.name, label.name);
             }
         } catch (RuntimeException e) {
-            log.error(String.format("Unexpected results trying to fetch ApplicationsList: Reason '%s'", e.getMessage()));
+            log.error(String.format("Unexpected results trying to fetch LabelsList: Reason '%s'", e.getMessage()));
         }
 
-        return appMap;
+        return envMap;
     }
 
     private boolean restApiKeyIsValid(String restApiKey) {

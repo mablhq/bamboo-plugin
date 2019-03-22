@@ -9,7 +9,13 @@ import com.mabl.domain.ExecutionResult;
 import com.mabl.domain.GetApiKeyResult;
 import com.mabl.domain.GetApplicationsResult;
 import com.mabl.domain.GetEnvironmentsResult;
+import com.mabl.domain.GetLabelsResult.Label;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
@@ -30,6 +36,7 @@ public class RestApiClientTest extends AbstractWiremockTest {
     private static final String fakeEnvironmentId = "fakeEnvironmentId-e";
     private static final String fakeApplicationId = "fakeApplicationId-a";
     private static final String fakeEventId = "fakeEventId";
+    private static final String fakePlanLabels = "[\"labelA\",\"labelB\"]";
     private static final String fakeProperties = "{\"deployment_origin\":\""+MablConstants.PLUGIN_USER_AGENT+"\"}";
 
     class PartialRestApiClient extends RestApiClient {
@@ -63,7 +70,7 @@ public class RestApiClientTest extends AbstractWiremockTest {
 
     @Test
     public void createDeploymentAllParametersHappyPathTest() {
-        final String expectedBody = "{\"environment_id\":\""+fakeEnvironmentId+"\",\"application_id\":\""+fakeApplicationId+"\",\"properties\":"+fakeProperties+"}";
+        final String expectedBody = "{\"environment_id\":\""+fakeEnvironmentId+"\",\"application_id\":\""+fakeApplicationId+"\",\"plan_labels\":"+fakePlanLabels+",\"properties\":"+fakeProperties+"}";
 
         registerPostMapping(
                 RestApiClient.DEPLOYMENT_TRIGGER_ENDPOINT,
@@ -78,7 +85,7 @@ public class RestApiClientTest extends AbstractWiremockTest {
 
     @Test
     public void createDeploymentOnlyEnvironmentIdHappyPathTest() {
-        final String expectedBody = "{\"environment_id\":\""+fakeEnvironmentId+"\",\"properties\":"+fakeProperties+"}";
+        final String expectedBody = "{\"environment_id\":\""+fakeEnvironmentId+"\",\"plan_labels\":"+fakePlanLabels+",\"properties\":"+fakeProperties+"}";
         final String nullApplicationId = null;
 
         registerPostMapping(
@@ -94,7 +101,7 @@ public class RestApiClientTest extends AbstractWiremockTest {
 
     @Test
     public void createDeploymentOnlyApplicationIdHappyPathTest() {
-        final String expectedBody = "{\"application_id\":\""+fakeApplicationId+"\",\"properties\":"+fakeProperties+"}";
+        final String expectedBody = "{\"application_id\":\""+fakeApplicationId+"\",\"plan_labels\":"+fakePlanLabels+",\"properties\":"+fakeProperties+"}";
         final String nullEnvironmentId = null;
 
         registerPostMapping(
@@ -112,7 +119,8 @@ public class RestApiClientTest extends AbstractWiremockTest {
         RestApiClient client = new PartialRestApiClient(getBaseUrl(), fakeRestApiKey);
         CreateDeploymentProperties properties = new CreateDeploymentProperties();
         properties.setDeploymentOrigin(MablConstants.PLUGIN_USER_AGENT);
-        CreateDeploymentResult result = client.createDeploymentEvent(environmentId, applicationId, properties);
+        final Set<String> fakePlanLabels = new HashSet<>(Arrays.asList("labelA","labelB"));
+        CreateDeploymentResult result = client.createDeploymentEvent(environmentId, applicationId, fakePlanLabels, properties);
         assertEquals(MablTestConstants.EXPECTED_DEPLOYMENT_EVENT_ID, result.id);
 
         verifyExpectedUrls();
