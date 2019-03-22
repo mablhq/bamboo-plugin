@@ -142,6 +142,9 @@
 
                         <!-- Add package import here -->
                         <Import-Package>
+                            com.atlassian.bamboo.build.test.*;resolution:="optional",
+                            com.atlassian.bamboo.variable.*;resolution:="optional",
+                            com.atlassian.sal.api.*;resolution:="optional",
                             org.springframework.osgi.*;resolution:="optional",
                             org.eclipse.gemini.blueprint.*;resolution:="optional",
                             javax.servlet*;version="2.5";resolution:="optional",
