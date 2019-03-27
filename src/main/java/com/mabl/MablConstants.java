@@ -34,10 +34,12 @@ class MablConstants {
     static final String MABL_SEND_VARIABLES_FIELD = "mabl.sendvariables";
     static final String REST_API_KEY_FIELD = "mablRestApiKey";
     static final String REST_API_KEY_LABEL_PROPERTY = "createdeployment.restapikey.label";
-    static final String ENVIRONMENT_ID_FIELD = "mablEnvironmentId";
-    static final String ENVIRONMENT_ID_LABEL_PROPERTY = "createdeployment.environmentid.label";
     static final String APPLICATION_ID_FIELD = "mablApplicationId";
     static final String APPLICATION_ID_LABEL_PROPERTY = "createdeployment.applicationid.label";
+    static final String ENVIRONMENT_ID_FIELD = "mablEnvironmentId";
+    static final String ENVIRONMENT_ID_LABEL_PROPERTY = "createdeployment.environmentid.label";
+    static final String PLAN_LABELS_FIELD = "mablPlanLabels";
+    static final String PLAN_LABELS_LABEL_PROPERTY = "createdeployment.planlabels.label";
     static final String MABL_LOG_OUTPUT_PREFIX = "[mabl]";
 
 

@@ -1,19 +1,36 @@
 package com.mabl;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * mabl custom build step
  *
  */
 class MablTestConstants {
 
+    static String buildDeploymentResultJson(
+            @Nullable String environmentId,
+            @Nullable String applicationId,
+            @Nullable String planLabels
+    ) {
+        StringBuilder jsonBuilder = new StringBuilder("{");
+        jsonBuilder.append(" \"id\":\"").append(EXPECTED_DEPLOYMENT_EVENT_ID).append("\"");
+        if(environmentId != null) {
+            jsonBuilder.append(", \"environment_id\":\"").append(environmentId).append("\"");
+        }
+        if(applicationId != null) {
+            jsonBuilder.append(", \"application_id\":\"").append(applicationId).append("\"");
+        }
+            jsonBuilder.append(", \"received_time\": 1523541704649");
+        if(planLabels != null) {
+            jsonBuilder.append(", \"plan_labels\":").append(planLabels);
+        }
+
+        return jsonBuilder.append("}").toString();
+    }
     static final String EXPECTED_DEPLOYMENT_EVENT_ID = "d1To4-GYeZ4nl-4Ag1JyQg-v";
-    static final String CREATE_DEPLOYMENT_EVENT_RESULT_JSON =
-            "{" +
-            "  \"id\": \""+EXPECTED_DEPLOYMENT_EVENT_ID+"\"," +
-            "  \"environment_id\": \"xolMgRp4CwvHQjQUX_MOoA-e\"," +
-            "  \"application_id\": \"smoTxTR8B9oh73qstERNyg-a\"," +
-            "  \"received_time\": 1523541704649" +
-            "}";
+    static final String EXPECTED_DEPLOYMENT_EVENT_APPLICATION_ID = "smoTxTR8B9oh73qstERNyg-a";
+    static final String EXPECTED_DEPLOYMENT_EVENT_ENVIRONMENT_ID = "xolMgRp4CwvHQjQUX_MOoA-e";
 
     static final String EXECUTION_RESULT_JSON =
             "{" +

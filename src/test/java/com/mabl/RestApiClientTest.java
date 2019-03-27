@@ -11,6 +11,10 @@ import com.mabl.domain.GetApplicationsResult;
 import com.mabl.domain.GetEnvironmentsResult;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -19,6 +23,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static com.mabl.RestApiClient.REST_API_USERNAME_PLACEHOLDER;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
@@ -27,9 +32,12 @@ import static org.apache.commons.httpclient.HttpStatus.SC_CREATED;
 
 public class RestApiClientTest extends AbstractWiremockTest {
     private static final String fakeRestApiKey = "fakeApiKey";
-    private static final String fakeEnvironmentId = "fakeEnvironmentId-e";
-    private static final String fakeApplicationId = "fakeApplicationId-a";
+    private static final String fakeEnvironmentId = "xolMgRp4CwvHQjQUX_MOoA-e";
+    private static final String fakeApplicationId = "smoTxTR8B9oh73qstERNyg-a";
     private static final String fakeEventId = "fakeEventId";
+    private static final String fakePlanLabels = "[\"labelA\",\"labelB\"]";
+    private static final Set<String> expectedPlanLabels = new HashSet<>(Arrays.asList("labelA","labelB"));
+    private static final Set<String> emptyPlanLabels = new HashSet<>();
     private static final String fakeProperties = "{\"deployment_origin\":\""+MablConstants.PLUGIN_USER_AGENT+"\"}";
 
     class PartialRestApiClient extends RestApiClient {
@@ -63,57 +71,73 @@ public class RestApiClientTest extends AbstractWiremockTest {
 
     @Test
     public void createDeploymentAllParametersHappyPathTest() {
-        final String expectedBody = "{\"environment_id\":\""+fakeEnvironmentId+"\",\"application_id\":\""+fakeApplicationId+"\",\"properties\":"+fakeProperties+"}";
+        final String expectedBody = "{\"environment_id\":\""+fakeEnvironmentId+"\",\"application_id\":\""+fakeApplicationId+"\",\"plan_labels\":"+fakePlanLabels+",\"properties\":"+fakeProperties+"}";
 
         registerPostMapping(
                 RestApiClient.DEPLOYMENT_TRIGGER_ENDPOINT,
-                MablTestConstants.CREATE_DEPLOYMENT_EVENT_RESULT_JSON,
+                MablTestConstants.buildDeploymentResultJson(fakeEnvironmentId, fakeApplicationId, fakePlanLabels),
                 REST_API_USERNAME_PLACEHOLDER,
                 fakeRestApiKey,
                 expectedBody
         );
 
-        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId);
+        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId, expectedPlanLabels);
     }
 
     @Test
     public void createDeploymentOnlyEnvironmentIdHappyPathTest() {
         final String expectedBody = "{\"environment_id\":\""+fakeEnvironmentId+"\",\"properties\":"+fakeProperties+"}";
-        final String nullApplicationId = null;
 
         registerPostMapping(
                 RestApiClient.DEPLOYMENT_TRIGGER_ENDPOINT,
-                MablTestConstants.CREATE_DEPLOYMENT_EVENT_RESULT_JSON,
+                MablTestConstants.buildDeploymentResultJson(fakeEnvironmentId, null, null),
                 REST_API_USERNAME_PLACEHOLDER,
                 fakeRestApiKey,
                 expectedBody
         );
 
-        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, nullApplicationId);
+        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, null, emptyPlanLabels);
     }
 
     @Test
     public void createDeploymentOnlyApplicationIdHappyPathTest() {
         final String expectedBody = "{\"application_id\":\""+fakeApplicationId+"\",\"properties\":"+fakeProperties+"}";
-        final String nullEnvironmentId = null;
 
         registerPostMapping(
                 RestApiClient.DEPLOYMENT_TRIGGER_ENDPOINT,
-                MablTestConstants.CREATE_DEPLOYMENT_EVENT_RESULT_JSON,
+                MablTestConstants.buildDeploymentResultJson(null, fakeApplicationId, null),
                 REST_API_USERNAME_PLACEHOLDER,
                 fakeRestApiKey,
                 expectedBody
         );
 
-        assertSuccessfulCreateDeploymentRequest(nullEnvironmentId, fakeApplicationId);
+        assertSuccessfulCreateDeploymentRequest(null, fakeApplicationId, emptyPlanLabels);
     }
 
-    private void assertSuccessfulCreateDeploymentRequest(final String environmentId, final String applicationId) {
+    private void assertSuccessfulCreateDeploymentRequest(final String environmentId, final String applicationId, final Set<String> planLabels) {
         RestApiClient client = new PartialRestApiClient(getBaseUrl(), fakeRestApiKey);
         CreateDeploymentProperties properties = new CreateDeploymentProperties();
         properties.setDeploymentOrigin(MablConstants.PLUGIN_USER_AGENT);
-        CreateDeploymentResult result = client.createDeploymentEvent(environmentId, applicationId, properties);
+        CreateDeploymentResult result = client.createDeploymentEvent(environmentId, applicationId, planLabels, properties);
+
         assertEquals(MablTestConstants.EXPECTED_DEPLOYMENT_EVENT_ID, result.id);
+        if(environmentId == null) {
+            assertNull(result.environmentId);
+        } else {
+            assertEquals(MablTestConstants.EXPECTED_DEPLOYMENT_EVENT_ENVIRONMENT_ID, result.environmentId);
+        }
+
+        if(applicationId == null) {
+            assertNull(result.applicationId);
+        } else {
+            assertEquals(MablTestConstants.EXPECTED_DEPLOYMENT_EVENT_APPLICATION_ID, result.applicationId);
+        }
+
+        if(planLabels.isEmpty()) {
+            assertNull(result.planLabels);
+        } else {
+            assertEquals(planLabels, result.planLabels);
+        }
 
         verifyExpectedUrls();
     }
@@ -197,31 +221,31 @@ public class RestApiClientTest extends AbstractWiremockTest {
     @Test(expected = RuntimeException.class)
     public void apiClientDoesntRetryOn500() {
         registerPostCreateRetryMappings("/events/deployment", "500", 500, 1);
-        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId);
+        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId, emptyPlanLabels);
     }
 
     @Test
     public void apiClientRetriesOn501() {
         registerPostCreateRetryMappings("/events/deployment", "501", 501, 1);
-        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId);
+        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId, emptyPlanLabels);
     }
 
     @Test
     public void apiClientDoesRetryOn503() {
         registerPostCreateRetryMappings("/events/deployment", "503", 503, 1);
-        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId);
+        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId, emptyPlanLabels);
     }
 
     @Test
     public void apiClientRetriesOn501MaxtimesSuccess() {
         registerPostCreateRetryMappings("/events/deployment", "501", 501, 5);
-        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId);
+        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId, emptyPlanLabels);
     }
 
     @Test(expected = RuntimeException.class)
     public void apiClientRetriesOn501OverMaxtimesFailure() {
         registerPostCreateRetryMappings("/events/deployment", "501", 501, 6);
-        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId);
+        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId, emptyPlanLabels);
     }
 
     private void registerPostCreateRetryMappings(
@@ -252,7 +276,7 @@ public class RestApiClientTest extends AbstractWiremockTest {
                 .willReturn(aResponse()
                         .withStatus(SC_CREATED)
                         .withHeader("Content-Type", "application/json")
-                        .withBody(MablTestConstants.CREATE_DEPLOYMENT_EVENT_RESULT_JSON))
+                        .withBody(MablTestConstants.buildDeploymentResultJson(fakeEnvironmentId, fakeApplicationId, null)))
         );
     }
 }

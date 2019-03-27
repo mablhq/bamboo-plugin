@@ -12,12 +12,14 @@ import com.mabl.domain.CreateDeploymentPayload;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import com.mabl.domain.ExecutionResult;
 import com.mabl.domain.GetApiKeyResult;
 import com.mabl.domain.GetApplicationsResult;
 import com.mabl.domain.GetEnvironmentsResult;
+import com.mabl.domain.GetLabelsResult;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -62,6 +64,7 @@ public class RestApiClient implements AutoCloseable {
     static final String GET_API_KEY_ENDPOINT_TEMPLATE = "/apiKeys/%s";
     static final String GET_APPLICATIONS_ENDPOINT_TEMPLATE = "/applications?organization_id=%s";
     static final String GET_ENVIRONMENTS_ENDPOINT_TEMPLATE = "/environments?organization_id=%s";
+    static final String GET_LABELS_ENDPOINT_TEMPLATE = "/schedule/runPolicy/labels?organization_id=%s";
 
     public RestApiClient(String restApiBaseUrl, String restApiKey) {
         this.restApiBaseUrl = restApiBaseUrl;
@@ -76,9 +79,11 @@ public class RestApiClient implements AutoCloseable {
     public CreateDeploymentResult createDeploymentEvent(
             final String environmentId,
             final String applicationId,
-            final CreateDeploymentProperties properties) {
+            final Set<String> planLabels,
+            final CreateDeploymentProperties properties
+    ) {
         final HttpPost request = new HttpPost(restApiBaseUrl + DEPLOYMENT_TRIGGER_ENDPOINT);
-        request.setEntity(getCreateDeplotmentPayloadEntity(environmentId, applicationId, properties));
+        request.setEntity(getCreateDeploymentPayloadEntity(environmentId, applicationId, planLabels, properties));
         request.addHeader(getBasicAuthHeader(restApiKey));
         request.addHeader(JSON_TYPE_HEADER);
         return parseApiResult(getResponse(request), CreateDeploymentResult.class);
@@ -102,6 +107,11 @@ public class RestApiClient implements AutoCloseable {
     public GetEnvironmentsResult getEnvironmentsResult(String organizationId) {
         final String url = restApiBaseUrl + String.format(GET_ENVIRONMENTS_ENDPOINT_TEMPLATE, organizationId);
         return parseApiResult(getResponse(buildGetRequest(url)), GetEnvironmentsResult.class);
+    }
+
+    public GetLabelsResult getLabelsResult(String organizationId) {
+        final String url = restApiBaseUrl + String.format(GET_LABELS_ENDPOINT_TEMPLATE, organizationId);
+        return parseApiResult(getResponse(buildGetRequest(url)), GetLabelsResult.class);
     }
 
     private CloseableHttpClient getHttpClient(String restApiKey) {
@@ -139,14 +149,15 @@ public class RestApiClient implements AutoCloseable {
                 .build();
     }
 
-    private AbstractHttpEntity getCreateDeplotmentPayloadEntity(
+    private AbstractHttpEntity getCreateDeploymentPayloadEntity(
             String environmentId,
             String applicationId,
+            Set<String> planLabels,
             CreateDeploymentProperties properties
     ) {
         try {
             final String jsonPayload = objectMapper.writeValueAsString(
-                    new CreateDeploymentPayload(environmentId, applicationId, properties)
+                    new CreateDeploymentPayload(environmentId, applicationId, planLabels.isEmpty() ? null : planLabels, properties)
             );
 
             return new ByteArrayEntity(jsonPayload.getBytes("UTF-8"));
