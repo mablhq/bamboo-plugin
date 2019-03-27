@@ -46,7 +46,7 @@ public class ConfiguratorServlet extends HttpServlet {
             GetApplicationsResult getApplicationsResult = apiClient.getApplicationsResult(getApiKeyResult.organization_id);
             writeToWriter(response, objectMapper.writeValueAsString(getApplicationsResult.applications));
         } catch (JsonProcessingException | RuntimeException e) {
-            log.error(String.format("Unexpected status returned from doGetApplications: Reason '%s'", e.getMessage()));
+            log.error(String.format("Unexpected status returned from doGetApplications: Reason '%s'", e.getMessage()), e);
             writeToWriter(response, "[]");
         }
     }
@@ -57,7 +57,7 @@ public class ConfiguratorServlet extends HttpServlet {
             GetEnvironmentsResult getEnvironmentsResult = apiClient.getEnvironmentsResult(getApiKeyResult.organization_id);
             writeToWriter(response, objectMapper.writeValueAsString(getEnvironmentsResult.environments));
         } catch (JsonProcessingException | RuntimeException e) {
-            log.error(String.format("Unexpected status returned from doGetEnvironments: Reason '%s'", e.getMessage()));
+            log.error(String.format("Unexpected status returned from doGetEnvironments: Reason '%s'", e.getMessage()), e);
             writeToWriter(response, "[]");
         }
     }
@@ -68,7 +68,7 @@ public class ConfiguratorServlet extends HttpServlet {
             GetLabelsResult getLabelsResult = apiClient.getLabelsResult(getApiKeyResult.organization_id);
             writeToWriter(response, objectMapper.writeValueAsString(getLabelsResult.labels));
         } catch (JsonProcessingException | RuntimeException e) {
-            log.error(String.format("Unexpected status returned from doGetLabels: Reason '%s'", e.getMessage()));
+            log.error(String.format("Unexpected status returned from doGetLabels: Reason '%s'", e.getMessage()), e);
             writeToWriter(response, "[]");
         }
     }

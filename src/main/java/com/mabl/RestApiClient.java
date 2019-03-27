@@ -83,7 +83,7 @@ public class RestApiClient implements AutoCloseable {
             final CreateDeploymentProperties properties
     ) {
         final HttpPost request = new HttpPost(restApiBaseUrl + DEPLOYMENT_TRIGGER_ENDPOINT);
-        request.setEntity(getCreateDeplotmentPayloadEntity(environmentId, applicationId, planLabels, properties));
+        request.setEntity(getCreateDeploymentPayloadEntity(environmentId, applicationId, planLabels, properties));
         request.addHeader(getBasicAuthHeader(restApiKey));
         request.addHeader(JSON_TYPE_HEADER);
         return parseApiResult(getResponse(request), CreateDeploymentResult.class);
@@ -149,7 +149,7 @@ public class RestApiClient implements AutoCloseable {
                 .build();
     }
 
-    private AbstractHttpEntity getCreateDeplotmentPayloadEntity(
+    private AbstractHttpEntity getCreateDeploymentPayloadEntity(
             String environmentId,
             String applicationId,
             Set<String> planLabels,
@@ -157,7 +157,7 @@ public class RestApiClient implements AutoCloseable {
     ) {
         try {
             final String jsonPayload = objectMapper.writeValueAsString(
-                    new CreateDeploymentPayload(environmentId, applicationId, planLabels, properties)
+                    new CreateDeploymentPayload(environmentId, applicationId, planLabels.isEmpty() ? null : planLabels, properties)
             );
 
             return new ByteArrayEntity(jsonPayload.getBytes("UTF-8"));

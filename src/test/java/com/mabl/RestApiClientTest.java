@@ -37,6 +37,7 @@ public class RestApiClientTest extends AbstractWiremockTest {
     private static final String fakeEventId = "fakeEventId";
     private static final String fakePlanLabels = "[\"labelA\",\"labelB\"]";
     private static final Set<String> expectedPlanLabels = new HashSet<>(Arrays.asList("labelA","labelB"));
+    private static final Set<String> emptyPlanLabels = new HashSet<>();
     private static final String fakeProperties = "{\"deployment_origin\":\""+MablConstants.PLUGIN_USER_AGENT+"\"}";
 
     class PartialRestApiClient extends RestApiClient {
@@ -95,7 +96,7 @@ public class RestApiClientTest extends AbstractWiremockTest {
                 expectedBody
         );
 
-        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, null, null);
+        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, null, emptyPlanLabels);
     }
 
     @Test
@@ -110,7 +111,7 @@ public class RestApiClientTest extends AbstractWiremockTest {
                 expectedBody
         );
 
-        assertSuccessfulCreateDeploymentRequest(null, fakeApplicationId, null);
+        assertSuccessfulCreateDeploymentRequest(null, fakeApplicationId, emptyPlanLabels);
     }
 
     private void assertSuccessfulCreateDeploymentRequest(final String environmentId, final String applicationId, final Set<String> planLabels) {
@@ -132,7 +133,7 @@ public class RestApiClientTest extends AbstractWiremockTest {
             assertEquals(MablTestConstants.EXPECTED_DEPLOYMENT_EVENT_APPLICATION_ID, result.applicationId);
         }
 
-        if(planLabels == null) {
+        if(planLabels.isEmpty()) {
             assertNull(result.planLabels);
         } else {
             assertEquals(planLabels, result.planLabels);
@@ -220,31 +221,31 @@ public class RestApiClientTest extends AbstractWiremockTest {
     @Test(expected = RuntimeException.class)
     public void apiClientDoesntRetryOn500() {
         registerPostCreateRetryMappings("/events/deployment", "500", 500, 1);
-        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId, null);
+        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId, emptyPlanLabels);
     }
 
     @Test
     public void apiClientRetriesOn501() {
         registerPostCreateRetryMappings("/events/deployment", "501", 501, 1);
-        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId, null);
+        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId, emptyPlanLabels);
     }
 
     @Test
     public void apiClientDoesRetryOn503() {
         registerPostCreateRetryMappings("/events/deployment", "503", 503, 1);
-        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId, null);
+        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId, emptyPlanLabels);
     }
 
     @Test
     public void apiClientRetriesOn501MaxtimesSuccess() {
         registerPostCreateRetryMappings("/events/deployment", "501", 501, 5);
-        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId, null);
+        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId, emptyPlanLabels);
     }
 
     @Test(expected = RuntimeException.class)
     public void apiClientRetriesOn501OverMaxtimesFailure() {
         registerPostCreateRetryMappings("/events/deployment", "501", 501, 6);
-        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId, null);
+        assertSuccessfulCreateDeploymentRequest(fakeEnvironmentId, fakeApplicationId, emptyPlanLabels);
     }
 
     private void registerPostCreateRetryMappings(

@@ -29,6 +29,7 @@ import static com.mabl.MablConstants.MABL_REST_API_BASE_URL;
 import static com.mabl.MablConstants.PLAN_LABELS_FIELD;
 import static com.mabl.MablConstants.REST_API_KEY_FIELD;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.split;
 
 @Scanned
 public class CreateDeployment implements TaskType {
@@ -55,9 +56,11 @@ public class CreateDeployment implements TaskType {
         final String formApiKey = taskContext.getConfigurationMap().get(REST_API_KEY_FIELD);
         final String environmentId = taskContext.getConfigurationMap().get(ENVIRONMENT_ID_FIELD);
         final String applicationId = taskContext.getConfigurationMap().get(APPLICATION_ID_FIELD);
-        Set<String> planLabels = null;
-        if(!isEmpty(taskContext.getConfigurationMap().get(PLAN_LABELS_FIELD))) {
-            planLabels = new HashSet<>(Arrays.asList(taskContext.getConfigurationMap().get(PLAN_LABELS_FIELD).split(",")));
+        final String labels = taskContext.getConfigurationMap().get(PLAN_LABELS_FIELD);
+
+        Set<String> planLabels = new HashSet<>();
+        if(!labels.isEmpty()) {
+            planLabels.addAll(Arrays.asList(labels.split(",")));
         }
         final boolean sendEnvVars = getSendEnvVarsValue();
         final CreateDeploymentProperties properties = getMablProperties(sendEnvVars);

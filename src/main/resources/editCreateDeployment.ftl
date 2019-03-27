@@ -76,6 +76,7 @@ var mabl =
             {
                 // Loop through each of the results and append the option to the dropdown
                 AJS.$.each(result, function(k, v) {
+                    // Labels don't have ids so need to use name
                     var id = v.id ? v.id : v.name;
                     dropdown.append('<option value="' + id + '">' + v.name + '</option>');
                 });
