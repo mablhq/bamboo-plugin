@@ -16,6 +16,10 @@ This plugin allows easy launching of [mabl](https://www.mabl.com) journeys as a 
 
 Now builds from this plan will trigger Mabl test plan executions of the chosen configuration.
 
+### Proxy Settings
+
+This plugin respects outbound proxy settings you have configured for your server as described in [Atlassian's instructions.](https://confluence.atlassian.com/kb/how-to-configure-outbound-http-and-https-proxy-for-your-atlassian-application-834000120.html)
+
 ## Installation
 
 ### From the marketplace
