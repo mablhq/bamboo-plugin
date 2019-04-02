@@ -35,10 +35,13 @@ Install the [Atlassian SDK](https://developer.atlassian.com/server/framework/atl
 Grab [this container](https://hub.docker.com/r/atlassian/bamboo-server/)
 `docker pull atlassian/bamboo-server`
 Run these commands
-`docker volume create --name bambooVolume`
-`docker run -v bambooVolume:/var/atlassian/application-data/bamboo --name="bamboo" --init -d -p 54663:54663 -p 8085:8085 atlassian/bamboo-server`
-`docker start bamboo`
-`docker ps` to see it running, then visit `localhost:8085`
+```
+docker volume create --name bambooVolume`
+docker run -v bambooVolume:/var/atlassian/application-data/bamboo --name="bamboo" --init -d -p 54663:54663 -p 8085:8085 atlassian/bamboo-server
+docker start bamboo
+docker ps
+```
+then visit `localhost:8085`
   
 ### IDE setup
 You'll need to [follow here](https://community.developer.atlassian.com/t/configure-idea-to-use-the-sdk/10610) to setup your IDE to use atlas-mvn
