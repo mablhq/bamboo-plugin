@@ -21,7 +21,7 @@ Now builds from this plan will trigger Mabl test plan executions of the chosen c
 ### From the marketplace
 See the [Atlassian Docs](https://marketplace.atlassian.com/apps/1219102/mabl-deployment?hosting=server&tab=installation) about installing from the marketplace.
 
-### Building from source
+### Building from source and running locally
 Install the [Atlassian SDK](https://developer.atlassian.com/server/framework/atlassian-sdk/set-up-the-atlassian-plugin-sdk-and-build-a-project/)
 1. Clone this repo && cd into it
 2. Build this repo by running `atlas-mvn package`
@@ -31,14 +31,31 @@ Install the [Atlassian SDK](https://developer.atlassian.com/server/framework/atl
   [INFO] Type Ctrl-D to shutdown gracefully
   [INFO] Type Ctrl-C to exit
   ```
+### Building from source and running in docker container  
+Grab [this container](https://hub.docker.com/r/atlassian/bamboo-server/)
+`docker pull atlassian/bamboo-server`
+Run these commands
+`docker volume create --name bambooVolume`
+`docker run -v bambooVolume:/var/atlassian/application-data/bamboo --name="bamboo" --init -d -p 54663:54663 -p 8085:8085 atlassian/bamboo-server`
+`docker start bamboo`
+`docker ps` to see it running, then visit `localhost:8085`
+  
 ### IDE setup
 You'll need to [follow here](https://community.developer.atlassian.com/t/configure-idea-to-use-the-sdk/10610) to setup your IDE to use atlas-mvn
+
+### Testing
+You'll want to test this in the context of `atlas-run` and in a container as the way urls are built are different between the two.
 
 ### Deployment
 1. Merge code into master and push
 2. Run `atlas-mvn clean install`
-3. Run `atlas-mvn release:prepare`
-4. Upload the resulting `target/bamboo-plugin-$VERSION.jar` to the [atlassian marketplace](https://marketplace.atlassian.com/manage/apps/1219102/versions)
+3. Run `atlas-mvn release:prepare` This will update pom.xml with new version and tag the relase with current version minus `-SNAPSHOT`
+4. Run `atlas-mvn release:perform`
 
+### Manual Deployment
+1. Merge code into master and push
+2. Run `atlas-mvn clean install` 
+3. Upload the resulting `target/bamboo-plugin-$VERSION.jar` to the [atlassian marketplace](https://marketplace.atlassian.com/manage/apps/1219102/versions)
+Make sure your version doesn't include `-SNAPSHOT` if you're uploading manually.
 Uploading will require an admin to the mablhq Atlassian vendor account. 
   
