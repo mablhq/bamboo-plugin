@@ -116,6 +116,7 @@ public class RestApiClient implements AutoCloseable {
 
     private CloseableHttpClient getHttpClient(String restApiKey) {
         return HttpClients.custom()
+                .useSystemProperties() // use JVM proxy settings passed in by Bamboo.
                 .setRedirectStrategy(new DefaultRedirectStrategy())
                 .setServiceUnavailableRetryStrategy(getRetryHandler())
                 .setDefaultCredentialsProvider(getApiCredentialsProvider(restApiKey))
