@@ -7,8 +7,7 @@ import com.atlassian.bamboo.task.TaskResult;
 import com.atlassian.bamboo.task.TaskResultBuilder;
 import com.atlassian.bamboo.task.TaskType;
 import com.atlassian.bamboo.variable.CustomVariableContext;
-import com.atlassian.bamboo.variable.VariableDefinition;
-import com.atlassian.bamboo.variable.VariableDefinitionManager;
+import com.atlassian.bamboo.variable.VariableDefinitionContext;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.mabl.domain.CreateDeploymentProperties;
@@ -18,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static com.mabl.MablConstants.APPLICATION_ID_FIELD;
@@ -29,22 +29,18 @@ import static com.mabl.MablConstants.MABL_REST_API_BASE_URL;
 import static com.mabl.MablConstants.PLAN_LABELS_FIELD;
 import static com.mabl.MablConstants.REST_API_KEY_FIELD;
 import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.StringUtils.split;
 
 @Scanned
 public class CreateDeployment implements TaskType {
     private final TestCollationService testCollationService;
     private final CustomVariableContext customVariableContext;
-    private final VariableDefinitionManager variableDefinitionManager;
 
     public CreateDeployment(
             @ComponentImport TestCollationService testCollationService,
-            @ComponentImport CustomVariableContext customVariableContext,
-            @ComponentImport VariableDefinitionManager variableDefinitionManager
+            @ComponentImport CustomVariableContext customVariableContext
     ) {
         this.testCollationService = testCollationService;
         this.customVariableContext = customVariableContext;
-        this.variableDefinitionManager = variableDefinitionManager;
     }
 
     @NotNull
@@ -119,13 +115,15 @@ public class CreateDeployment implements TaskType {
         return properties;
     }
 
+    // You can set a Bamboo plan level variable `mabl.sendvariables` that will enable the plugin to send additional
+    // environment variables to mabl.
     private boolean getSendEnvVarsValue() {
-        VariableDefinition sendVars = variableDefinitionManager.getGlobalVariableByKey(MablConstants.MABL_SEND_VARIABLES_FIELD);
-        if(sendVars == null) {
+        Map<String, VariableDefinitionContext> context = this.customVariableContext.getVariableContexts();
+        if (!context.containsKey(MablConstants.MABL_SEND_VARIABLES_FIELD)) {
             return false;
         }
 
-        return Boolean.valueOf(sendVars.getValue());
+        return Boolean.valueOf(context.get(MablConstants.MABL_SEND_VARIABLES_FIELD).getValue());
     }
 
     private boolean finalOutputStatusAllSuccesses(
@@ -176,7 +174,7 @@ public class CreateDeployment implements TaskType {
     }
 
     private void logAllJourneyExecutionStatuses(final ExecutionResult result, final BuildLogger buildLogger) {
-        buildLogger.addBuildLogEntry(createLogLine("Running Mabl journey(s) status update:"));
+        buildLogger.addBuildLogEntry(createLogLine("Running Mabl test(s) status update:"));
         if(result.executions.isEmpty()) {
             buildLogger.addErrorLogEntry(createLogErrorLine("No executions exists for this plan."));
         }
@@ -196,7 +194,7 @@ public class CreateDeployment implements TaskType {
         ));
         for (ExecutionResult.JourneyExecutionResult journeyResult : planSummary.journeyExecutions) {
             buildLogger.addBuildLogEntry(createLogLine(
-                    "Journey '%s' is in state '%s'",
+                    "Test '%s' is in state '%s'",
                     safeJourneyName(planSummary, journeyResult.id),
                     journeyResult.status
             ));
@@ -213,7 +211,7 @@ public class CreateDeployment implements TaskType {
             final String journeyId
     ) {
         // Defensive treatment of possibly malformed future payloads
-        String journeyName = "<Unnamed Journey>";
+        String journeyName = "<Unnamed Test>";
         for(ExecutionResult.JourneySummary journeySummary: summary.journeys) {
             if(journeySummary.id.equals(journeyId) && !journeySummary.name.isEmpty()) {
                 journeyName = journeySummary.name;
