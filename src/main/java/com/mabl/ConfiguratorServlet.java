@@ -22,9 +22,13 @@ public class ConfiguratorServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) {
         String action = request.getParameter("ACTION");
         String restApiKey = request.getParameter("restApiKey");
+        String proxyAddress = request.getParameter("proxyAddress");
+        String proxyUsername = request.getParameter("proxyUsername");
+        String proxyPassword = request.getParameter("proxyPassword");
+        ProxyConfiguration proxyConfig = new ProxyConfiguration(proxyAddress, proxyUsername, proxyPassword);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        RestApiClient apiClient = new RestApiClient(MablConstants.MABL_REST_API_BASE_URL, restApiKey);
+        RestApiClient apiClient = new RestApiClient(MablConstants.MABL_REST_API_BASE_URL, restApiKey, proxyConfig);
 
         switch (action) {
             case "applications":

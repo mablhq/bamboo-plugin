@@ -43,7 +43,7 @@ public class RestApiClientTest extends AbstractWiremockTest {
     class PartialRestApiClient extends RestApiClient {
 
         public PartialRestApiClient(String restApiBaseUrl, String restApiKey) {
-            super(restApiBaseUrl, restApiKey);
+            super(restApiBaseUrl, restApiKey, new ProxyConfiguration(null, null, null));
         }
 
         @Override

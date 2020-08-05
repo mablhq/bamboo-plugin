@@ -27,6 +27,9 @@ import static com.mabl.MablConstants.EXECUTION_STATUS_POLLING_INTERNAL_MILLISECO
 import static com.mabl.MablConstants.MABL_LOG_OUTPUT_PREFIX;
 import static com.mabl.MablConstants.MABL_REST_API_BASE_URL;
 import static com.mabl.MablConstants.PLAN_LABELS_FIELD;
+import static com.mabl.MablConstants.PROXY_ADDRESS_FIELD;
+import static com.mabl.MablConstants.PROXY_PASSWORD_FIELD;
+import static com.mabl.MablConstants.PROXY_USERNAME_FIELD;
 import static com.mabl.MablConstants.REST_API_KEY_FIELD;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
@@ -53,6 +56,9 @@ public class CreateDeployment implements TaskType {
         final String environmentId = taskContext.getConfigurationMap().get(ENVIRONMENT_ID_FIELD);
         final String applicationId = taskContext.getConfigurationMap().get(APPLICATION_ID_FIELD);
         final String labels = taskContext.getConfigurationMap().get(PLAN_LABELS_FIELD);
+        final String proxyAddress = taskContext.getConfigurationMap().get(PROXY_ADDRESS_FIELD);
+        final String proxyUsername = taskContext.getConfigurationMap().get(PROXY_USERNAME_FIELD);
+        final String proxyPassword = taskContext.getConfigurationMap().get(PROXY_PASSWORD_FIELD);
 
         Set<String> planLabels = new HashSet<>();
         if(!labels.isEmpty()) {
@@ -66,8 +72,8 @@ public class CreateDeployment implements TaskType {
                 properties.toString()
         ));
         ExecutionResult executionResult;
-
-        try (RestApiClient apiClient = new RestApiClient(MABL_REST_API_BASE_URL, formApiKey)) {
+        ProxyConfiguration proxyConfig = new ProxyConfiguration(proxyAddress, proxyUsername, proxyPassword);
+        try (RestApiClient apiClient = new RestApiClient(MABL_REST_API_BASE_URL, formApiKey, proxyConfig)) {
 
             CreateDeploymentResult deployment = apiClient.createDeploymentEvent(environmentId, applicationId, planLabels, properties);
             buildLogger.addBuildLogEntry(createLogLine("Created deployment with id '%s' and triggered '%d' plans.", deployment.id, deployment.triggeredPlanRunSummaries.size()));

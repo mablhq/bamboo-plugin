@@ -28,26 +28,53 @@
     multiple="true"
     required="false"
 /]
+[@ww.textfield
+	labelKey="createddeployment.proxyaddress.label"
+	name="mablProxyAddress"
+	required="false"
+/]
+[@ww.textfield
+	labelKey="createddeployment.proxyusername.label"
+	name="mablProxyUsername"
+	required="false"
+/]
+[@ww.password
+	labelKey="createddeployment.proxypassword.label"
+	name="mablProxyPassword"
+	required="false"
+/]
 <a style="position: relative; bottom: 12px; left: 4px;" onclick="mabl.clearPlanLabels(event)">clear labels</a>
 <script type="text/javascript">
 
 var mabl =
 {
     populateDropdowns: function(event) {
-        var getEnvData = {ACTION : "environments",  restApiKey : event.target.value };
+        var getEnvData = {ACTION : "environments",  
+                          restApiKey : event.target.value,
+                          proxyAddress : "TODO, figure out how to source this",
+                          proxyUsername : "TODO, figure out how to source this",
+                          proxyPassword : "TODO, figure out how to source this"};
         var url = "${req.contextPath}/plugins/servlet/configurator";
         AJS.$.get(url, getEnvData, function(data) {
             mabl.helpers.buildDropdown(data, AJS.$("#mablEnvironmentId"), "Select Environment");
         })
         .fail(mabl.helpers.clearDropdown(AJS.$(), "#mablEnvironmentId"), "");
 
-        var getAppData = {ACTION : "applications",  restApiKey : event.target.value };
+        var getAppData = {ACTION : "applications",
+                          restApiKey : event.target.value,
+                          proxyAddress : "TODO, figure out how to source this",
+                          proxyUsername : "TODO, figure out how to source this",
+                          proxyPassword : "TODO, figure out how to source this"};
         AJS.$.get(url, getAppData, function(data) {
             mabl.helpers.buildDropdown(data, AJS.$("#mablApplicationId"), "Select Application");
         })
         .fail(mabl.helpers.clearDropdown(AJS.$("#mablApplicationId"), ""));
 
-        var getLabelData = {ACTION : "labels",  restApiKey : event.target.value };
+        var getLabelData = {ACTION : "labels",
+                            restApiKey : event.target.value,
+                            proxyAddress : "TODO, figure out how to source this",
+                            proxyUsername : "TODO, figure out how to source this",
+                            proxyPassword : "TODO, figure out how to source this"};
         AJS.$.get(url, getLabelData, function(data) {
             mabl.helpers.buildDropdown(data, AJS.$("#mablPlanLabels"));
         })

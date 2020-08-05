@@ -45,6 +45,7 @@ import static org.apache.commons.httpclient.HttpStatus.SC_OK;
 public class RestApiClient implements AutoCloseable {
     private final String restApiBaseUrl;
     private final String restApiKey;
+    private final ProxyConfiguration proxyConfiguration;
     private final CloseableHttpClient httpClient;
     private final Logger.Log log = Logger.getInstance(this.getClass());
 
@@ -66,10 +67,11 @@ public class RestApiClient implements AutoCloseable {
     static final String GET_ENVIRONMENTS_ENDPOINT_TEMPLATE = "/environments?organization_id=%s";
     static final String GET_LABELS_ENDPOINT_TEMPLATE = "/schedule/runPolicy/labels?organization_id=%s";
 
-    public RestApiClient(String restApiBaseUrl, String restApiKey) {
+    public RestApiClient(String restApiBaseUrl, String restApiKey, ProxyConfiguration proxyConfiguration) {
         this.restApiBaseUrl = restApiBaseUrl;
         this.restApiKey = restApiKey;
-        this.httpClient = getHttpClient(restApiKey);
+        this.proxyConfiguration = proxyConfiguration;
+        this.httpClient = getHttpClient(restApiKey, proxyConfiguration);
     }
 
     public String getRestApiKey() {
@@ -114,9 +116,12 @@ public class RestApiClient implements AutoCloseable {
         return parseApiResult(getResponse(buildGetRequest(url)), GetLabelsResult.class);
     }
 
-    private CloseableHttpClient getHttpClient(String restApiKey) {
+    private CloseableHttpClient getHttpClient(String restApiKey, ProxyConfiguration proxyConfiguration) {
+    	
         return HttpClients.custom()
                 .useSystemProperties() // use JVM proxy settings passed in by Bamboo.
+                .setProxy(proxyConfiguration.getProxy().orElse(null))
+                .setDefaultCredentialsProvider(proxyConfiguration.getCredentialsProvider().orElse(null))
                 .setRedirectStrategy(new DefaultRedirectStrategy())
                 .setServiceUnavailableRetryStrategy(getRetryHandler())
                 .setDefaultCredentialsProvider(getApiCredentialsProvider(restApiKey))
