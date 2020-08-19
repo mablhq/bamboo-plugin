@@ -10,7 +10,7 @@ import com.mabl.domain.CreateDeploymentProperties;
 import com.mabl.domain.CreateDeploymentResult;
 import com.mabl.domain.CreateDeploymentPayload;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -161,7 +161,7 @@ public class RestApiClient implements AutoCloseable {
                     new CreateDeploymentPayload(environmentId, applicationId, planLabels.isEmpty() ? null : planLabels, properties)
             );
 
-            return new ByteArrayEntity(jsonPayload.getBytes("UTF-8"));
+            return new ByteArrayEntity(jsonPayload.getBytes(StandardCharsets.UTF_8));
 
         } catch (IOException e) {
             log.error(String.format("Unable to create payloadEntity. Reason: '%s'", e.getMessage()));
@@ -175,16 +175,7 @@ public class RestApiClient implements AutoCloseable {
     }
 
     private String base64EncodeUtf8(String toBeEncoded) {
-        try {
-            return Base64.getEncoder().encodeToString(toBeEncoded.getBytes("UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            log.error(String.format(
-                    "Unable to base64 encode using UTF-8 the string '%s'. Reason:'%s'",
-                    toBeEncoded,
-                    e.getMessage()
-            ));
-            throw new RuntimeException(e.getMessage(), e);
-        }
+        return Base64.getEncoder().encodeToString(toBeEncoded.getBytes(StandardCharsets.UTF_8));
     }
 
     private HttpGet buildGetRequest(final String url) {
@@ -209,13 +200,12 @@ public class RestApiClient implements AutoCloseable {
     private <ApiResult> ApiResult parseApiResult(final HttpResponse response, Class<ApiResult> resultClass) {
         final int statusCode = response.getStatusLine().getStatusCode();
 
-        String message = "";
         switch (statusCode) {
             case SC_OK: // fall through case
             case SC_CREATED:
                 return mapObject(response, resultClass);
             default:
-                message = String.format(
+                final String message = String.format(
                         "Unexpected status returned from parse Api result during fetch %d%n",
                         statusCode
                 );

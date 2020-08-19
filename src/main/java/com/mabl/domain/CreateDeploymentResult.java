@@ -16,6 +16,7 @@ public class CreateDeploymentResult implements ApiResult {
     public long receivedTime;
     public Set<PlanRunSummary> triggeredPlanRunSummaries;
     public Set<String> planLabels;
+    public String workspaceId;
 
     @JsonCreator
     public CreateDeploymentResult(
@@ -24,7 +25,8 @@ public class CreateDeploymentResult implements ApiResult {
             @JsonProperty("environment_id") String environmentId,
             @JsonProperty("received_time") long receivedTime,
             @JsonProperty("triggered_plan_run_summaries")Set<PlanRunSummary> triggeredPlanRunSummaries,
-            @JsonProperty("plan_labels")Set<String> planLabels
+            @JsonProperty("plan_labels")Set<String> planLabels,
+            @JsonProperty("workspace_id") final String workspaceId
             ) {
         this.id = id;
         this.applicationId = applicationId;
@@ -32,6 +34,7 @@ public class CreateDeploymentResult implements ApiResult {
         this.receivedTime = receivedTime;
         this.triggeredPlanRunSummaries = triggeredPlanRunSummaries;
         this.planLabels = planLabels;
+        this.workspaceId = workspaceId;
     }
 
 
