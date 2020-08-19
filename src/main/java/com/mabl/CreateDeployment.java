@@ -1,6 +1,5 @@
 package com.mabl;
 
-import com.atlassian.bamboo.artifact.Artifact;
 import com.atlassian.bamboo.build.logger.BuildLogger;
 import com.atlassian.bamboo.build.test.TestCollationService;
 import com.atlassian.bamboo.task.TaskContext;
@@ -26,11 +25,9 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
