@@ -36,6 +36,12 @@ public class ConfiguratorServlet extends HttpServlet {
             case "labels":
                 doGetLabels(apiClient, response);
                 break;
+            default:
+                try {
+                    response.sendError(400, "request not supported");
+                } catch (IOException e) {
+                    log.warn("Failed to send response");
+                }
         }
 
 	}
