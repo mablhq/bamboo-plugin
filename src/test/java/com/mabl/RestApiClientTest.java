@@ -2,6 +2,7 @@ package com.mabl;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
+import com.google.common.collect.Sets;
 import com.mabl.domain.CreateDeploymentProperties;
 import com.mabl.domain.CreateDeploymentResult;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
@@ -9,6 +10,7 @@ import com.mabl.domain.ExecutionResult;
 import com.mabl.domain.GetApiKeyResult;
 import com.mabl.domain.GetApplicationsResult;
 import com.mabl.domain.GetEnvironmentsResult;
+import com.mabl.domain.GetLabelsResult;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -55,6 +57,7 @@ public class RestApiClientTest extends AbstractWiremockTest {
     @Test
     public void getApiKeyResultTest() {
         RestApiClient restApiClient = new PartialRestApiClient(getBaseUrl(), fakeRestApiKey);
+        assertEquals(fakeRestApiKey, restApiClient.getRestApiKey());
 
         registerGetMapping(
                 String.format(restApiClient.GET_API_KEY_ENDPOINT_TEMPLATE, fakeRestApiKey),
@@ -140,6 +143,8 @@ public class RestApiClientTest extends AbstractWiremockTest {
         }
 
         verifyExpectedUrls();
+
+        client.close();
     }
 
     @Test
@@ -216,6 +221,29 @@ public class RestApiClientTest extends AbstractWiremockTest {
         RestApiClient client = new PartialRestApiClient(baseUrl, fakeRestApiKey);
         GetEnvironmentsResult result = client.getEnvironmentsResult(organization_id);
         assertEquals(1, result.environments.size());
+    }
+
+    @Test
+    public void getLabelsReturnsTwoResults() {
+        final String fakeRestApiKey = "fakeApiKeyValue";
+        final String organization_id = "fakeOrganizationId";
+
+        WireMock.stubFor(get(urlPathEqualTo("/schedule/runPolicy/labels"))
+                .withQueryParam("organization_id", equalTo(organization_id))
+                .withBasicAuth(REST_API_USERNAME_PLACEHOLDER, fakeRestApiKey)
+                .withHeader("user-agent", new EqualToPattern(MablConstants.PLUGIN_USER_AGENT))
+                .willReturn(ok()
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("getlabelsresponse.json")
+                ));
+        final String baseUrl = getBaseUrl();
+
+        RestApiClient client = new PartialRestApiClient(baseUrl, fakeRestApiKey);
+        GetLabelsResult result = client.getLabelsResult(organization_id);
+        assertEquals(5, result.labels.size());
+        HashSet<String> expectedLabels =
+                Sets.newHashSet("failsOnRerun", "succeedsOnRerun", "smoke", "local", "regression");
+        result.labels.forEach(label -> assertTrue(expectedLabels.remove(label.name)));
     }
 
     @Test(expected = RuntimeException.class)
