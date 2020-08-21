@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<testsuites>
+  <testsuite name="Empty Test Suite" tests="0" errors="0" failures="0" skipped="0" time="0" timestamp="2013-05-24T10:23:58">
+    <properties/>
+  </testsuite>
+  <testsuite name="Full Test Suite" tests="3" errors="0" failures="1" skipped="1" time="33" timestamp="2013-05-24T10:23:58">
+    <properties>
+      <property name="environment" value="my env-e"/>
+      <property name="application" value="my app-a"/>
+      <property name="completed-test-cases" value="TESTCASE-1"/>
+      <property name="failed-test-cases" value="TESTCASE-2"/>
+      <property name="skipped-test-cases" value="TESTCASE-3"/>
+    </properties>
+    <testcase classname="My Plan Name 1" name="My Test Name 1" time="11" xlink:type="simple" xlink:href="http://myapphref.com">
+      <properties>
+        <property name="requirement" value="TESTCASE-1"/>
+      </properties>
+    </testcase>
+    <testcase classname="My Plan Name 2" name="My Test Name 2" time="22" xlink:type="simple" xlink:href="http://myapphref.com">
+      <failure message="My Message">My Reason</failure>
+      <properties>
+        <property name="requirement" value="TESTCASE-2"/>
+      </properties>
+    </testcase>
+    <testcase classname="My Plan Name 3" name="My Test Name 3" time="33" xlink:type="simple" xlink:href="http://myapphref.com">
+      <skipped/>
+      <properties>
+        <property name="requirement" value="TESTCASE-3"/>
+      </properties>
+    </testcase>
+  </testsuite>
+</testsuites>
