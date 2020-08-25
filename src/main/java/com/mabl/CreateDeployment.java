@@ -26,8 +26,10 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -149,7 +151,7 @@ public class CreateDeployment implements TaskType {
             return false;
         }
 
-        return "true".equalsIgnoreCase(context.get(MablConstants.MABL_SEND_VARIABLES_FIELD).getValue());
+        return Boolean.parseBoolean(context.get(MablConstants.MABL_SEND_VARIABLES_FIELD).getValue());
     }
 
     private boolean finalOutputStatusAllSuccesses(
@@ -161,32 +163,19 @@ public class CreateDeployment implements TaskType {
         buildLogger.addBuildLogEntry(createLogLine("The final Plan states in Mabl:"));
         final Set<String> retriedPlanIDs = new HashSet<>();
         result.executions.stream().
-                filter(summary -> (summary.planExecution != null && summary.planExecution.isRetry)).
+                filter(CreateDeployment::isRetriedPlanExecution).
                 filter(summary -> (summary.plan != null && summary.plan.id != null)).
                 forEach(summary -> retriedPlanIDs.add(summary.plan.id));
 
         for (ExecutionResult.ExecutionSummary summary : result.executions) {
-            final String successState = summary.success ? "SUCCEEDED" : "FAILED";
-            if (summary.success || (summary.planExecution != null &&
-                            !summary.planExecution.isRetry &&
-                            summary.plan != null &&
-                            summary.plan.id != null &&
-                            retriedPlanIDs.contains(summary.plan.id))) {
-                buildLogger.addBuildLogEntry(createLogLine(
-                        "%sPlan '%s' has %s with state '%s'",
-                        (summary.planExecution != null && summary.planExecution.isRetry) ? "RETRY: " : "",
-                        safePlanName(summary),
-                        successState,
-                        summary.status
-                ));
+
+            final boolean retriedPlanExecution = isRetriedPlanExecution(summary);
+            final boolean retriedPlan = isRetriedPlan(summary, retriedPlanIDs);
+
+            if (summary.success || (retriedPlan && !retriedPlanExecution)) {
+                buildLogger.addBuildLogEntry(formatPlanLog(false, summary));
             } else {
-                buildLogger.addErrorLogEntry(createLogErrorLine(
-                        "%sPlan '%s' has %s with state '%s'",
-                        (summary.planExecution != null && summary.planExecution.isRetry) ? "RETRY: " : "",
-                        safePlanName(summary),
-                        successState,
-                        summary.status
-                ));
+                buildLogger.addErrorLogEntry(formatPlanLog(true, summary));
             }
 
             for (ExecutionResult.JourneyExecutionResult journeyResult : summary.journeyExecutions) {
@@ -200,12 +189,7 @@ public class CreateDeployment implements TaskType {
                 } else {
                     // suppress logging test run failures that are retries (i.e. only log the failure if the retry
                     // failed), otherwise Bamboo will consider this as a plan failure.
-                    if (summary.planExecution == null ||
-                            summary.planExecution.isRetry ||
-                            summary.plan == null ||
-                            summary.plan.id == null ||
-                            !retriedPlanIDs.contains(summary.plan.id)
-                    ) {
+                    if (retriedPlanExecution || !retriedPlan) {
                         outputProvider.addFailure(planName, testName, duration);
                     }
                 }
@@ -239,7 +223,7 @@ public class CreateDeployment implements TaskType {
     ) {
         buildLogger.addBuildLogEntry(createLogLine(
                 "  %sPlan '%s' is in state '%s'",
-                (planSummary.planExecution != null && planSummary.planExecution.isRetry) ? "RETRY: " : "",
+                maybeRetryPrefix(planSummary),
                 safePlanName(planSummary),
                 planSummary.status
         ));
@@ -312,10 +296,7 @@ public class CreateDeployment implements TaskType {
     }
 
     private static TestSuite createTestSuite(final ExecutionResult.ExecutionSummary summary) {
-        final Date startDate = new Date(summary.startTime);
-        final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        format.setTimeZone(TimeZone.getTimeZone("UTC"));
-        final String timestamp = format.format(startDate);
+        final String timestamp = Instant.ofEpochMilli(summary.startTime).toString();
         final String planName = safePlanName(summary);
         final TestSuite testSuite = new TestSuite(planName, getDuration(summary), timestamp);
 
@@ -355,7 +336,6 @@ public class CreateDeployment implements TaskType {
             if (!journeyResult.success && null != journeyResult.status) {
                 switch (journeyResult.status) {
                     case "failed":
-                        // fall through
                     case "terminated":
                         final Failure failure = new Failure(journeyResult.status, journeyResult.statusCause);
                         testCase.setFailure(failure);
@@ -392,6 +372,31 @@ public class CreateDeployment implements TaskType {
     private static long getDuration(ExecutionResult.JourneyExecutionResult summary) {
         return summary.stopTime != null ?
                 TimeUnit.SECONDS.convert( (summary.stopTime - summary.startTime), TimeUnit.MILLISECONDS) : 0;
+    }
+
+    private static boolean isRetriedPlan(ExecutionResult.ExecutionSummary summary, Collection<String> retriedPlanIDs) {
+        return summary.plan != null &&  summary.plan.id != null && retriedPlanIDs.contains(summary.plan.id);
+    }
+
+    private static boolean isRetriedPlanExecution(ExecutionResult.ExecutionSummary summary) {
+        return summary.planExecution != null && summary.planExecution.isRetry;
+    }
+
+    private static String maybeRetryPrefix(ExecutionResult.ExecutionSummary summary) {
+        return isRetriedPlanExecution(summary) ? "RETRY" : "";
+    }
+
+    private String formatPlanLog(boolean isError, ExecutionResult.ExecutionSummary summary) {
+        final String successState = summary.success ? "SUCCEEDED" : "FAILED";
+        final String planName = safePlanName(summary);
+
+        return createLogHelper(isError,
+                "%sPlan '%s' has %s with state '%s'",
+                maybeRetryPrefix(summary),
+                planName,
+                successState,
+                summary.status
+        );
     }
 
 }

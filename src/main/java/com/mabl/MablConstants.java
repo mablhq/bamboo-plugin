@@ -27,14 +27,8 @@ class MablConstants {
 
     private static final String PLUGIN_VERSION = getPluginVersion();
     private static final String PLUGIN_VERSION_UNKNOWN = "unknown";
-    static final String PLUGIN_USER_AGENT;
-    static {
-        String bambooVersion = Optional.ofNullable(System.getProperty("atlassian.sdk.version")).
-                orElse(Optional.ofNullable(System.getenv("AMPS_PLUGIN_VERSION")).
-                                orElse("unknown"));
-        PLUGIN_USER_AGENT = String.format("mabl-bamboo-plugin/%s (JVM: %s, Bamboo: %s)",
-                PLUGIN_VERSION, System.getProperty("java.version"), bambooVersion);
-    }
+    static final String PLUGIN_USER_AGENT = String.format("mabl-bamboo-plugin/%s (JVM: %s, Bamboo: %s)",
+                PLUGIN_VERSION, System.getProperty("java.version"), getBambooVersion());
     static final String MABL_REST_API_BASE_URL = "https://api.mabl.com";
     static final int REQUEST_TIMEOUT_MILLISECONDS = 60000;
     static final int CONNECTION_SECONDS_TO_LIVE = 30;
@@ -72,5 +66,13 @@ class MablConstants {
             }
         } catch (IOException ignored) {}
         return PLUGIN_VERSION_UNKNOWN;
+    }
+
+    private static String getBambooVersion() {
+        return Optional.ofNullable(System.getProperty("atlassian.sdk.version")).
+                orElseGet(() -> {
+                    final String pluginVersion = System.getenv("AMPS_PLUGIN_VERSION");
+                    return StringUtils.isEmpty(pluginVersion) ? "unknown" : pluginVersion;
+                });
     }
 }
