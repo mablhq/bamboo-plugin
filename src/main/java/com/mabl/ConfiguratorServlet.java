@@ -38,7 +38,7 @@ public class ConfiguratorServlet extends HttpServlet {
                 break;
             default:
                 try {
-                    response.sendError(400, "request not supported");
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "request not supported");
                 } catch (IOException e) {
                     log.warn("Failed to send response");
                 }

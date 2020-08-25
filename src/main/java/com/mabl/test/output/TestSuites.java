@@ -21,7 +21,7 @@ public class TestSuites {
 
     public TestSuites(ImmutableCollection<TestSuite> testSuites) {
         this.testSuites = testSuites;
-        this.xlink = null; //MablStepConstants.TEST_OUTPUT_XML_XLINK;
+        this.xlink = null;
     }
 
     public TestSuites() {

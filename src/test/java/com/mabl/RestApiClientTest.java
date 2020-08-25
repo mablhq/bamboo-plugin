@@ -11,6 +11,7 @@ import com.mabl.domain.GetApiKeyResult;
 import com.mabl.domain.GetApplicationsResult;
 import com.mabl.domain.GetEnvironmentsResult;
 import com.mabl.domain.GetLabelsResult;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -118,33 +119,32 @@ public class RestApiClientTest extends AbstractWiremockTest {
     }
 
     private void assertSuccessfulCreateDeploymentRequest(final String environmentId, final String applicationId, final Set<String> planLabels) {
-        RestApiClient client = new PartialRestApiClient(getBaseUrl(), fakeRestApiKey);
-        CreateDeploymentProperties properties = new CreateDeploymentProperties();
-        properties.setDeploymentOrigin(MablConstants.PLUGIN_USER_AGENT);
-        CreateDeploymentResult result = client.createDeploymentEvent(environmentId, applicationId, planLabels, properties);
+        try (RestApiClient client = new PartialRestApiClient(getBaseUrl(), fakeRestApiKey)) {
+            CreateDeploymentProperties properties = new CreateDeploymentProperties();
+            properties.setDeploymentOrigin(MablConstants.PLUGIN_USER_AGENT);
+            CreateDeploymentResult result = client.createDeploymentEvent(environmentId, applicationId, planLabels, properties);
 
-        assertEquals(MablTestConstants.EXPECTED_DEPLOYMENT_EVENT_ID, result.id);
-        if(environmentId == null) {
-            assertNull(result.environmentId);
-        } else {
-            assertEquals(MablTestConstants.EXPECTED_DEPLOYMENT_EVENT_ENVIRONMENT_ID, result.environmentId);
+            assertEquals(MablTestConstants.EXPECTED_DEPLOYMENT_EVENT_ID, result.id);
+            if (environmentId == null) {
+                assertNull(result.environmentId);
+            } else {
+                assertEquals(MablTestConstants.EXPECTED_DEPLOYMENT_EVENT_ENVIRONMENT_ID, result.environmentId);
+            }
+
+            if (applicationId == null) {
+                assertNull(result.applicationId);
+            } else {
+                assertEquals(MablTestConstants.EXPECTED_DEPLOYMENT_EVENT_APPLICATION_ID, result.applicationId);
+            }
+
+            if (planLabels.isEmpty()) {
+                assertNull(result.planLabels);
+            } else {
+                assertEquals(planLabels, result.planLabels);
+            }
+
+            verifyExpectedUrls();
         }
-
-        if(applicationId == null) {
-            assertNull(result.applicationId);
-        } else {
-            assertEquals(MablTestConstants.EXPECTED_DEPLOYMENT_EVENT_APPLICATION_ID, result.applicationId);
-        }
-
-        if(planLabels.isEmpty()) {
-            assertNull(result.planLabels);
-        } else {
-            assertEquals(planLabels, result.planLabels);
-        }
-
-        verifyExpectedUrls();
-
-        client.close();
     }
 
     @Test

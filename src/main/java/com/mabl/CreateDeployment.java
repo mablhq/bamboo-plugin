@@ -25,26 +25,25 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.mabl.MablConstants.APPLICATION_ID_FIELD;
 import static com.mabl.MablConstants.COMPLETE_STATUSES;
 import static com.mabl.MablConstants.ENVIRONMENT_ID_FIELD;
 import static com.mabl.MablConstants.EXECUTION_STATUS_POLLING_INTERNAL_MILLISECONDS;
+import static com.mabl.MablConstants.MABL_JUNIT_REPORT_XML;
 import static com.mabl.MablConstants.MABL_LOG_OUTPUT_PREFIX;
 import static com.mabl.MablConstants.MABL_REST_API_BASE_URL;
 import static com.mabl.MablConstants.PLAN_LABELS_FIELD;
@@ -69,7 +68,7 @@ public class CreateDeployment implements TaskType {
     @NotNull
     @Override
     public TaskResult execute(@NotNull TaskContext taskContext) {
-        final File junitReport = new File(taskContext.getWorkingDirectory(), "report.xml");
+        final File junitReport = new File(taskContext.getWorkingDirectory(), MABL_JUNIT_REPORT_XML);
         final BuildLogger buildLogger = taskContext.getBuildLogger();
         final TaskResultBuilder taskResultBuilder = TaskResultBuilder.newBuilder(taskContext);
         final MablOutputProvider mablOutputProvider = new MablOutputProvider();
@@ -278,8 +277,7 @@ public class CreateDeployment implements TaskType {
     }
 
     private static void generateJUnitReport(final File reportFile, final List<ExecutionResult.ExecutionSummary> summaries) {
-        List<TestSuite> suites = new ArrayList<>();
-        summaries.forEach(summary -> suites.add(createTestSuite(summary)));
+        List<TestSuite> suites = summaries.stream().map(CreateDeployment::createTestSuite).collect(Collectors.toList());
         TestSuites testSuites = new TestSuites(ImmutableList.copyOf(suites));
         outputTestSuiteXml(reportFile, testSuites);
     }
@@ -318,8 +316,8 @@ public class CreateDeployment implements TaskType {
                     case "skipped":
                         final SortedSet<String> ids =
                                 testCaseIDs.computeIfAbsent(journeyResult.status + "-test-cases", k -> new TreeSet<>());
-                        for (ExecutionResult.TestCaseID id : journeyResult.testCases) {
-                            ids.add(id.caseID);
+                        for (ExecutionResult.TestCaseId id : journeyResult.testCases) {
+                            ids.add(id.caseId);
                         }
 
                         // XRay - report extension
@@ -357,8 +355,8 @@ public class CreateDeployment implements TaskType {
         }
 
         if (!testCaseIDs.isEmpty()) {
-            for (Map.Entry<String,SortedSet<String>> e : testCaseIDs.entrySet()) {
-                testSuite.addProperty(e.getKey(), String.join(",", e.getValue()));
+            for (Map.Entry<String,SortedSet<String>> testCaseStatusEntry : testCaseIDs.entrySet()) {
+                testSuite.addProperty(testCaseStatusEntry.getKey(), String.join(",", testCaseStatusEntry.getValue()));
             }
         }
         return testSuite;

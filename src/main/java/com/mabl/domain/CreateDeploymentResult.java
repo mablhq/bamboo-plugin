@@ -20,12 +20,12 @@ public class CreateDeploymentResult implements ApiResult {
 
     @JsonCreator
     public CreateDeploymentResult(
-            @JsonProperty("id") String id,
-            @JsonProperty("application_id") String applicationId,
-            @JsonProperty("environment_id") String environmentId,
-            @JsonProperty("received_time") long receivedTime,
-            @JsonProperty("triggered_plan_run_summaries")Set<PlanRunSummary> triggeredPlanRunSummaries,
-            @JsonProperty("plan_labels")Set<String> planLabels,
+            @JsonProperty("id") final String id,
+            @JsonProperty("application_id") final String applicationId,
+            @JsonProperty("environment_id") final String environmentId,
+            @JsonProperty("received_time") final long receivedTime,
+            @JsonProperty("triggered_plan_run_summaries") final Set<PlanRunSummary> triggeredPlanRunSummaries,
+            @JsonProperty("plan_labels") final Set<String> planLabels,
             @JsonProperty("workspace_id") final String workspaceId
             ) {
         this.id = id;

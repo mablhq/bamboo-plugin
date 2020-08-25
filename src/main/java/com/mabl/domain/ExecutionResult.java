@@ -96,12 +96,12 @@ public class ExecutionResult implements ApiResult {
         }
     }
 
-    public static class TestCaseID {
-        public final String caseID;
+    public static class TestCaseId {
+        public final String caseId;
 
         @JsonCreator
-        public TestCaseID(@JsonProperty("id") final String caseID) {
-            this.caseID = caseID;
+        public TestCaseId(@JsonProperty("id") final String caseId) {
+            this.caseId = caseId;
         }
 
     }
@@ -117,7 +117,7 @@ public class ExecutionResult implements ApiResult {
         public final boolean success;
         public final Long startTime;
         public final Long stopTime;
-        public final List<TestCaseID> testCases;
+        public final List<TestCaseId> testCases;
 
         @JsonCreator
         public JourneyExecutionResult(
@@ -130,7 +130,7 @@ public class ExecutionResult implements ApiResult {
                 @JsonProperty("success") final boolean success,
                 @JsonProperty("start_time") final Long startTime,
                 @JsonProperty("stop_time") final Long stopTime,
-                @JsonProperty("test_cases") final List<TestCaseID> testCases
+                @JsonProperty("test_cases") final List<TestCaseId> testCases
         ) {
             this.id = id;
             this.executionId = executionId;

@@ -44,6 +44,7 @@ class MablConstants {
     static final String PLAN_LABELS_FIELD = "mablPlanLabels";
     static final String PLAN_LABELS_LABEL_PROPERTY = "createdeployment.planlabels.label";
     static final String MABL_LOG_OUTPUT_PREFIX = "[mabl]";
+    static final String MABL_JUNIT_REPORT_XML = "report.xml";
 
 
     private static final String PLUGIN_SYMBOLIC_NAME = "com.mabl.bamboo.plugin";

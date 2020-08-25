@@ -49,10 +49,7 @@ public class TestSuite {
     }
 
     public TestSuite(String name, long time, String timestamp) {
-        this.name = name;
-        this.time = time;
-        this.timestamp = timestamp;
-        this.testCases = new ArrayList<>();
+        this(name, time, timestamp, null);
     }
 
     public TestSuite() {
