@@ -11,12 +11,12 @@ import com.mabl.domain.GetApiKeyResult;
 import com.mabl.domain.GetApplicationsResult;
 import com.mabl.domain.GetEnvironmentsResult;
 import com.mabl.domain.GetLabelsResult;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
@@ -32,6 +32,9 @@ import static com.mabl.RestApiClient.REST_API_USERNAME_PLACEHOLDER;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.notFound;
 import static org.apache.commons.httpclient.HttpStatus.SC_CREATED;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.isIn;
+import static org.hamcrest.Matchers.everyItem;
 
 public class RestApiClientTest extends AbstractWiremockTest {
     private static final String fakeRestApiKey = "fakeApiKey";
@@ -243,7 +246,8 @@ public class RestApiClientTest extends AbstractWiremockTest {
         assertEquals(5, result.labels.size());
         HashSet<String> expectedLabels =
                 Sets.newHashSet("failsOnRerun", "succeedsOnRerun", "smoke", "local", "regression");
-        result.labels.forEach(label -> assertTrue(expectedLabels.remove(label.name)));
+        Set<String> actualLabels = result.labels.stream().map(label -> label.name).collect(Collectors.toSet());
+        assertThat(actualLabels, everyItem(isIn(expectedLabels)));
     }
 
     @Test(expected = RuntimeException.class)
