@@ -2,6 +2,7 @@ package com.mabl;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
+import com.google.common.collect.Sets;
 import com.mabl.domain.CreateDeploymentProperties;
 import com.mabl.domain.CreateDeploymentResult;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
@@ -9,11 +10,13 @@ import com.mabl.domain.ExecutionResult;
 import com.mabl.domain.GetApiKeyResult;
 import com.mabl.domain.GetApplicationsResult;
 import com.mabl.domain.GetEnvironmentsResult;
+import com.mabl.domain.GetLabelsResult;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
@@ -29,6 +32,9 @@ import static com.mabl.RestApiClient.REST_API_USERNAME_PLACEHOLDER;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.notFound;
 import static org.apache.commons.httpclient.HttpStatus.SC_CREATED;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.isIn;
+import static org.hamcrest.Matchers.everyItem;
 
 public class RestApiClientTest extends AbstractWiremockTest {
     private static final String fakeRestApiKey = "fakeApiKey";
@@ -55,6 +61,7 @@ public class RestApiClientTest extends AbstractWiremockTest {
     @Test
     public void getApiKeyResultTest() {
         RestApiClient restApiClient = new PartialRestApiClient(getBaseUrl(), fakeRestApiKey);
+        assertEquals(fakeRestApiKey, restApiClient.getRestApiKey());
 
         registerGetMapping(
                 String.format(restApiClient.GET_API_KEY_ENDPOINT_TEMPLATE, fakeRestApiKey),
@@ -115,31 +122,32 @@ public class RestApiClientTest extends AbstractWiremockTest {
     }
 
     private void assertSuccessfulCreateDeploymentRequest(final String environmentId, final String applicationId, final Set<String> planLabels) {
-        RestApiClient client = new PartialRestApiClient(getBaseUrl(), fakeRestApiKey);
-        CreateDeploymentProperties properties = new CreateDeploymentProperties();
-        properties.setDeploymentOrigin(MablConstants.PLUGIN_USER_AGENT);
-        CreateDeploymentResult result = client.createDeploymentEvent(environmentId, applicationId, planLabels, properties);
+        try (RestApiClient client = new PartialRestApiClient(getBaseUrl(), fakeRestApiKey)) {
+            CreateDeploymentProperties properties = new CreateDeploymentProperties();
+            properties.setDeploymentOrigin(MablConstants.PLUGIN_USER_AGENT);
+            CreateDeploymentResult result = client.createDeploymentEvent(environmentId, applicationId, planLabels, properties);
 
-        assertEquals(MablTestConstants.EXPECTED_DEPLOYMENT_EVENT_ID, result.id);
-        if(environmentId == null) {
-            assertNull(result.environmentId);
-        } else {
-            assertEquals(MablTestConstants.EXPECTED_DEPLOYMENT_EVENT_ENVIRONMENT_ID, result.environmentId);
+            assertEquals(MablTestConstants.EXPECTED_DEPLOYMENT_EVENT_ID, result.id);
+            if (environmentId == null) {
+                assertNull(result.environmentId);
+            } else {
+                assertEquals(MablTestConstants.EXPECTED_DEPLOYMENT_EVENT_ENVIRONMENT_ID, result.environmentId);
+            }
+
+            if (applicationId == null) {
+                assertNull(result.applicationId);
+            } else {
+                assertEquals(MablTestConstants.EXPECTED_DEPLOYMENT_EVENT_APPLICATION_ID, result.applicationId);
+            }
+
+            if (planLabels.isEmpty()) {
+                assertNull(result.planLabels);
+            } else {
+                assertEquals(planLabels, result.planLabels);
+            }
+
+            verifyExpectedUrls();
         }
-
-        if(applicationId == null) {
-            assertNull(result.applicationId);
-        } else {
-            assertEquals(MablTestConstants.EXPECTED_DEPLOYMENT_EVENT_APPLICATION_ID, result.applicationId);
-        }
-
-        if(planLabels.isEmpty()) {
-            assertNull(result.planLabels);
-        } else {
-            assertEquals(planLabels, result.planLabels);
-        }
-
-        verifyExpectedUrls();
     }
 
     @Test
@@ -216,6 +224,30 @@ public class RestApiClientTest extends AbstractWiremockTest {
         RestApiClient client = new PartialRestApiClient(baseUrl, fakeRestApiKey);
         GetEnvironmentsResult result = client.getEnvironmentsResult(organization_id);
         assertEquals(1, result.environments.size());
+    }
+
+    @Test
+    public void getLabelsReturnsTwoResults() {
+        final String fakeRestApiKey = "fakeApiKeyValue";
+        final String organization_id = "fakeOrganizationId";
+
+        WireMock.stubFor(get(urlPathEqualTo("/schedule/runPolicy/labels"))
+                .withQueryParam("organization_id", equalTo(organization_id))
+                .withBasicAuth(REST_API_USERNAME_PLACEHOLDER, fakeRestApiKey)
+                .withHeader("user-agent", new EqualToPattern(MablConstants.PLUGIN_USER_AGENT))
+                .willReturn(ok()
+                        .withHeader("Content-Type", "application/json")
+                        .withBodyFile("getlabelsresponse.json")
+                ));
+        final String baseUrl = getBaseUrl();
+
+        RestApiClient client = new PartialRestApiClient(baseUrl, fakeRestApiKey);
+        GetLabelsResult result = client.getLabelsResult(organization_id);
+        assertEquals(5, result.labels.size());
+        HashSet<String> expectedLabels =
+                Sets.newHashSet("failsOnRerun", "succeedsOnRerun", "smoke", "local", "regression");
+        Set<String> actualLabels = result.labels.stream().map(label -> label.name).collect(Collectors.toSet());
+        assertThat(actualLabels, everyItem(isIn(expectedLabels)));
     }
 
     @Test(expected = RuntimeException.class)

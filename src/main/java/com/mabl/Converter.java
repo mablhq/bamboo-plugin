@@ -9,7 +9,7 @@ import java.util.function.Function;
 
 public class Converter {
 
-    public static Function<CustomVariableContext, CreateDeploymentProperties> customVariableContextToCreateDeploymentProperties
+    public static final Function<CustomVariableContext, CreateDeploymentProperties> customVariableContextToCreateDeploymentProperties
             = new Function<CustomVariableContext, CreateDeploymentProperties>() {
         @Override
         public CreateDeploymentProperties apply(CustomVariableContext customVariableContext) {

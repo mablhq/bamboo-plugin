@@ -1,10 +1,12 @@
 package com.mabl;
 
 import com.google.common.collect.ImmutableSet;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.Optional;
 import java.util.Set;
 import java.util.jar.Manifest;
 
@@ -25,7 +27,8 @@ class MablConstants {
 
     private static final String PLUGIN_VERSION = getPluginVersion();
     private static final String PLUGIN_VERSION_UNKNOWN = "unknown";
-    static final String PLUGIN_USER_AGENT = "mabl-bamboo-plugin/" + PLUGIN_VERSION;
+    static final String PLUGIN_USER_AGENT = String.format("mabl-bamboo-plugin/%s (JVM: %s, Bamboo: %s)",
+                PLUGIN_VERSION, System.getProperty("java.version"), getBambooVersion());
     static final String MABL_REST_API_BASE_URL = "https://api.mabl.com";
     static final int REQUEST_TIMEOUT_MILLISECONDS = 60000;
     static final int CONNECTION_SECONDS_TO_LIVE = 30;
@@ -41,6 +44,7 @@ class MablConstants {
     static final String PLAN_LABELS_FIELD = "mablPlanLabels";
     static final String PLAN_LABELS_LABEL_PROPERTY = "createdeployment.planlabels.label";
     static final String MABL_LOG_OUTPUT_PREFIX = "[mabl]";
+    static final String MABL_JUNIT_REPORT_XML = "report.xml";
 
 
     private static final String PLUGIN_SYMBOLIC_NAME = "com.mabl.bamboo.plugin";
@@ -63,5 +67,13 @@ class MablConstants {
             }
         } catch (IOException ignored) {}
         return PLUGIN_VERSION_UNKNOWN;
+    }
+
+    private static String getBambooVersion() {
+        return Optional.ofNullable(System.getProperty("atlassian.sdk.version")).
+                orElseGet(() -> {
+                    final String pluginVersion = System.getenv("AMPS_PLUGIN_VERSION");
+                    return StringUtils.isEmpty(pluginVersion) ? "unknown" : pluginVersion;
+                });
     }
 }
