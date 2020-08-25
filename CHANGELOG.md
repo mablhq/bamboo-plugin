@@ -5,7 +5,7 @@ All notable changes to the Bamboo mabl plugin will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - TBD
+## [0.0.6] - August 25, 2020
 
 ## Added
 * [MABL-2468](https://mabl.atlassian.net/browse/MABL-2468) Added support for capturing test case IDs and for writing out JUnit test report and allow Bamboo to capture the file as a build artifact
