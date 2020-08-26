@@ -13,6 +13,7 @@ import java.util.Collection;
 public class MablOutputProvider implements TestReportProvider {
     public Collection<TestResults> successfulTestResults = Lists.newArrayList();
     public Collection<TestResults> failedTestResults = Lists.newArrayList();
+    public Collection<TestResults> skippedTestResults = Lists.newArrayList();
 
     @Override
     @NotNull
@@ -21,6 +22,7 @@ public class MablOutputProvider implements TestReportProvider {
 
         return builder.addSuccessfulTestResults(successfulTestResults)
                 .addFailedTestResults(failedTestResults)
+                .addSkippedTestResults(skippedTestResults)
                 .build();
     }
 
@@ -40,5 +42,14 @@ public class MablOutputProvider implements TestReportProvider {
 
     public boolean addFailure(String className, String methodName, long duration) {
         return addFailure(new TestResults(className, methodName, duration));
+    }
+
+    public boolean addSkipped(TestResults testResults) {
+        testResults.setState(TestState.SKIPPED);
+        return skippedTestResults.add(testResults);
+    }
+
+    public boolean addSkipped(String className, String methodName) {
+        return addSkipped(new TestResults(className, methodName, 0L));
     }
 }

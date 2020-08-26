@@ -1,0 +1,24 @@
+{
+  "labels": [
+    {
+      "name": "failsOnRerun",
+      "color": "#807f93"
+    },
+    {
+      "name": "regression",
+      "color": "#807f93"
+    },
+    {
+      "name": "local",
+      "color": "#807f93"
+    },
+    {
+      "name": "smoke",
+      "color": "#807f93"
+    },
+    {
+      "name": "succeedsOnRerun",
+      "color": "#807f93"
+    }
+  ]
+}

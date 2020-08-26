@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<testcase classname="My Plan Name" name="My Test Name" time="23" xlink:type="simple" xlink:href="http://myapphref.com">
+  <failure message="My Message">My Reason</failure>
+</testcase>
