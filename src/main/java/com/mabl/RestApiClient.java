@@ -11,7 +11,7 @@ import com.mabl.domain.CreateDeploymentResult;
 import com.mabl.domain.CreateDeploymentPayload;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
+import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -20,17 +20,24 @@ import com.mabl.domain.GetApiKeyResult;
 import com.mabl.domain.GetApplicationsResult;
 import com.mabl.domain.GetEnvironmentsResult;
 import com.mabl.domain.GetLabelsResult;
+
 import org.apache.http.Header;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.AuthSchemes;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
@@ -38,14 +45,19 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 
 import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
+import static com.mabl.MablConstants.CONNECTION_TIMEOUT_MILLISECONDS;
 import static com.mabl.MablConstants.REQUEST_TIMEOUT_MILLISECONDS;
 import static org.apache.commons.httpclient.HttpStatus.SC_CREATED;
 import static org.apache.commons.httpclient.HttpStatus.SC_OK;
 
 public class RestApiClient implements AutoCloseable {
     private final String restApiBaseUrl;
+    private final HttpHost apiHost;
     private final String restApiKey;
     private final ProxyConfiguration proxyConfiguration;
+    private final CredentialsProvider credentialsProvider;
+    private final RequestConfig requestConfig;
+    private final HttpClientContext httpClientContext;
     private final CloseableHttpClient httpClient;
     private final Logger.Log log = Logger.getInstance(this.getClass());
 
@@ -69,13 +81,21 @@ public class RestApiClient implements AutoCloseable {
 
     public RestApiClient(String restApiBaseUrl, String restApiKey, ProxyConfiguration proxyConfiguration) {
         this.restApiBaseUrl = restApiBaseUrl;
+        this.apiHost = HttpHost.create(restApiBaseUrl);
         this.restApiKey = restApiKey;
         this.proxyConfiguration = proxyConfiguration;
-        this.httpClient = getHttpClient(restApiKey, proxyConfiguration);
+        this.credentialsProvider = getCredentialsProvider(restApiKey, apiHost, proxyConfiguration);
+        this.requestConfig = requestConfig(proxyConfiguration);
+        this.httpClientContext = httpClientContext(apiHost, credentialsProvider);
+        this.httpClient = getHttpClient(credentialsProvider, requestConfig);
     }
 
     public String getRestApiKey() {
         return this.restApiKey;
+    }
+    
+    public ProxyConfiguration getProxyConfiguration() {
+    	return this.proxyConfiguration;
     }
 
     public CreateDeploymentResult createDeploymentEvent(
@@ -86,73 +106,95 @@ public class RestApiClient implements AutoCloseable {
     ) {
         final HttpPost request = new HttpPost(restApiBaseUrl + DEPLOYMENT_TRIGGER_ENDPOINT);
         request.setEntity(getCreateDeploymentPayloadEntity(environmentId, applicationId, planLabels, properties));
-        request.addHeader(getBasicAuthHeader(restApiKey));
         request.addHeader(JSON_TYPE_HEADER);
         return parseApiResult(getResponse(request), CreateDeploymentResult.class);
     }
 
     public ExecutionResult getExecutionResults(final String eventId) {
         final String url = restApiBaseUrl + String.format(DEPLOYMENT_RESULT_ENDPOINT_TEMPLATE, eventId);
-        return parseApiResult(getResponse(buildGetRequest(url)), ExecutionResult.class);
+        return parseApiResult(getResponse(new HttpGet(url)), ExecutionResult.class);
     }
 
     public GetApiKeyResult getApiKeyResult(String formApiKey) {
         final String url = restApiBaseUrl + String.format(GET_API_KEY_ENDPOINT_TEMPLATE, formApiKey);
-        return parseApiResult(getResponse(buildGetRequest(url)), GetApiKeyResult.class);
+        return parseApiResult(getResponse(new HttpGet(url)), GetApiKeyResult.class);
     }
 
     public GetApplicationsResult getApplicationsResult(String organizationId) {
         final String url = restApiBaseUrl + String.format(GET_APPLICATIONS_ENDPOINT_TEMPLATE, organizationId);
-        return parseApiResult(getResponse(buildGetRequest(url)), GetApplicationsResult.class);
+        return parseApiResult(getResponse(new HttpGet(url)), GetApplicationsResult.class);
     }
 
     public GetEnvironmentsResult getEnvironmentsResult(String organizationId) {
         final String url = restApiBaseUrl + String.format(GET_ENVIRONMENTS_ENDPOINT_TEMPLATE, organizationId);
-        return parseApiResult(getResponse(buildGetRequest(url)), GetEnvironmentsResult.class);
+        return parseApiResult(getResponse(new HttpGet(url)), GetEnvironmentsResult.class);
     }
 
     public GetLabelsResult getLabelsResult(String organizationId) {
         final String url = restApiBaseUrl + String.format(GET_LABELS_ENDPOINT_TEMPLATE, organizationId);
-        return parseApiResult(getResponse(buildGetRequest(url)), GetLabelsResult.class);
+        return parseApiResult(getResponse(new HttpGet(url)), GetLabelsResult.class);
     }
 
-    private CloseableHttpClient getHttpClient(String restApiKey, ProxyConfiguration proxyConfiguration) {
+    private CloseableHttpClient getHttpClient(CredentialsProvider credentialsProvider, RequestConfig requestConfig) {
     	
         return HttpClients.custom()
                 .useSystemProperties() // use JVM proxy settings passed in by Bamboo.
                 .setProxy(proxyConfiguration.getProxy().orElse(null))
-                .setDefaultCredentialsProvider(proxyConfiguration.getCredentialsProvider().orElse(null))
                 .setRedirectStrategy(new DefaultRedirectStrategy())
                 .setServiceUnavailableRetryStrategy(getRetryHandler())
-                .setDefaultCredentialsProvider(getApiCredentialsProvider(restApiKey))
+                .setDefaultCredentialsProvider(credentialsProvider)
                 .setUserAgent(MablConstants.PLUGIN_USER_AGENT)
                 .setConnectionTimeToLive(MablConstants.CONNECTION_SECONDS_TO_LIVE, TimeUnit.SECONDS)
-                .setDefaultRequestConfig(getDefaultRequestConfig())
+                .setDefaultRequestConfig(requestConfig)
                 .build();
     }
 
     protected MablRestApiClientRetryHandler getRetryHandler() {
-        return new MablRestApiClientRetryHandler(
+    	return getRetryHandler(
                 MablConstants.RETRY_HANDLER_MAX_RETRIES,
                 MablConstants.RETRY_HANDLER_RETRY_INTERVAL
         );
     }
+    
+    protected static MablRestApiClientRetryHandler getRetryHandler(int maxRetries, long retryInterval) {
+        return new MablRestApiClientRetryHandler(maxRetries, retryInterval);
+    }
 
-    private CredentialsProvider getApiCredentialsProvider(final String restApiKey) {
+    private static CredentialsProvider getCredentialsProvider(final String restApiKey, final HttpHost apiHost, final ProxyConfiguration proxyConfiguration) {
         final CredentialsProvider provider = new BasicCredentialsProvider();
-        final UsernamePasswordCredentials creds =
+        final UsernamePasswordCredentials apiCreds =
                 new UsernamePasswordCredentials(REST_API_USERNAME_PLACEHOLDER, restApiKey);
 
-        provider.setCredentials(AuthScope.ANY, creds);
+        // Set API key credential
+        provider.setCredentials(new AuthScope(apiHost), apiCreds);
+        
+        // Set proxy credentials if provided
+        proxyConfiguration.getProxy().ifPresent(proxy -> 
+        	proxyConfiguration.getCredentials().ifPresent(credentials ->
+        		provider.setCredentials(new AuthScope(proxy), credentials)
+        	)
+        );
         return provider;
     }
 
-    private RequestConfig getDefaultRequestConfig() {
+    private static RequestConfig requestConfig(final ProxyConfiguration proxyConfiguration) {
         return RequestConfig.custom()
-                .setConnectTimeout(REQUEST_TIMEOUT_MILLISECONDS)
-                .setConnectionRequestTimeout(REQUEST_TIMEOUT_MILLISECONDS)
+                .setConnectTimeout(CONNECTION_TIMEOUT_MILLISECONDS)
+                .setConnectionRequestTimeout(CONNECTION_TIMEOUT_MILLISECONDS)
                 .setSocketTimeout(REQUEST_TIMEOUT_MILLISECONDS)
+                .setProxy(proxyConfiguration.getProxy().orElse(null))
+                .setProxyPreferredAuthSchemes(Collections.singletonList(AuthSchemes.BASIC))
+                .setTargetPreferredAuthSchemes(Collections.singletonList(AuthSchemes.BASIC))
                 .build();
+    }
+    
+    private static HttpClientContext httpClientContext(final HttpHost apiHost, final CredentialsProvider credentialsProvider) {
+        AuthCache authCache = new BasicAuthCache();
+        authCache.put(apiHost, new BasicScheme());
+        HttpClientContext context = HttpClientContext.create();
+        context.setCredentialsProvider(credentialsProvider);
+        context.setAuthCache(authCache);
+        return context;
     }
 
     private AbstractHttpEntity getCreateDeploymentPayloadEntity(
@@ -174,24 +216,9 @@ public class RestApiClient implements AutoCloseable {
         }
     }
 
-    private Header getBasicAuthHeader(final String restApiKey) {
-        final String toEncode = REST_API_USERNAME_PLACEHOLDER + ":" + restApiKey;
-        return new BasicHeader("Authorization", "Basic " + base64EncodeUtf8(toEncode));
-    }
-
-    private String base64EncodeUtf8(String toBeEncoded) {
-        return Base64.getEncoder().encodeToString(toBeEncoded.getBytes(StandardCharsets.UTF_8));
-    }
-
-    private HttpGet buildGetRequest(final String url) {
-        final HttpGet request = new HttpGet(url);
-        request.addHeader(getBasicAuthHeader(restApiKey));
-        return request;
-    }
-
     private HttpResponse getResponse(HttpUriRequest request) {
         try {
-            return httpClient.execute(request);
+            return httpClient.execute(request, httpClientContext);
         } catch (IOException e) {
             log.error(String.format(
                     "Encountered exception trying to reach '%s'. Reason: '%s'",
@@ -201,7 +228,7 @@ public class RestApiClient implements AutoCloseable {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
-
+    
     private <ApiResult> ApiResult parseApiResult(final HttpResponse response, Class<ApiResult> resultClass) {
         final int statusCode = response.getStatusLine().getStatusCode();
 
@@ -211,8 +238,9 @@ public class RestApiClient implements AutoCloseable {
                 return mapObject(response, resultClass);
             default:
                 final String message = String.format(
-                        "Unexpected status returned from parse Api result during fetch %d%n",
-                        statusCode
+                        "Unexpected status returned from parse Api result during fetch %d%n: [%s]",
+                        statusCode,
+                        response.getStatusLine().getReasonPhrase()
                 );
                 log.error(message);
                 throw new RuntimeException(message);

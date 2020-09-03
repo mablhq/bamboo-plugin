@@ -126,24 +126,6 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
             errorCollection.addError(APPLICATION_ID_FIELD, error);
         }
         
-        final String proxyAddress = params.getString(PROXY_ADDRESS_FIELD);
-        if(!isBlank(proxyAddress)) {
-        	try {
-        		HttpHost proxy = HttpHost.create(proxyAddress);
-        		if(isBlank(proxy.getHostName())) {
-        			errorCollection.addError(PROXY_ADDRESS_FIELD,
-        					String.format(PROXY_FORMAT_ERROR_TEMPLATE, "No hostname specified"));
-        		}
-        		int port = proxy.getPort();
-        		if(port < 1 || port > 65535) {
-        			errorCollection.addError(PROXY_ADDRESS_FIELD,
-        					String.format(PROXY_FORMAT_ERROR_TEMPLATE, "Invalid port number provided"));
-        		}
-        	} catch (Exception exception) {
-        		errorCollection.addError(PROXY_ADDRESS_FIELD, 
-        				String.format(PROXY_FORMAT_ERROR_TEMPLATE, "Invalid proxy address provided"));
-        	}
-        }
     }
     
     private ProxyConfiguration validateProxyConfigs(final ActionParametersMap params,

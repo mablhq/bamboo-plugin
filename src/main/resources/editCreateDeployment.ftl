@@ -28,54 +28,58 @@
     multiple="true"
     required="false"
 /]
+<a style="position: relative; bottom: 12px; left: 4px;" onclick="mabl.clearPlanLabels(event)">clear labels</a>
 [@ww.textfield
-	labelKey="createddeployment.proxyaddress.label"
+	labelKey="createdeployment.proxyaddress.label"
 	name="mablProxyAddress"
 	required="false"
+	onchange="mabl.populateDropdowns(event)"
 /]
 [@ww.textfield
-	labelKey="createddeployment.proxyusername.label"
+	labelKey="createdeployment.proxyusername.label"
 	name="mablProxyUsername"
 	required="false"
+	onchange="mabl.populateDropdowns(event)"
 /]
 [@ww.password
-	labelKey="createddeployment.proxypassword.label"
+	showPassword="true"
+	labelKey="createdeployment.proxypassword.label"
 	name="mablProxyPassword"
 	required="false"
+	onchange="mabl.populateDropdowns(event)"
 /]
-<a style="position: relative; bottom: 12px; left: 4px;" onclick="mabl.clearPlanLabels(event)">clear labels</a>
 <script type="text/javascript">
 
 var mabl =
 {
     populateDropdowns: function(event) {
         var getEnvData = {ACTION : "environments",  
-                          restApiKey : event.target.value,
-                          proxyAddress : "TODO, figure out how to source this",
-                          proxyUsername : "TODO, figure out how to source this",
-                          proxyPassword : "TODO, figure out how to source this"};
+                          restApiKey : AJS.$("#mablRestApiKey").val(),
+                          proxyAddress : AJS.$("#mablProxyAddress").val(),
+                          proxyUsername : AJS.$("#mablProxyUsername").val(),
+                          proxyPassword : AJS.$("#mablProxyPassword").val()};
         var url = "${req.contextPath}/plugins/servlet/configurator";
-        AJS.$.get(url, getEnvData, function(data) {
+        AJS.$.post(url, getEnvData, function(data) {
             mabl.helpers.buildDropdown(data, AJS.$("#mablEnvironmentId"), "Select Environment");
         })
         .fail(mabl.helpers.clearDropdown(AJS.$(), "#mablEnvironmentId"), "");
 
         var getAppData = {ACTION : "applications",
-                          restApiKey : event.target.value,
-                          proxyAddress : "TODO, figure out how to source this",
-                          proxyUsername : "TODO, figure out how to source this",
-                          proxyPassword : "TODO, figure out how to source this"};
-        AJS.$.get(url, getAppData, function(data) {
+                          restApiKey : AJS.$("#mablRestApiKey").val(),
+                          proxyAddress : AJS.$("#mablProxyAddress").val(),
+                          proxyUsername : AJS.$("#mablProxyUsername").val(),
+                          proxyPassword : AJS.$("#mablProxyPassword").val()};
+        AJS.$.post(url, getAppData, function(data) {
             mabl.helpers.buildDropdown(data, AJS.$("#mablApplicationId"), "Select Application");
         })
         .fail(mabl.helpers.clearDropdown(AJS.$("#mablApplicationId"), ""));
 
         var getLabelData = {ACTION : "labels",
-                            restApiKey : event.target.value,
-                            proxyAddress : "TODO, figure out how to source this",
-                            proxyUsername : "TODO, figure out how to source this",
-                            proxyPassword : "TODO, figure out how to source this"};
-        AJS.$.get(url, getLabelData, function(data) {
+                          	restApiKey : AJS.$("#mablRestApiKey").val(),
+                          	proxyAddress : AJS.$("#mablProxyAddress").val(),
+                          	proxyUsername : AJS.$("#mablProxyUsername").val(),
+                          	proxyPassword : AJS.$("#mablProxyPassword").val()};
+        AJS.$.post(url, getLabelData, function(data) {
             mabl.helpers.buildDropdown(data, AJS.$("#mablPlanLabels"));
         })
             .fail(mabl.helpers.clearDropdown(AJS.$("#mablPlanLabels")));

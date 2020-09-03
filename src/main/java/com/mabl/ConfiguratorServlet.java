@@ -8,9 +8,13 @@ import com.mabl.domain.GetApplicationsResult;
 import com.mabl.domain.GetEnvironmentsResult;
 import com.mabl.domain.GetLabelsResult;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.IOException;
 
 public class ConfiguratorServlet extends HttpServlet {
@@ -19,9 +23,13 @@ public class ConfiguratorServlet extends HttpServlet {
     private final Logger.Log log = Logger.getInstance(this.getClass());
 
     @Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("ACTION");
         String restApiKey = request.getParameter("restApiKey");
+        if(StringUtils.isBlank(restApiKey)) {
+        	writeToWriter(response, "[]");
+        	return;
+        }
         String proxyAddress = request.getParameter("proxyAddress");
         String proxyUsername = request.getParameter("proxyUsername");
         String proxyPassword = request.getParameter("proxyPassword");
@@ -50,7 +58,7 @@ public class ConfiguratorServlet extends HttpServlet {
 
 	}
 
-    private void doGetApplications(RestApiClient apiClient, HttpServletResponse response) {
+	private void doGetApplications(RestApiClient apiClient, HttpServletResponse response) {
         try {
             GetApiKeyResult getApiKeyResult = apiClient.getApiKeyResult(apiClient.getRestApiKey());
             GetApplicationsResult getApplicationsResult = apiClient.getApplicationsResult(getApiKeyResult.organization_id);
