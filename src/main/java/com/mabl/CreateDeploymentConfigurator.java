@@ -197,7 +197,7 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
     private boolean restApiKeyIsValid(String restApiKey, ProxyConfiguration proxyConfig) {
         try(RestApiClient apiClient = new RestApiClient(MABL_REST_API_BASE_URL, restApiKey, proxyConfig)) {
             String organizationId = apiClient.getApiKeyResult(restApiKey).organization_id;
-            return !isNotBlank(organizationId);
+            return isNotBlank(organizationId);
         } catch (RuntimeException e) {
             log.error(String.format("Unexpected results trying to validate ApiKey: Reason '%s'", e.getMessage()));
             return false;
