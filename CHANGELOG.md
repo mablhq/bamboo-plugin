@@ -5,6 +5,11 @@ All notable changes to the Bamboo mabl plugin will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.7] - September 09, 2020
+
+## Added
+* [MABL-2329](https://mabl.atlassian.net/browse/MABL-2329) Add proxy configuration and basic auth support to bamboo-plugin
+
 ## [0.1.6] - August 25, 2020
 
 ## Added

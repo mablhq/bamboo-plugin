@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.Duration;
 import java.util.Enumeration;
 import java.util.Optional;
 import java.util.Set;
@@ -30,10 +31,11 @@ class MablConstants {
     static final String PLUGIN_USER_AGENT = String.format("mabl-bamboo-plugin/%s (JVM: %s, Bamboo: %s)",
                 PLUGIN_VERSION, System.getProperty("java.version"), getBambooVersion());
     static final String MABL_REST_API_BASE_URL = "https://api.mabl.com";
-    static final int REQUEST_TIMEOUT_MILLISECONDS = 60000;
-    static final int CONNECTION_SECONDS_TO_LIVE = 30;
+    static final Duration CONNECTION_TIMEOUT = Duration.ofSeconds(10);
+    static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(30);
+    static final Duration CONNECTION_SECONDS_TO_LIVE = Duration.ofSeconds(30);;
     static final int RETRY_HANDLER_MAX_RETRIES = 5;
-    static final long RETRY_HANDLER_RETRY_INTERVAL = 6000L;
+    static final Duration RETRY_HANDLER_RETRY_INTERVAL = Duration.ofMillis(6000);
     static final String MABL_SEND_VARIABLES_FIELD = "mabl.sendvariables";
     static final String REST_API_KEY_FIELD = "mablRestApiKey";
     static final String REST_API_KEY_LABEL_PROPERTY = "createdeployment.restapikey.label";
@@ -43,6 +45,12 @@ class MablConstants {
     static final String ENVIRONMENT_ID_LABEL_PROPERTY = "createdeployment.environmentid.label";
     static final String PLAN_LABELS_FIELD = "mablPlanLabels";
     static final String PLAN_LABELS_LABEL_PROPERTY = "createdeployment.planlabels.label";
+    static final String PROXY_ADDRESS_FIELD = "mablProxyAddress";
+    static final String PROXY_ADDRESS_LABEL_PROPERTY = "createdeployment.proxyaddress.label";
+    static final String PROXY_USERNAME_FIELD = "mablProxyUsername";
+    static final String PROXY_USERNAME_LABEL_PROPERTY = "createdeployment.proxyusername.label";
+    static final String PROXY_PASSWORD_FIELD = "mablProxyPassword";
+    static final String PROXY_PASSWORD_LABEL_PROPERTY = "createdeployment.proxypassword.label";
     static final String MABL_LOG_OUTPUT_PREFIX = "[mabl]";
     static final String MABL_JUNIT_REPORT_XML = "report.xml";
 

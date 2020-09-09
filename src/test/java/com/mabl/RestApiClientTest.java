@@ -11,6 +11,7 @@ import com.mabl.domain.GetApiKeyResult;
 import com.mabl.domain.GetApplicationsResult;
 import com.mabl.domain.GetEnvironmentsResult;
 import com.mabl.domain.GetLabelsResult;
+
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -46,34 +47,39 @@ public class RestApiClientTest extends AbstractWiremockTest {
     private static final Set<String> emptyPlanLabels = new HashSet<>();
     private static final String fakeProperties = "{\"deployment_origin\":\""+MablConstants.PLUGIN_USER_AGENT+"\"}";
 
-    class PartialRestApiClient extends RestApiClient {
+    static class PartialRestApiClient extends RestApiClient {
 
         public PartialRestApiClient(String restApiBaseUrl, String restApiKey) {
-            super(restApiBaseUrl, restApiKey);
+        	this(restApiBaseUrl, restApiKey, null, null, null);
+        }
+        
+        public PartialRestApiClient(String restApiBaseUrl, String restApiKey, String proxyAddress, String proxyUsername, String proxyPassword) {
+        	super(restApiBaseUrl, restApiKey, new ProxyConfiguration(proxyAddress, proxyUsername, proxyPassword));
         }
 
         @Override
         protected MablRestApiClientRetryHandler getRetryHandler() {
-            return new MablRestApiClientRetryHandler(5, 0);
+            return getRetryHandler(5, 0);
         }
     }
 
     @Test
     public void getApiKeyResultTest() {
-        RestApiClient restApiClient = new PartialRestApiClient(getBaseUrl(), fakeRestApiKey);
-        assertEquals(fakeRestApiKey, restApiClient.getRestApiKey());
-
-        registerGetMapping(
-                String.format(restApiClient.GET_API_KEY_ENDPOINT_TEMPLATE, fakeRestApiKey),
-                ok(),
-                MablTestConstants.APIKEY_RESULT_JSON,
-                REST_API_USERNAME_PLACEHOLDER,
-                fakeRestApiKey
-        );
-
-        GetApiKeyResult getApiKeyResult = restApiClient.getApiKeyResult(fakeRestApiKey);
-        assertEquals(MablTestConstants.ORGANIZATIONID_RESULT, getApiKeyResult.organization_id);
-        verifyExpectedUrls();
+        try(RestApiClient restApiClient = new PartialRestApiClient(getBaseUrl(), fakeRestApiKey)) {
+	        assertEquals(fakeRestApiKey, restApiClient.getRestApiKey());
+	
+	        registerGetMapping(
+	                String.format(RestApiClient.GET_API_KEY_ENDPOINT_TEMPLATE, fakeRestApiKey),
+	                ok(),
+	                MablTestConstants.APIKEY_RESULT_JSON,
+	                REST_API_USERNAME_PLACEHOLDER,
+	                fakeRestApiKey
+	        );
+	
+	        GetApiKeyResult getApiKeyResult = restApiClient.getApiKeyResult(fakeRestApiKey);
+	        assertEquals(MablTestConstants.ORGANIZATIONID_RESULT, getApiKeyResult.organization_id);
+	        verifyExpectedUrls();
+        }
     }
 
     @Test
@@ -160,12 +166,13 @@ public class RestApiClientTest extends AbstractWiremockTest {
                 fakeRestApiKey
         );
 
-        RestApiClient client = new PartialRestApiClient(getBaseUrl(), fakeRestApiKey);
+        try(RestApiClient client = new PartialRestApiClient(getBaseUrl(), fakeRestApiKey)) {
             ExecutionResult result = client.getExecutionResults(fakeEventId);
             assertEquals("succeeded", result.executions.get(0).status);
             assertTrue("expected success", result.executions.get(0).success);
 
-        verifyExpectedUrls();
+            verifyExpectedUrls();
+        }
     }
 
     @Test(expected = RuntimeException.class)
@@ -178,9 +185,11 @@ public class RestApiClientTest extends AbstractWiremockTest {
                 REST_API_USERNAME_PLACEHOLDER,
                 fakeRestApiKey
         );
-        RestApiClient client = new PartialRestApiClient(getBaseUrl(), fakeRestApiKey);
-        client.getExecutionResults(fakeEventId);
-        verifyExpectedUrls();
+        
+        try(RestApiClient client = new PartialRestApiClient(getBaseUrl(), fakeRestApiKey)) {
+        	client.getExecutionResults(fakeEventId);
+        	verifyExpectedUrls();
+        }
     }
 
     @Test
@@ -200,9 +209,10 @@ public class RestApiClientTest extends AbstractWiremockTest {
 
         final String baseUrl = getBaseUrl();
 
-        RestApiClient client = new PartialRestApiClient(baseUrl, fakeRestApiKey);
-        GetApplicationsResult result = client.getApplicationsResult(organization_id);
-        assertEquals(2, result.applications.size());
+        try(RestApiClient client = new PartialRestApiClient(baseUrl, fakeRestApiKey)) {
+        	GetApplicationsResult result = client.getApplicationsResult(organization_id);
+        	assertEquals(2, result.applications.size());
+        }
     }
 
     @Test
@@ -221,9 +231,10 @@ public class RestApiClientTest extends AbstractWiremockTest {
                 ));
         final String baseUrl = getBaseUrl();
 
-        RestApiClient client = new PartialRestApiClient(baseUrl, fakeRestApiKey);
-        GetEnvironmentsResult result = client.getEnvironmentsResult(organization_id);
-        assertEquals(1, result.environments.size());
+        try(RestApiClient client = new PartialRestApiClient(baseUrl, fakeRestApiKey)) {
+        	GetEnvironmentsResult result = client.getEnvironmentsResult(organization_id);
+        	assertEquals(1, result.environments.size());
+        }
     }
 
     @Test
@@ -241,13 +252,14 @@ public class RestApiClientTest extends AbstractWiremockTest {
                 ));
         final String baseUrl = getBaseUrl();
 
-        RestApiClient client = new PartialRestApiClient(baseUrl, fakeRestApiKey);
-        GetLabelsResult result = client.getLabelsResult(organization_id);
-        assertEquals(5, result.labels.size());
-        HashSet<String> expectedLabels =
-                Sets.newHashSet("failsOnRerun", "succeedsOnRerun", "smoke", "local", "regression");
-        Set<String> actualLabels = result.labels.stream().map(label -> label.name).collect(Collectors.toSet());
-        assertThat(actualLabels, everyItem(isIn(expectedLabels)));
+        try(RestApiClient client = new PartialRestApiClient(baseUrl, fakeRestApiKey)) {
+	        GetLabelsResult result = client.getLabelsResult(organization_id);
+	        assertEquals(5, result.labels.size());
+	        HashSet<String> expectedLabels =
+	                Sets.newHashSet("failsOnRerun", "succeedsOnRerun", "smoke", "local", "regression");
+	        Set<String> actualLabels = result.labels.stream().map(label -> label.name).collect(Collectors.toSet());
+	        assertThat(actualLabels, everyItem(isIn(expectedLabels)));
+        }
     }
 
     @Test(expected = RuntimeException.class)
