@@ -5,6 +5,8 @@ All notable changes to the Bamboo mabl plugin will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
 ## [0.1.7] - September 09, 2020
 
 ## Added
@@ -45,7 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Fixed
 * Respect JVM proxy settings
 
-[Unreleased]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.6...head
+[Unreleased]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.7...head
+[0.1.7]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.6...bamboo-plugin-0.1.7
 [0.1.6]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.5...bamboo-plugin-0.1.6
 [0.1.5]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.4...bamboo-plugin-0.1.5
 [0.1.4]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.3...bamboo-plugin-0.1.4
