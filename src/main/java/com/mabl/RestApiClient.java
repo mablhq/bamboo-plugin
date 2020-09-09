@@ -45,8 +45,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 
 import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
-import static com.mabl.MablConstants.CONNECTION_TIMEOUT_MILLISECONDS;
-import static com.mabl.MablConstants.REQUEST_TIMEOUT_MILLISECONDS;
+import static com.mabl.MablConstants.CONNECTION_TIMEOUT;
+import static com.mabl.MablConstants.REQUEST_TIMEOUT;
 import static org.apache.commons.httpclient.HttpStatus.SC_CREATED;
 import static org.apache.commons.httpclient.HttpStatus.SC_OK;
 
@@ -92,10 +92,6 @@ public class RestApiClient implements AutoCloseable {
 
     public String getRestApiKey() {
         return this.restApiKey;
-    }
-    
-    public ProxyConfiguration getProxyConfiguration() {
-    	return this.proxyConfiguration;
     }
 
     public CreateDeploymentResult createDeploymentEvent(
@@ -144,7 +140,7 @@ public class RestApiClient implements AutoCloseable {
                 .setServiceUnavailableRetryStrategy(getRetryHandler())
                 .setDefaultCredentialsProvider(credentialsProvider)
                 .setUserAgent(MablConstants.PLUGIN_USER_AGENT)
-                .setConnectionTimeToLive(MablConstants.CONNECTION_SECONDS_TO_LIVE, TimeUnit.SECONDS)
+                .setConnectionTimeToLive(MablConstants.CONNECTION_SECONDS_TO_LIVE.getSeconds(), TimeUnit.SECONDS)
                 .setDefaultRequestConfig(requestConfig)
                 .build();
     }
@@ -152,7 +148,7 @@ public class RestApiClient implements AutoCloseable {
     protected MablRestApiClientRetryHandler getRetryHandler() {
     	return getRetryHandler(
                 MablConstants.RETRY_HANDLER_MAX_RETRIES,
-                MablConstants.RETRY_HANDLER_RETRY_INTERVAL
+                MablConstants.RETRY_HANDLER_RETRY_INTERVAL.toMillis()
         );
     }
     
@@ -179,9 +175,9 @@ public class RestApiClient implements AutoCloseable {
 
     private static RequestConfig requestConfig(final ProxyConfiguration proxyConfiguration) {
         return RequestConfig.custom()
-                .setConnectTimeout(CONNECTION_TIMEOUT_MILLISECONDS)
-                .setConnectionRequestTimeout(CONNECTION_TIMEOUT_MILLISECONDS)
-                .setSocketTimeout(REQUEST_TIMEOUT_MILLISECONDS)
+                .setConnectTimeout(Math.toIntExact(CONNECTION_TIMEOUT.toMillis()))
+                .setConnectionRequestTimeout(Math.toIntExact(CONNECTION_TIMEOUT.toMillis()))
+                .setSocketTimeout(Math.toIntExact(REQUEST_TIMEOUT.toMillis()))
                 .setProxy(proxyConfiguration.getProxy().orElse(null))
                 .setProxyPreferredAuthSchemes(Collections.singletonList(AuthSchemes.BASIC))
                 .setTargetPreferredAuthSchemes(Collections.singletonList(AuthSchemes.BASIC))

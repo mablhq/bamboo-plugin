@@ -11,8 +11,8 @@ import com.atlassian.sal.api.message.I18nResolver;
 import com.mabl.domain.GetApplicationsResult;
 import com.mabl.domain.GetEnvironmentsResult;
 import com.mabl.domain.GetLabelsResult;
-import com.spotify.docker.client.shaded.org.apache.http.HttpHost;
 
+import org.apache.http.HttpHost;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,6 +31,7 @@ import static com.mabl.MablConstants.PROXY_USERNAME_FIELD;
 import static com.mabl.MablConstants.REST_API_KEY_FIELD;
 import static com.mabl.MablConstants.REST_API_KEY_LABEL_PROPERTY;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.apache.commons.lang3.StringUtils.split;
 
@@ -39,7 +40,7 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
     private I18nResolver i18nResolver;
     private final Logger.Log log = Logger.getInstance(this.getClass());
 
-    private static final String PROXY_FORMAT_ERROR_TEMPLATE = "%s: Use format <protocol>://<hostname>:<port>";
+    private static final String PROXY_FORMAT_ERROR_TEMPLATE = "%s: Use format <protocol>://<host>:<port>";
     
     public CreateDeploymentConfigurator(@ComponentImport I18nResolver i18nResolver) {
         this.i18nResolver = i18nResolver;
@@ -196,7 +197,7 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
     private boolean restApiKeyIsValid(String restApiKey, ProxyConfiguration proxyConfig) {
         try(RestApiClient apiClient = new RestApiClient(MABL_REST_API_BASE_URL, restApiKey, proxyConfig)) {
             String organizationId = apiClient.getApiKeyResult(restApiKey).organization_id;
-            return !isBlank(organizationId);
+            return !isNotBlank(organizationId);
         } catch (RuntimeException e) {
             log.error(String.format("Unexpected results trying to validate ApiKey: Reason '%s'", e.getMessage()));
             return false;

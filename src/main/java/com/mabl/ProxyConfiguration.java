@@ -12,15 +12,14 @@ import com.atlassian.extras.common.log.Logger;
 
 public class ProxyConfiguration {
 
-	private final Logger.Log log = Logger.getInstance(this.getClass());
+	private static final Logger.Log log = Logger.getInstance(ProxyConfiguration.class);
 	private Optional<HttpHost> maybeProxy = Optional.empty();
 	private Optional<Credentials> maybeCredentials = Optional.empty();
 	
 	public ProxyConfiguration(String proxyAddress, String proxyUsername, String proxyPassword) {
 		if(isNotBlank(proxyAddress)) {
-			HttpHost proxy;
 			try {
-				proxy = HttpHost.create(proxyAddress);
+				HttpHost proxy = HttpHost.create(proxyAddress);
 				this.maybeProxy = Optional.of(proxy);
 				if(isNotBlank(proxyUsername)) {
 					Credentials credentials = new UsernamePasswordCredentials(proxyUsername, proxyPassword);

@@ -11,6 +11,7 @@ import com.mabl.domain.GetApiKeyResult;
 import com.mabl.domain.GetApplicationsResult;
 import com.mabl.domain.GetEnvironmentsResult;
 import com.mabl.domain.GetLabelsResult;
+
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -46,10 +47,14 @@ public class RestApiClientTest extends AbstractWiremockTest {
     private static final Set<String> emptyPlanLabels = new HashSet<>();
     private static final String fakeProperties = "{\"deployment_origin\":\""+MablConstants.PLUGIN_USER_AGENT+"\"}";
 
-    class PartialRestApiClient extends RestApiClient {
+    static class PartialRestApiClient extends RestApiClient {
 
         public PartialRestApiClient(String restApiBaseUrl, String restApiKey) {
-            super(restApiBaseUrl, restApiKey, new ProxyConfiguration(null, null, null));
+        	this(restApiBaseUrl, restApiKey, null, null, null);
+        }
+        
+        public PartialRestApiClient(String restApiBaseUrl, String restApiKey, String proxyAddress, String proxyUsername, String proxyPassword) {
+        	super(restApiBaseUrl, restApiKey, new ProxyConfiguration(proxyAddress, proxyUsername, proxyPassword));
         }
 
         @Override

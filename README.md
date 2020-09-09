@@ -12,13 +12,17 @@ This plugin allows easy launching of [mabl](https://www.mabl.com) journeys as a 
 5. Enable the task and the plan
 
 <img src="https://github.com/mablhq/bamboo-plugin/raw/master/src/main/resources/images/BambooTaskSelectionV2.png" alt="Select Mabl Deployment" width="40%"/>
-<img src="https://github.com/mablhq/bamboo-plugin/raw/master/src/main/resources/images/BambooTaskConfigurationV2.png" alt="Input Configuration" width="40%"/>
+<img src="https://github.com/mablhq/bamboo-plugin/raw/master/src/main/resources/images/BambooTaskConfigurationV3.png" alt="Input Configuration" width="40%"/>
 
 Now builds from this plan will trigger Mabl test plan executions of the chosen configuration.
 
 ### Proxy Settings
 
-This plugin respects outbound proxy settings you have configured for your server as described in [Atlassian's instructions.](https://confluence.atlassian.com/kb/how-to-configure-outbound-http-and-https-proxy-for-your-atlassian-application-834000120.html)
+##### Global proxy settings
+If you have a proxy enabled for your bamboo installation, this plugin respects outbound proxy settings you have configured for your server as described in [Atlassian's instructions.](https://confluence.atlassian.com/kb/how-to-configure-outbound-http-and-https-proxy-for-your-atlassian-application-834000120.html)
+
+##### Plugin specific proxy settings
+For installations that require only the plugin's requests be sent through a proxy or through a different proxy server than the bamboo installations default proxy, you can configure the settings within the deployment task configuration. Basic authentication is supported if the proxy server requires credentials to handle the requests. 
 
 ## Installation
 
