@@ -60,7 +60,7 @@ public class ConfiguratorServlet extends HttpServlet {
 
 	private void doGetApplications(RestApiClient apiClient, HttpServletResponse response) {
         try {
-            GetApiKeyResult getApiKeyResult = apiClient.getApiKeyResult(apiClient.getRestApiKey());
+            GetApiKeyResult getApiKeyResult = apiClient.getApiKeySelf();
             GetApplicationsResult getApplicationsResult = apiClient.getApplicationsResult(getApiKeyResult.organization_id);
             writeToWriter(response, objectMapper.writeValueAsString(getApplicationsResult.applications));
         } catch (JsonProcessingException | RuntimeException e) {
@@ -71,7 +71,7 @@ public class ConfiguratorServlet extends HttpServlet {
 
 	private void doGetEnvironments(RestApiClient apiClient, HttpServletResponse response) {
         try {
-            GetApiKeyResult getApiKeyResult = apiClient.getApiKeyResult(apiClient.getRestApiKey());
+            GetApiKeyResult getApiKeyResult = apiClient.getApiKeySelf();
             GetEnvironmentsResult getEnvironmentsResult = apiClient.getEnvironmentsResult(getApiKeyResult.organization_id);
             writeToWriter(response, objectMapper.writeValueAsString(getEnvironmentsResult.environments));
         } catch (JsonProcessingException | RuntimeException e) {
@@ -82,7 +82,7 @@ public class ConfiguratorServlet extends HttpServlet {
 
     private void doGetLabels(RestApiClient apiClient, HttpServletResponse response) {
         try {
-            GetApiKeyResult getApiKeyResult = apiClient.getApiKeyResult(apiClient.getRestApiKey());
+            GetApiKeyResult getApiKeyResult = apiClient.getApiKeySelf();
             GetLabelsResult getLabelsResult = apiClient.getLabelsResult(getApiKeyResult.organization_id);
             writeToWriter(response, objectMapper.writeValueAsString(getLabelsResult.labels));
         } catch (JsonProcessingException | RuntimeException e) {

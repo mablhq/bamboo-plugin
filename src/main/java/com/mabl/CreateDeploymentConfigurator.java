@@ -41,7 +41,7 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
     private final Logger.Log log = Logger.getInstance(this.getClass());
 
     private static final String PROXY_FORMAT_ERROR_TEMPLATE = "%s: Use format <protocol>://<host>:<port>";
-    
+
     public CreateDeploymentConfigurator(@ComponentImport I18nResolver i18nResolver) {
         this.i18nResolver = i18nResolver;
     }
@@ -126,9 +126,9 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
             errorCollection.addError(ENVIRONMENT_ID_FIELD, error);
             errorCollection.addError(APPLICATION_ID_FIELD, error);
         }
-        
+
     }
-    
+
     private ProxyConfiguration validateProxyConfigs(final ActionParametersMap params,
             										final ErrorCollection errorCollection) {
     	final String proxyAddress = params.getString(PROXY_ADDRESS_FIELD);
@@ -140,7 +140,7 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
         					String.format(PROXY_FORMAT_ERROR_TEMPLATE, "No hostname specified"));
         		}
         	} catch (Exception exception) {
-        		errorCollection.addError(PROXY_ADDRESS_FIELD, 
+        		errorCollection.addError(PROXY_ADDRESS_FIELD,
         				String.format(PROXY_FORMAT_ERROR_TEMPLATE, "Invalid proxy address provided"));
         	}
         }
@@ -152,7 +152,7 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
     private Map<String, String> getApplicationsList(String restApiKey, ProxyConfiguration proxyConfig) {
         Map<String, String> appMap = new HashMap<>();
         try(RestApiClient apiClient = new RestApiClient(MABL_REST_API_BASE_URL, restApiKey, proxyConfig)) {
-            String organizationId = apiClient.getApiKeyResult(restApiKey).organization_id;
+            String organizationId = apiClient.getApiKeySelf().organization_id;
             GetApplicationsResult results = apiClient.getApplicationsResult(organizationId);
             for(GetApplicationsResult.Application application: results.applications) {
                 appMap.put(application.id, application.name);
@@ -167,7 +167,7 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
     private Map<String, String> getEnvironmentsList(String restApiKey, ProxyConfiguration proxyConfig) {
         Map<String, String> envMap = new HashMap<>();
         try(RestApiClient apiClient = new RestApiClient(MABL_REST_API_BASE_URL, restApiKey, proxyConfig)) {
-            String organizationId = apiClient.getApiKeyResult(restApiKey).organization_id;
+            String organizationId = apiClient.getApiKeySelf().organization_id;
             GetEnvironmentsResult results = apiClient.getEnvironmentsResult(organizationId);
             for(GetEnvironmentsResult.Environment environment : results.environments) {
                 envMap.put(environment.id, environment.name);
@@ -182,7 +182,7 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
     private Map<String, String> getPlanLabelsList(String restApiKey, ProxyConfiguration proxyConfig) {
         Map<String, String> envMap = new HashMap<>();
         try(RestApiClient apiClient = new RestApiClient(MABL_REST_API_BASE_URL, restApiKey, proxyConfig)) {
-            String organizationId = apiClient.getApiKeyResult(restApiKey).organization_id;
+            String organizationId = apiClient.getApiKeySelf().organization_id;
             GetLabelsResult results = apiClient.getLabelsResult(organizationId);
             for(GetLabelsResult.Label label : results.labels) {
                 envMap.put(label.name, label.name);
@@ -196,7 +196,7 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
 
     private boolean restApiKeyIsValid(String restApiKey, ProxyConfiguration proxyConfig) {
         try(RestApiClient apiClient = new RestApiClient(MABL_REST_API_BASE_URL, restApiKey, proxyConfig)) {
-            String organizationId = apiClient.getApiKeyResult(restApiKey).organization_id;
+            String organizationId = apiClient.getApiKeySelf().organization_id;
             return isNotBlank(organizationId);
         } catch (RuntimeException e) {
             log.error(String.format("Unexpected results trying to validate ApiKey: Reason '%s'", e.getMessage()));
