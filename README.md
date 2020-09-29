@@ -44,10 +44,9 @@ Grab [this container](https://hub.docker.com/r/atlassian/bamboo-server/)
 `docker pull atlassian/bamboo-server`
 Run these commands
 ```
-docker volume create --name bambooVolume`
+docker volume create --name bambooVolume
 docker run -v bambooVolume:/var/atlassian/application-data/bamboo --name="bamboo" --init -d -p 54663:54663 -p 8085:8085 atlassian/bamboo-server
 docker start bamboo
-docker ps
 ```
 then visit `localhost:8085`
   
