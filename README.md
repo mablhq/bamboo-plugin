@@ -48,7 +48,11 @@ docker volume create --name bambooVolume
 docker run -v bambooVolume:/var/atlassian/application-data/bamboo --name="bamboo" --init -d -p 54663:54663 -p 8085:8085 atlassian/bamboo-server
 docker start bamboo
 ```
-then visit `localhost:8085`
+
+You will need to create a Bamboo trial license [here](https://my.atlassian.com/license/evaluation), which you will provide the server below.
+
+Visit `localhost:8085` to interact with Bamboo.
+
   
 ### IDE setup
 You'll need to [follow here](https://community.developer.atlassian.com/t/configure-idea-to-use-the-sdk/10610) to setup your IDE to use atlas-mvn
