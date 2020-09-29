@@ -74,7 +74,7 @@ public class RestApiClient implements AutoCloseable {
     static final Header JSON_TYPE_HEADER = new BasicHeader("Content-Type", "application/json");
     static final String DEPLOYMENT_TRIGGER_ENDPOINT = "/events/deployment";
     static final String DEPLOYMENT_RESULT_ENDPOINT_TEMPLATE = "/execution/result/event/%s";
-    static final String GET_API_KEY_ENDPOINT_TEMPLATE = "/apiKeys/%s";
+    static final String GET_API_KEY_ENDPOINT = "/apiKeys/self";
     static final String GET_APPLICATIONS_ENDPOINT_TEMPLATE = "/applications?organization_id=%s";
     static final String GET_ENVIRONMENTS_ENDPOINT_TEMPLATE = "/environments?organization_id=%s";
     static final String GET_LABELS_ENDPOINT_TEMPLATE = "/schedule/runPolicy/labels?organization_id=%s";
@@ -111,8 +111,8 @@ public class RestApiClient implements AutoCloseable {
         return parseApiResult(getResponse(new HttpGet(url)), ExecutionResult.class);
     }
 
-    public GetApiKeyResult getApiKeyResult(String formApiKey) {
-        final String url = restApiBaseUrl + String.format(GET_API_KEY_ENDPOINT_TEMPLATE, formApiKey);
+    public GetApiKeyResult getApiKeySelf() {
+        final String url = restApiBaseUrl + GET_API_KEY_ENDPOINT;
         return parseApiResult(getResponse(new HttpGet(url)), GetApiKeyResult.class);
     }
 
@@ -132,7 +132,7 @@ public class RestApiClient implements AutoCloseable {
     }
 
     private CloseableHttpClient getHttpClient(CredentialsProvider credentialsProvider, RequestConfig requestConfig) {
-    	
+
         return HttpClients.custom()
                 .useSystemProperties() // use JVM proxy settings passed in by Bamboo.
                 .setProxy(proxyConfiguration.getProxy().orElse(null))
@@ -151,7 +151,7 @@ public class RestApiClient implements AutoCloseable {
                 MablConstants.RETRY_HANDLER_RETRY_INTERVAL.toMillis()
         );
     }
-    
+
     protected static MablRestApiClientRetryHandler getRetryHandler(int maxRetries, long retryInterval) {
         return new MablRestApiClientRetryHandler(maxRetries, retryInterval);
     }
@@ -163,9 +163,9 @@ public class RestApiClient implements AutoCloseable {
 
         // Set API key credential
         provider.setCredentials(new AuthScope(apiHost), apiCreds);
-        
+
         // Set proxy credentials if provided
-        proxyConfiguration.getProxy().ifPresent(proxy -> 
+        proxyConfiguration.getProxy().ifPresent(proxy ->
         	proxyConfiguration.getCredentials().ifPresent(credentials ->
         		provider.setCredentials(new AuthScope(proxy), credentials)
         	)
@@ -183,7 +183,7 @@ public class RestApiClient implements AutoCloseable {
                 .setTargetPreferredAuthSchemes(Collections.singletonList(AuthSchemes.BASIC))
                 .build();
     }
-    
+
     private static HttpClientContext httpClientContext(final HttpHost apiHost, final CredentialsProvider credentialsProvider) {
         AuthCache authCache = new BasicAuthCache();
         authCache.put(apiHost, new BasicScheme());
@@ -224,7 +224,7 @@ public class RestApiClient implements AutoCloseable {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
-    
+
     private <ApiResult> ApiResult parseApiResult(final HttpResponse response, Class<ApiResult> resultClass) {
         final int statusCode = response.getStatusLine().getStatusCode();
 

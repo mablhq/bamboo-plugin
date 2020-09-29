@@ -52,7 +52,7 @@ public class RestApiClientTest extends AbstractWiremockTest {
         public PartialRestApiClient(String restApiBaseUrl, String restApiKey) {
         	this(restApiBaseUrl, restApiKey, null, null, null);
         }
-        
+
         public PartialRestApiClient(String restApiBaseUrl, String restApiKey, String proxyAddress, String proxyUsername, String proxyPassword) {
         	super(restApiBaseUrl, restApiKey, new ProxyConfiguration(proxyAddress, proxyUsername, proxyPassword));
         }
@@ -67,16 +67,16 @@ public class RestApiClientTest extends AbstractWiremockTest {
     public void getApiKeyResultTest() {
         try(RestApiClient restApiClient = new PartialRestApiClient(getBaseUrl(), fakeRestApiKey)) {
 	        assertEquals(fakeRestApiKey, restApiClient.getRestApiKey());
-	
+
 	        registerGetMapping(
-	                String.format(RestApiClient.GET_API_KEY_ENDPOINT_TEMPLATE, fakeRestApiKey),
+	                RestApiClient.GET_API_KEY_ENDPOINT,
 	                ok(),
 	                MablTestConstants.APIKEY_RESULT_JSON,
 	                REST_API_USERNAME_PLACEHOLDER,
 	                fakeRestApiKey
 	        );
-	
-	        GetApiKeyResult getApiKeyResult = restApiClient.getApiKeyResult(fakeRestApiKey);
+
+	        GetApiKeyResult getApiKeyResult = restApiClient.getApiKeySelf();
 	        assertEquals(MablTestConstants.ORGANIZATIONID_RESULT, getApiKeyResult.organization_id);
 	        verifyExpectedUrls();
         }
@@ -185,7 +185,7 @@ public class RestApiClientTest extends AbstractWiremockTest {
                 REST_API_USERNAME_PLACEHOLDER,
                 fakeRestApiKey
         );
-        
+
         try(RestApiClient client = new PartialRestApiClient(getBaseUrl(), fakeRestApiKey)) {
         	client.getExecutionResults(fakeEventId);
         	verifyExpectedUrls();

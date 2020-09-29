@@ -1,0 +1,43 @@
+name: Build and Test
+on: push
+jobs:
+  build-base:
+    timeout-minutes: 10
+    runs-on: ubuntu-18.04 # LTS EoL Apr 2023
+    # Skip if contains [skip ci]
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+
+    env:
+      CI: 'true'
+
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '8.x'
+          java-package: jdk
+          architecture: x64
+
+      # Use caching to speed reload
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2
+          key: ${{ runner.OS }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.OS }}-maven-
+            ${{ runner.OS }}
+      - uses: twistedpair/codeship-env-adapter@v0.2
+
+      - name: Install Atlassian SDK and Dependencies
+        run: |
+          ./ci/bin/install_atlassian_sdk.sh
+          atlas-mvn validate
+
+      # Log versions to help debug builds
+      - name: Show Versions
+        run: |
+          echo "java: $(java -version)"
+          echo "atlas-mvn: $(atlas-mvn --version)"
+
+      - name: Build and Test
+        run: atlas-mvn package
