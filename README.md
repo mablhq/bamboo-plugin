@@ -24,6 +24,11 @@ If you have a proxy enabled for your bamboo installation, this plugin respects o
 ##### Plugin specific proxy settings
 For installations that require only the plugin's requests be sent through a proxy or through a different proxy server than the bamboo installations default proxy, you can configure the settings within the deployment task configuration. Basic authentication is supported if the proxy server requires credentials to handle the requests. 
 
+##### Traffic routing
+Note that once you configure a proxy either on a global level or inside the _mabl for Bamboo_ task, the plugin will
+send all HTTP calls through the proxy. For example, this includes calls made to retrieve the list of environments when
+configuring the task.
+
 ## Installation
 
 ### From the marketplace
