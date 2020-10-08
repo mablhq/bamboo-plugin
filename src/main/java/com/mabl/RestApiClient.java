@@ -1,11 +1,6 @@
 package com.mabl;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.atlassian.extras.common.log.Logger;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mabl.domain.CreateDeploymentProperties;
 import com.mabl.domain.CreateDeploymentResult;
 import com.mabl.domain.CreateDeploymentPayload;
@@ -21,6 +16,7 @@ import com.mabl.domain.GetApplicationsResult;
 import com.mabl.domain.GetEnvironmentsResult;
 import com.mabl.domain.GetLabelsResult;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -44,31 +40,19 @@ import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 
-import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
 import static com.mabl.MablConstants.CONNECTION_TIMEOUT;
 import static com.mabl.MablConstants.REQUEST_TIMEOUT;
+import static com.mabl.Utils.getObjectMapperSingleton;
 import static org.apache.commons.httpclient.HttpStatus.SC_CREATED;
 import static org.apache.commons.httpclient.HttpStatus.SC_OK;
 
 public class RestApiClient implements AutoCloseable {
     private final String restApiBaseUrl;
-    private final HttpHost apiHost;
     private final String restApiKey;
     private final ProxyConfiguration proxyConfiguration;
-    private final CredentialsProvider credentialsProvider;
-    private final RequestConfig requestConfig;
     private final HttpClientContext httpClientContext;
     private final CloseableHttpClient httpClient;
     private final Logger.Log log = Logger.getInstance(this.getClass());
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    {
-        objectMapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
-        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
-    }
 
     static final String REST_API_USERNAME_PLACEHOLDER = "key";
     static final Header JSON_TYPE_HEADER = new BasicHeader("Content-Type", "application/json");
@@ -81,11 +65,11 @@ public class RestApiClient implements AutoCloseable {
 
     public RestApiClient(String restApiBaseUrl, String restApiKey, ProxyConfiguration proxyConfiguration) {
         this.restApiBaseUrl = restApiBaseUrl;
-        this.apiHost = HttpHost.create(restApiBaseUrl);
+        final HttpHost apiHost = HttpHost.create(restApiBaseUrl);
         this.restApiKey = restApiKey;
         this.proxyConfiguration = proxyConfiguration;
-        this.credentialsProvider = getCredentialsProvider(restApiKey, apiHost, proxyConfiguration);
-        this.requestConfig = requestConfig(proxyConfiguration);
+        final CredentialsProvider credentialsProvider = getCredentialsProvider(restApiKey, apiHost, proxyConfiguration);
+        final RequestConfig requestConfig = requestConfig(proxyConfiguration);
         this.httpClientContext = httpClientContext(apiHost, credentialsProvider);
         this.httpClient = getHttpClient(credentialsProvider, requestConfig);
     }
@@ -98,10 +82,11 @@ public class RestApiClient implements AutoCloseable {
             final String environmentId,
             final String applicationId,
             final Set<String> planLabels,
+            final String mablBranch,
             final CreateDeploymentProperties properties
     ) {
         final HttpPost request = new HttpPost(restApiBaseUrl + DEPLOYMENT_TRIGGER_ENDPOINT);
-        request.setEntity(getCreateDeploymentPayloadEntity(environmentId, applicationId, planLabels, properties));
+        request.setEntity(getCreateDeploymentPayloadEntity(environmentId, applicationId, planLabels, mablBranch, properties));
         request.addHeader(JSON_TYPE_HEADER);
         return parseApiResult(getResponse(request), CreateDeploymentResult.class);
     }
@@ -197,11 +182,14 @@ public class RestApiClient implements AutoCloseable {
             String environmentId,
             String applicationId,
             Set<String> planLabels,
+            String mablBranch,
             CreateDeploymentProperties properties
     ) {
         try {
-            final String jsonPayload = objectMapper.writeValueAsString(
-                    new CreateDeploymentPayload(environmentId, applicationId, planLabels.isEmpty() ? null : planLabels, properties)
+            final String jsonPayload = getObjectMapperSingleton().writeValueAsString(
+                    new CreateDeploymentPayload(
+                            environmentId, applicationId, planLabels.isEmpty() ? null : planLabels,
+                            StringUtils.isEmpty(mablBranch) ? null : mablBranch, properties)
             );
 
             return new ByteArrayEntity(jsonPayload.getBytes(StandardCharsets.UTF_8));
@@ -245,7 +233,7 @@ public class RestApiClient implements AutoCloseable {
 
     private <ApiResult> ApiResult mapObject(final HttpResponse response, Class<ApiResult> resultClass) {
         try {
-            return resultClass.cast(objectMapper.readerFor(resultClass).readValue(response.getEntity().getContent()));
+            return resultClass.cast(getObjectMapperSingleton().readerFor(resultClass).readValue(response.getEntity().getContent()));
         } catch (IOException e) {
             log.error(String.format(
                     "Encountered exception trying to decode '%s'. Reason: '%s'",

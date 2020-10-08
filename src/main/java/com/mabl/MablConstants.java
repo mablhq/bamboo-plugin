@@ -45,6 +45,7 @@ class MablConstants {
     static final String ENVIRONMENT_ID_LABEL_PROPERTY = "createdeployment.environmentid.label";
     static final String PLAN_LABELS_FIELD = "mablPlanLabels";
     static final String PLAN_LABELS_LABEL_PROPERTY = "createdeployment.planlabels.label";
+    static final String MABL_BRANCH_FIELD = "mablBranch";
     static final String PROXY_ADDRESS_FIELD = "mablProxyAddress";
     static final String PROXY_ADDRESS_LABEL_PROPERTY = "createdeployment.proxyaddress.label";
     static final String PROXY_USERNAME_FIELD = "mablProxyUsername";

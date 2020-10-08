@@ -28,6 +28,11 @@
     multiple="true"
     required="false"
 /]
+[@ww.textfield
+    labelKey="createdeployment.mablBranch.label"
+    name="mablBranch"
+    required="false"
+/]
 <a style="position: relative; bottom: 12px; left: 4px;" onclick="mabl.clearPlanLabels(event)">clear labels</a>
 <h5>Optional proxy settings:</h5>
 [@ww.textfield

@@ -8,38 +8,24 @@ import com.atlassian.bamboo.task.TaskResultBuilder;
 import com.atlassian.bamboo.task.TaskType;
 import com.atlassian.bamboo.variable.CustomVariableContext;
 import com.atlassian.bamboo.variable.VariableDefinitionContext;
-import com.atlassian.extras.common.log.Logger;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
-import com.google.common.collect.ImmutableList;
 import com.mabl.domain.CreateDeploymentProperties;
 import com.mabl.domain.CreateDeploymentResult;
 import com.mabl.domain.ExecutionResult;
-import com.mabl.test.output.Failure;
-import com.mabl.test.output.TestCase;
-import com.mabl.test.output.TestSuite;
-import com.mabl.test.output.TestSuites;
+import com.mabl.test.output.JUnitReportSerializer;
 import org.jetbrains.annotations.NotNull;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import java.io.File;
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static com.mabl.MablConstants.APPLICATION_ID_FIELD;
+import static com.mabl.MablConstants.MABL_BRANCH_FIELD;
 import static com.mabl.MablConstants.COMPLETE_STATUSES;
 import static com.mabl.MablConstants.ENVIRONMENT_ID_FIELD;
 import static com.mabl.MablConstants.EXECUTION_STATUS_POLLING_INTERNAL_MILLISECONDS;
@@ -55,8 +41,6 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 
 @Scanned
 public class CreateDeployment implements TaskType {
-    private static final Logger.Log log = Logger.getInstance(CreateDeployment.class);
-
     private final TestCollationService testCollationService;
     private final CustomVariableContext customVariableContext;
 
@@ -79,6 +63,7 @@ public class CreateDeployment implements TaskType {
         final String environmentId = taskContext.getConfigurationMap().get(ENVIRONMENT_ID_FIELD);
         final String applicationId = taskContext.getConfigurationMap().get(APPLICATION_ID_FIELD);
         final String labels = taskContext.getConfigurationMap().get(PLAN_LABELS_FIELD);
+        final String mablBranch = taskContext.getConfigurationMap().get(MABL_BRANCH_FIELD);
         final String proxyAddress = taskContext.getConfigurationMap().get(PROXY_ADDRESS_FIELD);
         final String proxyUsername = taskContext.getConfigurationMap().get(PROXY_USERNAME_FIELD);
         final String proxyPassword = taskContext.getConfigurationMap().get(PROXY_PASSWORD_FIELD);
@@ -98,7 +83,8 @@ public class CreateDeployment implements TaskType {
         final ProxyConfiguration proxyConfig = new ProxyConfiguration(proxyAddress, proxyUsername, proxyPassword);
         try (RestApiClient apiClient = new RestApiClient(MABL_REST_API_BASE_URL, formApiKey, proxyConfig)) {
 
-            CreateDeploymentResult deployment = apiClient.createDeploymentEvent(environmentId, applicationId, planLabels, properties);
+            CreateDeploymentResult deployment = apiClient.createDeploymentEvent(
+                    environmentId, applicationId, planLabels, mablBranch, properties);
             buildLogger.addBuildLogEntry(
                     createLogLine(
                             "Created deployment at https://app.mabl.com/workspaces/%s/events/%s and triggered '%d' plans.",
@@ -132,7 +118,7 @@ public class CreateDeployment implements TaskType {
             buildLogger.addBuildLogEntry(createLogLine("All plans were successful."));
         }
 
-        generateJUnitReport(junitReport, executionResult.executions);
+        new JUnitReportSerializer(junitReport, executionResult.executions).generate();
 
         testCollationService.collateTestResults(taskContext, mablOutputProvider);
         return taskResultBuilder.checkTestFailures().build();
@@ -280,102 +266,6 @@ public class CreateDeployment implements TaskType {
         }
 
         return String.format(MABL_LOG_OUTPUT_PREFIX+template, args);
-    }
-
-    private static void generateJUnitReport(final File reportFile, final List<ExecutionResult.ExecutionSummary> summaries) {
-        List<TestSuite> suites = summaries.stream().map(CreateDeployment::createTestSuite).collect(Collectors.toList());
-        TestSuites testSuites = new TestSuites(ImmutableList.copyOf(suites));
-        outputTestSuiteXml(reportFile, testSuites);
-    }
-
-    private static void outputTestSuiteXml(final File reportFile, final TestSuites testSuites) {
-        try {
-            JAXBContext context = JAXBContext.newInstance(TestSuites.class);
-            Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(testSuites, reportFile);
-        } catch (JAXBException e) {
-            log.error("There was an error trying to output test results in mabl.", e);
-        }
-    }
-
-    private static TestSuite createTestSuite(final ExecutionResult.ExecutionSummary summary) {
-        final String timestamp = Instant.ofEpochMilli(summary.startTime).toString();
-        final String planName = safePlanName(summary);
-        final TestSuite testSuite = new TestSuite(planName, getDuration(summary), timestamp);
-
-        final Map<String, SortedSet<String>> testCaseIDs = new HashMap<>();
-
-        for (ExecutionResult.JourneyExecutionResult journeyResult : summary.journeyExecutions) {
-            final String testName = safeJourneyName(summary, journeyResult.id);
-            TestCase testCase = new TestCase(
-                    planName,
-                    testName,
-                    getDuration(journeyResult),
-                    journeyResult.appHref
-            );
-
-            if (journeyResult.testCases != null && !journeyResult.testCases.isEmpty()) {
-                switch (journeyResult.status) {
-                    case "failed":
-                    case "completed":
-                    case "skipped":
-                        final SortedSet<String> ids =
-                                testCaseIDs.computeIfAbsent(journeyResult.status + "-test-cases", k -> new TreeSet<>());
-                        for (ExecutionResult.TestCaseId id : journeyResult.testCases) {
-                            ids.add(id.caseId);
-                        }
-
-                        // XRay - report extension
-                        // https://docs.getxray.app/display/XRAYCLOUD/Taking+advantage+of+JUnit+XML+reports
-                        testCase.setTestCaseIDs(ids);
-                        break;
-                    default:
-                        // ignore, only the above statuses are captured
-                }
-            }
-
-            testSuite.addToTestCases(testCase).incrementTests();
-
-            if (!journeyResult.success && null != journeyResult.status) {
-                switch (journeyResult.status) {
-                    case "failed":
-                    case "terminated":
-                        final Failure failure = new Failure(journeyResult.status, journeyResult.statusCause);
-                        testCase.setFailure(failure);
-                        testSuite.incrementFailures();
-                        break;
-                    case "skipped":
-                        testCase.setSkipped();
-                        testSuite.incrementSkipped();
-                        break;
-                    default:
-                        log.warn(String.format("unexpected status '%s' found for test '%s' in plan '%s'%n",
-                                journeyResult.status,
-                                planName,
-                                testName));
-                }
-
-            }
-
-        }
-
-        if (!testCaseIDs.isEmpty()) {
-            for (Map.Entry<String,SortedSet<String>> testCaseStatusEntry : testCaseIDs.entrySet()) {
-                testSuite.addProperty(testCaseStatusEntry.getKey(), String.join(",", testCaseStatusEntry.getValue()));
-            }
-        }
-        return testSuite;
-    }
-
-    private static long getDuration(ExecutionResult.ExecutionSummary summary) {
-        return summary.stopTime != null ?
-                TimeUnit.SECONDS.convert( (summary.stopTime - summary.startTime), TimeUnit.MILLISECONDS) : 0;
-    }
-
-    private static long getDuration(ExecutionResult.JourneyExecutionResult summary) {
-        return summary.stopTime != null ?
-                TimeUnit.SECONDS.convert( (summary.stopTime - summary.startTime), TimeUnit.MILLISECONDS) : 0;
     }
 
     private static boolean isRetriedPlan(ExecutionResult.ExecutionSummary summary, Collection<String> retriedPlanIDs) {
