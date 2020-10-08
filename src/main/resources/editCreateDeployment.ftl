@@ -5,7 +5,7 @@
     required="true"
     onchange="mabl.populateDropdowns(event)"
 /]
-
+<div class="description">[@ww.text name='createdeployment.restapikey.description' /]</div>
 [@s.select
     labelKey="createdeployment.environmentid.label"
     name="mablEnvironmentId"
@@ -13,6 +13,7 @@
     required="false"
     emptyOption="true"
 /]
+<div class="description">[@ww.text name='createdeployment.environmentid.description' /]</div>
 [@s.select
     labelKey="createdeployment.applicationid.label"
     name="mablApplicationId"
@@ -20,33 +21,39 @@
     required="false"
     emptyOption="true"
 /]
+<div class="description">[@ww.text name='createdeployment.applicationid.description' /]</div>
 [@s.select
     labelKey="createdeployment.planlabels.label"
     name="mablPlanLabels"
     list="planLabelsList"
     size="6"
     multiple="true"
-    required="false"
+    required="false"    
 /]
+<a style="position: relative; left: 4px;" onclick="mabl.clearPlanLabels(event)">[@ww.text name='createdeployment.planlabels.clear' /]</a>
+<div class="description">[@ww.text name='createdeployment.planlabels.description' /]</div>
 [@ww.textfield
     labelKey="createdeployment.mablBranch.label"
     name="mablBranch"
     required="false"
+    
 /]
-<a style="position: relative; bottom: 12px; left: 4px;" onclick="mabl.clearPlanLabels(event)">clear labels</a>
-<h5>Optional proxy settings:</h5>
+<div class="description">[@ww.text name='createdeployment.mablBranch.description' /]</div>
+<h5>[@ww.text name='createdeployment.proxy.settings' /]:</h5>
 [@ww.textfield
 	labelKey="createdeployment.proxyaddress.label"
 	name="mablProxyAddress"
 	required="false"
 	onchange="mabl.populateDropdowns(event)"
 /]
+<div class="description">[@ww.text name='createdeployment.proxyaddress.description' /]</div>
 [@ww.textfield
 	labelKey="createdeployment.proxyusername.label"
 	name="mablProxyUsername"
 	required="false"
 	onchange="mabl.populateDropdowns(event)"
 /]
+<div class="description">[@ww.text name='createdeployment.proxyusername.description' /]</div>
 [@ww.password
 	showPassword="true"
 	labelKey="createdeployment.proxypassword.label"
@@ -54,6 +61,7 @@
 	required="false"
 	onchange="mabl.populateDropdowns(event)"
 /]
+<div class="description">[@ww.text name='createdeployment.proxypassword.description' /]</div>
 <script type="text/javascript">
 
 var mabl =
