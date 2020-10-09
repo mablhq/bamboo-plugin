@@ -28,7 +28,7 @@
     list="planLabelsList"
     size="6"
     multiple="true"
-    required="false"    
+    required="false"
 /]
 <a style="position: relative; left: 4px;" onclick="mabl.clearPlanLabels(event)">[@ww.text name='createdeployment.planlabels.clear' /]</a>
 <div class="description">[@ww.text name='createdeployment.planlabels.description' /]</div>
@@ -36,7 +36,6 @@
     labelKey="createdeployment.mablBranch.label"
     name="mablBranch"
     required="false"
-    
 /]
 <div class="description">[@ww.text name='createdeployment.mablBranch.description' /]</div>
 <h5>[@ww.text name='createdeployment.proxy.settings' /]:</h5>

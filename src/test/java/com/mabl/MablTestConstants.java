@@ -11,7 +11,15 @@ class MablTestConstants {
     static String buildDeploymentResultJson(
             @Nullable String environmentId,
             @Nullable String applicationId,
-            @Nullable String planLabels
+            @Nullable String planLabels) {
+        return buildDeploymentResultJson(environmentId, applicationId, planLabels, null);
+    }
+
+    static String buildDeploymentResultJson(
+            @Nullable String environmentId,
+            @Nullable String applicationId,
+            @Nullable String planLabels,
+            @Nullable String mablBranch
     ) {
         StringBuilder jsonBuilder = new StringBuilder("{");
         jsonBuilder.append(" \"id\":\"").append(EXPECTED_DEPLOYMENT_EVENT_ID).append("\"");
@@ -24,6 +32,9 @@ class MablTestConstants {
             jsonBuilder.append(", \"received_time\": 1523541704649");
         if(planLabels != null) {
             jsonBuilder.append(", \"plan_labels\":").append(planLabels);
+        }
+        if (mablBranch != null) {
+            jsonBuilder.append(", \"source_control_tag\":\"").append(mablBranch).append("\"");
         }
 
         return jsonBuilder.append("}").toString();

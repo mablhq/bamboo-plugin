@@ -7,21 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.8] - October 12, 2020
+
+### Added
+
+* [MABL-3059](https://mabl.atlassian.net/browse/MABL-3059) Fix an issue that caused multiple test case IDs to be included in the requirements section of the JUnit report
+
+### Fixed
+
+* [MABL-3060](https://mabl.atlassian.net/browse/MABL-3060) Add support for mabl branch cconfiguration option
+* Add a missing namespace declaration to the generated JUnit report XML
+
+### Changed
+
+* Remove PowerMockito dependency
+* Update dependencies: Wiremock, Spotbugs, JaCoCo
+* Add description to fields on the configuration page
+
 ## [0.1.7] - September 09, 2020
 
-## Added
+### Added
+
 * [MABL-2329](https://mabl.atlassian.net/browse/MABL-2329) Add proxy configuration and basic auth support to bamboo-plugin
 
 ## [0.1.6] - August 25, 2020
 
-## Added
+### Added
+
 * [MABL-2468](https://mabl.atlassian.net/browse/MABL-2468) Added support for capturing test case IDs and for writing out JUnit test report and allow Bamboo to capture the file as a build artifact
 * Added support for counting and reporting skipped tests
 
-## Fixed
+### Fixed
+
 * Fixed issue with reporting test duration
 
-## Changed    
+### Changed    
+
 * Retried plans that completed successfully used to cause test failure
 * Updated user-agent string to include JVM and Bamboo version
 * Updated test output to include URL to deployment event
@@ -30,24 +51,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.5] - May 4, 2020
 
 ### Fixed
+
 * [MABL-2097](https://mabl.atlassian.net/browse/MABL-2097) Bamboo plugin: bug on Bamboo 6
 
 ## [0.1.4] - April 23, 2020
 
 ### Fixed
+
 * [MABL-1800](https://mabl.atlassian.net/browse/MABL-1800) Bamboo: plugin usage on remote agent
 
 ## [0.1.3] - March 26, 2020
 
 ### Changed
+
 * Removed snapshot tag (internal release)
 
 ## [0.0.10] - April 2, 2019
 
-## Fixed
+### Fixed
+
 * Respect JVM proxy settings
 
-[Unreleased]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.7...head
+[Unreleased]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.8...head
+[0.1.8]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.7...bamboo-plugin-0.1.8
 [0.1.7]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.6...bamboo-plugin-0.1.7
 [0.1.6]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.5...bamboo-plugin-0.1.6
 [0.1.5]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.4...bamboo-plugin-0.1.5

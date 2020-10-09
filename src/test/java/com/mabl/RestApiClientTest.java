@@ -128,6 +128,21 @@ public class RestApiClientTest extends AbstractWiremockTest {
         assertSuccessfulCreateDeploymentRequest(null, fakeApplicationId, emptyPlanLabels);
     }
 
+    @Test
+    public void createDeploymentOnBranch() {
+        final String expectedBody = String.format("{\"application_id\":\"%s\",\"source_control_tag\":\"%s\",\"properties\":%s}", fakeApplicationId, fakeMablBranch, fakeProperties);
+
+        registerPostMapping(
+                RestApiClient.DEPLOYMENT_TRIGGER_ENDPOINT,
+                MablTestConstants.buildDeploymentResultJson(null, fakeApplicationId, null, fakeMablBranch),
+                REST_API_USERNAME_PLACEHOLDER,
+                fakeRestApiKey,
+                expectedBody
+        );
+
+        assertSuccessfulCreateDeploymentRequest(null, fakeApplicationId, emptyPlanLabels, fakeMablBranch);
+    }
+
     private void assertSuccessfulCreateDeploymentRequest(
             final String environmentId, final String applicationId, final Set<String> planLabels) {
         assertSuccessfulCreateDeploymentRequest(environmentId, applicationId, planLabels, null);
@@ -157,6 +172,12 @@ public class RestApiClientTest extends AbstractWiremockTest {
                 assertNull(result.planLabels);
             } else {
                 assertEquals(planLabels, result.planLabels);
+            }
+
+            if (mablBranch == null) {
+                assertNull(result.mablBranch);
+            } else {
+                assertEquals(mablBranch, result.mablBranch);
             }
 
             verifyExpectedUrls();
