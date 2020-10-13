@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<testsuites xmlns:xlink="https://app.mabl.com">
+    <testsuite name="Homepage Test" tests="2" errors="0" failures="0" skipped="0" time="102" timestamp="2020-10-05T23:25:19.683Z">
+        <properties>
+            <property name="completed-test-cases" value="TESTCASE-1,TESTCASE-2"/>
+        </properties>
+        <testcase classname="Homepage Test" name="First Visual Test" time="70" xlink:type="simple" xlink:href="https://app.mabl.com/workspaces/8OfudHtGzLyWLU1-LBjZtQ-w/test/journey-runs/REo2IJpveeMuhnbaKkskew-jr">
+            <properties>
+                <property name="requirement" value="TESTCASE-2"/>
+            </properties>
+        </testcase>
+        <testcase classname="Homepage Test" name="Homepage Test" time="99" xlink:type="simple" xlink:href="https://app.mabl.com/workspaces/8OfudHtGzLyWLU1-LBjZtQ-w/test/journey-runs/RogFg4brBcBYiyK5vhqoUA-jr">
+            <properties>
+                <property name="requirement" value="TESTCASE-1"/>
+            </properties>
+        </testcase>
+    </testsuite>
+</testsuites>

@@ -43,6 +43,7 @@ public class RestApiClientTest extends AbstractWiremockTest {
     private static final String fakeApplicationId = "smoTxTR8B9oh73qstERNyg-a";
     private static final String fakeEventId = "fakeEventId";
     private static final String fakePlanLabels = "[\"labelA\",\"labelB\"]";
+    private static final String fakeMablBranch = "fakeMablBranch";
     private static final Set<String> expectedPlanLabels = new HashSet<>(Arrays.asList("labelA","labelB"));
     private static final Set<String> emptyPlanLabels = new HashSet<>();
     private static final String fakeProperties = "{\"deployment_origin\":\""+MablConstants.PLUGIN_USER_AGENT+"\"}";
@@ -127,11 +128,32 @@ public class RestApiClientTest extends AbstractWiremockTest {
         assertSuccessfulCreateDeploymentRequest(null, fakeApplicationId, emptyPlanLabels);
     }
 
-    private void assertSuccessfulCreateDeploymentRequest(final String environmentId, final String applicationId, final Set<String> planLabels) {
+    @Test
+    public void createDeploymentOnBranch() {
+        final String expectedBody = String.format("{\"application_id\":\"%s\",\"source_control_tag\":\"%s\",\"properties\":%s}", fakeApplicationId, fakeMablBranch, fakeProperties);
+
+        registerPostMapping(
+                RestApiClient.DEPLOYMENT_TRIGGER_ENDPOINT,
+                MablTestConstants.buildDeploymentResultJson(null, fakeApplicationId, null, fakeMablBranch),
+                REST_API_USERNAME_PLACEHOLDER,
+                fakeRestApiKey,
+                expectedBody
+        );
+
+        assertSuccessfulCreateDeploymentRequest(null, fakeApplicationId, emptyPlanLabels, fakeMablBranch);
+    }
+
+    private void assertSuccessfulCreateDeploymentRequest(
+            final String environmentId, final String applicationId, final Set<String> planLabels) {
+        assertSuccessfulCreateDeploymentRequest(environmentId, applicationId, planLabels, null);
+    }
+
+    private void assertSuccessfulCreateDeploymentRequest(
+            final String environmentId, final String applicationId, final Set<String> planLabels, final String mablBranch) {
         try (RestApiClient client = new PartialRestApiClient(getBaseUrl(), fakeRestApiKey)) {
             CreateDeploymentProperties properties = new CreateDeploymentProperties();
             properties.setDeploymentOrigin(MablConstants.PLUGIN_USER_AGENT);
-            CreateDeploymentResult result = client.createDeploymentEvent(environmentId, applicationId, planLabels, properties);
+            CreateDeploymentResult result = client.createDeploymentEvent(environmentId, applicationId, planLabels, mablBranch, properties);
 
             assertEquals(MablTestConstants.EXPECTED_DEPLOYMENT_EVENT_ID, result.id);
             if (environmentId == null) {
@@ -150,6 +172,12 @@ public class RestApiClientTest extends AbstractWiremockTest {
                 assertNull(result.planLabels);
             } else {
                 assertEquals(planLabels, result.planLabels);
+            }
+
+            if (mablBranch == null) {
+                assertNull(result.mablBranch);
+            } else {
+                assertEquals(mablBranch, result.mablBranch);
             }
 
             verifyExpectedUrls();

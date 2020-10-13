@@ -1,0 +1,98 @@
+{
+  "event_status": {
+    "succeeded": true,
+    "succeeded_first_attempt": true,
+    "succeeded_by_plan": {
+      "MjfScFHXgvbG0vuiamSGXg-p": true
+    }
+  },
+  "plan_execution_metrics": {
+    "total": 1,
+    "passed": 1,
+    "failed": 0
+  },
+  "journey_execution_metrics": {
+    "total": 2,
+    "passed": 2,
+    "failed": 0,
+    "running": 0,
+    "skipped": 0,
+    "terminated": 0
+  },
+  "executions": [
+    {
+      "status": "succeeded",
+      "success": true,
+      "plan": {
+        "id": "MjfScFHXgvbG0vuiamSGXg-p",
+        "name": "Homepage Test",
+        "href": "https://api.mabl.com/schedule/runPolicy/MjfScFHXgvbG0vuiamSGXg-p",
+        "app_href": "https://app.mabl.com/workspaces/8OfudHtGzLyWLU1-LBjZtQ-w/test/plans/MjfScFHXgvbG0vuiamSGXg-p"
+      },
+      "plan_execution": {
+        "id": "KToh3d2mefqEi3cmeTdnEQ-pr",
+        "status": "succeeded",
+        "href": "https://api.mabl.com/execution/runPolicyExecution/MjfScFHXgvbG0vuiamSGXg-p",
+        "is_retry": false
+      },
+      "journeys": [
+        {
+          "id": "ZbE5J5JHs65Q11At5lLXwA-j:0",
+          "name": "First Visual Test",
+          "href": "https://api.mabl.com/test/journey/ZbE5J5JHs65Q11At5lLXwA-j:0",
+          "app_href": "https://app.mabl.com/workspaces/8OfudHtGzLyWLU1-LBjZtQ-w/train/journeys/ZbE5J5JHs65Q11At5lLXwA-j/journeyrun/REo2IJpveeMuhnbaKkskew-jr"
+        },
+        {
+          "id": "P9BXWTEbMLeAdAPRT35jWA-j:6",
+          "name": "Homepage Test",
+          "href": "https://api.mabl.com/test/journey/P9BXWTEbMLeAdAPRT35jWA-j:6",
+          "app_href": "https://app.mabl.com/workspaces/8OfudHtGzLyWLU1-LBjZtQ-w/train/journeys/P9BXWTEbMLeAdAPRT35jWA-j/journeyrun/RogFg4brBcBYiyK5vhqoUA-jr"
+        }
+      ],
+      "journey_executions": [
+        {
+          "journey_id": "ZbE5J5JHs65Q11At5lLXwA-j:0",
+          "journey_execution_id": "REo2IJpveeMuhnbaKkskew-jr",
+          "application_id": "z0fZtpiI1yuUTb8QP0n_QA-a",
+          "environment_id": "Jw7oBZlxKXVGxK3_eWxcWQ-e",
+          "initial_url": "https://bertold.kolics.net",
+          "run_multiplier_index": 0,
+          "browser_type": "chrome",
+          "status": "completed",
+          "success": true,
+          "href": "https://api.mabl.com/execution/runPolicyExecution/KToh3d2mefqEi3cmeTdnEQ-pr/testScriptExecution/REo2IJpveeMuhnbaKkskew-jr",
+          "app_href": "https://app.mabl.com/workspaces/8OfudHtGzLyWLU1-LBjZtQ-w/test/journey-runs/REo2IJpveeMuhnbaKkskew-jr",
+          "start_time": 1601940321834,
+          "stop_time": 1601940392003,
+          "test_cases": [
+            {
+              "id": "TESTCASE-2"
+            }
+          ]
+        },
+        {
+          "journey_id": "P9BXWTEbMLeAdAPRT35jWA-j:6",
+          "journey_execution_id": "RogFg4brBcBYiyK5vhqoUA-jr",
+          "application_id": "z0fZtpiI1yuUTb8QP0n_QA-a",
+          "environment_id": "Jw7oBZlxKXVGxK3_eWxcWQ-e",
+          "initial_url": "https://bertold.kolics.net",
+          "run_multiplier_index": 0,
+          "browser_type": "chrome",
+          "status": "completed",
+          "success": true,
+          "href": "https://api.mabl.com/execution/runPolicyExecution/KToh3d2mefqEi3cmeTdnEQ-pr/testScriptExecution/RogFg4brBcBYiyK5vhqoUA-jr",
+          "app_href": "https://app.mabl.com/workspaces/8OfudHtGzLyWLU1-LBjZtQ-w/test/journey-runs/RogFg4brBcBYiyK5vhqoUA-jr",
+          "start_time": 1601940321795,
+          "stop_time": 1601940421572,
+          "test_cases": [
+            {
+              "id": "TESTCASE-1"
+            }
+          ]
+        }
+      ],
+      "start_time": 1601940319683,
+      "stop_time": 1601940421684
+    }
+  ]
+}

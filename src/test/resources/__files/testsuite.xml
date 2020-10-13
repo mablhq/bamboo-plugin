@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<testsuites>
+<testsuites xmlns:xlink="https://app.mabl.com">
   <testsuite name="Empty Test Suite" tests="0" errors="0" failures="0" skipped="0" time="0" timestamp="2013-05-24T10:23:58">
     <properties/>
   </testsuite>
@@ -11,18 +11,18 @@
       <property name="failed-test-cases" value="TESTCASE-2"/>
       <property name="skipped-test-cases" value="TESTCASE-3"/>
     </properties>
-    <testcase classname="My Plan Name 1" name="My Test Name 1" time="11" xlink:type="simple" xlink:href="http://myapphref.com">
+    <testcase classname="My Plan Name 1" name="My Test Name 1" time="11" xlink:type="simple" xlink:href="https://app.mabl.com">
       <properties>
         <property name="requirement" value="TESTCASE-1"/>
       </properties>
     </testcase>
-    <testcase classname="My Plan Name 2" name="My Test Name 2" time="22" xlink:type="simple" xlink:href="http://myapphref.com">
+    <testcase classname="My Plan Name 2" name="My Test Name 2" time="22" xlink:type="simple" xlink:href="https://app.mabl.com">
       <failure message="My Message">My Reason</failure>
       <properties>
         <property name="requirement" value="TESTCASE-2"/>
       </properties>
     </testcase>
-    <testcase classname="My Plan Name 3" name="My Test Name 3" time="33" xlink:type="simple" xlink:href="http://myapphref.com">
+    <testcase classname="My Plan Name 3" name="My Test Name 3" time="33" xlink:type="simple" xlink:href="https://app.mabl.com">
       <skipped/>
       <properties>
         <property name="requirement" value="TESTCASE-3"/>

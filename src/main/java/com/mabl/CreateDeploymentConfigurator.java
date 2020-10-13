@@ -23,6 +23,7 @@ import static com.mabl.MablConstants.APPLICATION_ID_FIELD;
 import static com.mabl.MablConstants.APPLICATION_ID_LABEL_PROPERTY;
 import static com.mabl.MablConstants.ENVIRONMENT_ID_FIELD;
 import static com.mabl.MablConstants.ENVIRONMENT_ID_LABEL_PROPERTY;
+import static com.mabl.MablConstants.MABL_BRANCH_FIELD;
 import static com.mabl.MablConstants.MABL_REST_API_BASE_URL;
 import static com.mabl.MablConstants.PLAN_LABELS_FIELD;
 import static com.mabl.MablConstants.PROXY_ADDRESS_FIELD;
@@ -57,6 +58,7 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
         config.put(ENVIRONMENT_ID_FIELD, params.getString(ENVIRONMENT_ID_FIELD));
         config.put(APPLICATION_ID_FIELD, params.getString(APPLICATION_ID_FIELD));
         config.put(PLAN_LABELS_FIELD, join(params.getStringArray(PLAN_LABELS_FIELD), ","));
+        config.put(MABL_BRANCH_FIELD, params.getString(MABL_BRANCH_FIELD));
         config.put(PROXY_ADDRESS_FIELD, params.getString(PROXY_ADDRESS_FIELD));
         config.put(PROXY_USERNAME_FIELD, params.getString(PROXY_USERNAME_FIELD));
         config.put(PROXY_PASSWORD_FIELD, params.getString(PROXY_PASSWORD_FIELD));
@@ -71,6 +73,7 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
         context.put(ENVIRONMENT_ID_FIELD, "");
         context.put(APPLICATION_ID_FIELD, "");
         context.put(PLAN_LABELS_FIELD, "");
+        context.put(MABL_BRANCH_FIELD, "");
         context.put(PROXY_ADDRESS_FIELD, "");
         context.put(PROXY_USERNAME_FIELD, "");
         context.put(PROXY_PASSWORD_FIELD, "");
@@ -97,6 +100,7 @@ public class CreateDeploymentConfigurator extends AbstractTaskConfigurator {
         context.put("applicationsList", getApplicationsList(restApiKeyValue, proxyConfig));
         context.put(PLAN_LABELS_FIELD, split(taskDefinition.getConfiguration().get(PLAN_LABELS_FIELD), ","));
         context.put("planLabelsList", getPlanLabelsList(restApiKeyValue, proxyConfig));
+        context.put(MABL_BRANCH_FIELD, taskDefinition.getConfiguration().get(MABL_BRANCH_FIELD));
     }
 
     @Override
