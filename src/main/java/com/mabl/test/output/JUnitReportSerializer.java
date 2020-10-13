@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class JUnitReportSerializer {
-    private static final Logger.Log LOG = Logger.getInstance(JUnitReportSerializer.class);
+    private static final Logger.Log log = Logger.getInstance(JUnitReportSerializer.class);
 
     private final File reportFile;
     private final List<ExecutionResult.ExecutionSummary> summaries;
@@ -36,7 +36,7 @@ public class JUnitReportSerializer {
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.marshal(testSuites, reportFile);
         } catch (JAXBException e) {
-            LOG.error("There was an error trying to output test results in mabl.", e);
+            log.error("There was an error trying to output test results in mabl.", e);
         }
     }
 }

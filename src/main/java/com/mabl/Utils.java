@@ -11,13 +11,13 @@ import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKN
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 public class Utils {
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     static {
-        OBJECT_MAPPER.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
-        OBJECT_MAPPER.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        OBJECT_MAPPER.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
-        OBJECT_MAPPER.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-        OBJECT_MAPPER.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+        objectMapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
     }
 
     private Utils() {
@@ -46,6 +46,6 @@ public class Utils {
     }
 
     public static ObjectMapper getObjectMapperSingleton() {
-        return OBJECT_MAPPER;
+        return objectMapper;
     }
 }
