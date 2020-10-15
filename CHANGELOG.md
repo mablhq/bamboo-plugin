@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+* [MABL-3120](https://mabl.atlassian.net/browse/MABL-3120) Update JUnit dependency to address [GHSA-269g-pwp5-87pp](https://github.com/advisories/GHSA-269g-pwp5-87pp) advisory
+
 ## [0.1.8] - October 13, 2020
 
 ### Added
