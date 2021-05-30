@@ -3,7 +3,7 @@ on: push
 jobs:
   build-base:
     timeout-minutes: 10
-    runs-on: ubuntu-18.04 # LTS EoL Apr 2023
+    runs-on: ubuntu-20.04 # LTS EoL Apr 2025
     # Skip if contains [skip ci]
     if: "!contains(github.event.head_commit.message, 'skip ci')"
 
@@ -11,8 +11,8 @@ jobs:
       CI: 'true'
 
     steps:
-      - uses: actions/checkout@master
-      - uses: actions/setup-java@v1
+      - uses: actions/checkout@main
+      - uses: actions/setup-java@v2
         with:
           java-version: '8.x'
           java-package: jdk
@@ -26,7 +26,7 @@ jobs:
           restore-keys: |
             ${{ runner.OS }}-maven-
             ${{ runner.OS }}
-      - uses: twistedpair/codeship-env-adapter@v0.2
+      - uses: twistedpair/codeship-env-adapter@v1
 
       - name: Install Atlassian SDK and Dependencies
         run: |
