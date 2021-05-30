@@ -79,7 +79,7 @@ You'll want to test this in the context of `atlas-run` and in a container as the
 
 ### Deployment
 
-1. Merge code into defautl branch and push
+1. Merge code into default branch and push
 2. Run `atlas-mvn clean install`
 3. Run `atlas-mvn release:prepare` This will update pom.xml with new version and tag the release with current version minus `-SNAPSHOT`
 4. Run `atlas-mvn release:perform`
