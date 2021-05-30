@@ -79,14 +79,14 @@ You'll want to test this in the context of `atlas-run` and in a container as the
 
 ### Deployment
 
-1. Merge code into master and push
+1. Merge code into default branch and push
 2. Run `atlas-mvn clean install`
 3. Run `atlas-mvn release:prepare` This will update pom.xml with new version and tag the release with current version minus `-SNAPSHOT`
 4. Run `atlas-mvn release:perform`
 
 ### Manual Deployment
 
-1. Merge code into master and push
+1. Merge code into default branch and push
 2. Run `atlas-mvn clean install` 
 3. Upload the resulting `target/bamboo-plugin-$VERSION.jar` to the [Atlassian marketplace](https://marketplace.atlassian.com/manage/apps/1219102/versions)
 Make sure your version doesn't include `-SNAPSHOT` if you're uploading manually.
