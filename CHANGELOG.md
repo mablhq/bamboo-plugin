@@ -7,8 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.9] - June 11, 2021
+
 ### Changed
 
+* [IST-271]((https://mabl.atlassian.net/browse/IST-271) Address Apache Httpclient vulnerability
+* Update junit, jacoco-maven-plugin, spotbugs-maven-plugin, wiremock-jre8-standalone dependencies
 * [MABL-3120](https://mabl.atlassian.net/browse/MABL-3120) Update JUnit dependency to address [GHSA-269g-pwp5-87pp](https://github.com/advisories/GHSA-269g-pwp5-87pp) advisory
 
 ## [0.1.8] - October 13, 2020
@@ -76,7 +80,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Respect JVM proxy settings
 
-[Unreleased]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.8...head
+[Unreleased]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.9...head
+[0.1.9]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.8...bamboo-plugin-0.1.9
 [0.1.8]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.7...bamboo-plugin-0.1.8
 [0.1.7]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.6...bamboo-plugin-0.1.7
 [0.1.6]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.5...bamboo-plugin-0.1.6
