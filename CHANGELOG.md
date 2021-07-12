@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+To be filled out.
+
+## [0.1.10] - July 13, 2021
+
+### Added
+
+* [MABL-5052](https://mabl.atlassian.net/browse/MABL-5052) Share the deployment ID in mabl as a variable MABL_DEPLOYMENT_ID available to subsequent 
+  tasks in the pipeline
+  
+### Changed
+
+* Update spotbugs-maven-plugin, wiremock-jre8-standalone dependencies
+* Suppress spotbugs warning related to injected Bamboo object instances
+
 ## [0.1.9] - June 11, 2021
 
 ### Changed
@@ -80,7 +94,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Respect JVM proxy settings
 
-[Unreleased]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.9...head
+[Unreleased]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.10...head
+[0.1.10]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.9...bamboo-plugin-0.1.10
 [0.1.9]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.8...bamboo-plugin-0.1.9
 [0.1.8]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.7...bamboo-plugin-0.1.8
 [0.1.7]: https://github.com/mablhq/bamboo-plugin/compare/bamboo-plugin-0.1.6...bamboo-plugin-0.1.7

@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <FindBugsFilter>
-  <Class name="~com\.mabl\.*\.[^.]+"/>
+  <!-- no easy way to avoid this warning with injected objects -->
+  <Match>
+    <Class name="com.mabl.CreateDeployment" />
+    <Method name="CreateDeployment"/>
+    <Bug pattern="EI_EXPOSE_REP2" />
+  </Match>
 </FindBugsFilter>
