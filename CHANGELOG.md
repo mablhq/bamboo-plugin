@@ -9,11 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 To be filled out.
 
-## [0.1.10] - July 13, 2021
+## [0.1.10] - July 12, 2021
 
 ### Added
 
-* [MABL-5052](https://mabl.atlassian.net/browse/MABL-5052) Share the deployment ID in mabl as a variable MABL_DEPLOYMENT_ID available to subsequent 
+* [MABL-5052](https://mabl.atlassian.net/browse/MABL-5052) Share the deployment ID in mabl as a variable mabl.deployment.id available to subsequent 
   tasks in the pipeline
   
 ### Changed

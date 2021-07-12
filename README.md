@@ -16,6 +16,8 @@ This plugin facilitates launching of [mabl](https://www.mabl.com) tests as a ste
 6. Enable the task and the plan
 
 Now builds from this plan will trigger Mabl test plan executions of the chosen configuration.
+If executions are scheduled successfully, then the plugin will set the `mabl.deployment.id` variable to correspond
+to the deployment event ID in mabl.
 
 ### Proxy Settings
 

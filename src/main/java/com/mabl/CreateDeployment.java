@@ -90,7 +90,7 @@ public class CreateDeployment implements TaskType {
                             "Created deployment at https://app.mabl.com/workspaces/%s/events/%s and triggered '%d' plans.",
                             deployment.workspaceId, deployment.id, deployment.triggeredPlanRunSummaries.size()));
             // Share the deployment event identifier with subsequent tasks
-            customVariableContext.addCustomData("MABL_DEPLOYMENT_ID", deployment.id);
+            customVariableContext.addCustomData("mabl.deployment.id", deployment.id);
             do {
                 TimeUnit.MILLISECONDS.sleep(EXECUTION_STATUS_POLLING_INTERNAL_MILLISECONDS);
                 executionResult = apiClient.getExecutionResults(deployment.id);
