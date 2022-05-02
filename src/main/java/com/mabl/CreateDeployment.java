@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -221,11 +222,12 @@ public class CreateDeployment implements TaskType {
                 planSummary.status
         ));
         for (ExecutionResult.JourneyExecutionResult journeyResult : planSummary.journeyExecutions) {
-            buildLogger.addBuildLogEntry(createLogLine(
-                    "    Test '%s' is in state '%s'",
-                    safeJourneyName(planSummary, journeyResult.id),
-                    journeyResult.status
-            ));
+            Optional.ofNullable(journeyResult.status).ifPresent(status ->
+                    buildLogger.addBuildLogEntry(createLogLine(
+                            "    Test '%s' is in state '%s'",
+                            safeJourneyName(planSummary, journeyResult.id),
+                            status))
+            );
         }
     }
 
