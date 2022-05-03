@@ -81,13 +81,6 @@ You'll need to [follow here](https://community.developer.atlassian.com/t/configu
 You'll want to test this in the context of `atlas-run` and in a container as the way urls are built are different between the two.
 To login as an admin during testing, you can use the username "admin" and password "admin".
 
-### Deployment
-
-1. Merge code into default branch and push
-2. Run `atlas-mvn clean install`
-3. Run `atlas-mvn release:prepare` This will update pom.xml with new version and tag the release with current version minus `-SNAPSHOT`
-4. Run `atlas-mvn release:perform`
-
 ### Manual Deployment
 
 1. Merge code into default branch and push
@@ -95,3 +88,14 @@ To login as an admin during testing, you can use the username "admin" and passwo
 3. Upload the resulting `target/bamboo-plugin-$VERSION.jar` to the [Atlassian marketplace](https://marketplace.atlassian.com/manage/apps/1219102/versions)
 Make sure your version doesn't include `-SNAPSHOT` if you're uploading manually.
 Uploading will require an admin to the mablhq Atlassian vendor account.
+   1. To manually upload a new version to the [Atlassian marketplace](https://marketplace.atlassian.com/manage/apps/1219102/versions),
+        Click on `Create version` button and upload the jar file. You will also need to set a unique build number for the release.
+   2. Most of the default options will be pre-filled, but change them if they are no longer applicable.
+   3. For the `compatible to` field, choose the latest version of Bamboo.
+
+### Deployment (does not work with the current pom.xml file)
+
+1. Merge code into default branch and push
+2. Run `atlas-mvn clean install`
+3. Run `atlas-mvn release:prepare` This will update pom.xml with new version and tag the release with current version minus `-SNAPSHOT`
+4. Run `atlas-mvn release:perform`
