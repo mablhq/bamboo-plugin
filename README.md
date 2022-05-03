@@ -7,6 +7,7 @@ This plugin facilitates launching of [mabl](https://www.mabl.com) tests as a ste
 ## Using
 
 1. Within Bamboo, from any plan's `Configure tasks` page, add a new task
+   1. If you do not have a project and plan, set one up first under the Projects menu.
 2. Select `A Mabl Deployment` task
   ![Select mabl Deployment](src/main/resources/images/BambooTaskSelectionV2.png)
 3. Input the ApiKey and unselect the field, this will populate the Environment and Application drop-downs
@@ -78,6 +79,7 @@ You'll need to [follow here](https://community.developer.atlassian.com/t/configu
 ### Testing
 
 You'll want to test this in the context of `atlas-run` and in a container as the way urls are built are different between the two.
+To login as an admin during testing, you can use the username "admin" and password "admin".
 
 ### Deployment
 

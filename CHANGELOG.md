@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 To be filled out.
 
+## [0.1.11] - May 3, 2022
+
+### Changed
+
+* Update mabl icon
+
+### Fixed
+
+* [MABL-6912](https://mabl.atlassian.net/browse/MABL-6912) Bump the API request timeout to 30 minutes
+* [MABL-5731](https://mabl.atlassian.net/browse/MABL-5731) Skip logging test status if status is null
+
 ## [0.1.10] - July 12, 2021
 
 ### Added
