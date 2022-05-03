@@ -32,6 +32,7 @@ class MablConstants {
                 PLUGIN_VERSION, System.getProperty("java.version"), getBambooVersion());
     static final String MABL_REST_API_BASE_URL = "https://api.mabl.com";
     static final Duration CONNECTION_TIMEOUT = Duration.ofSeconds(10);
+    // TODO: Revisit the request timeout after improvements to the deployment API endpoint
     static final Duration REQUEST_TIMEOUT = Duration.ofMinutes(30);
     static final Duration CONNECTION_SECONDS_TO_LIVE = Duration.ofSeconds(30);
     static final int RETRY_HANDLER_MAX_RETRIES = 5;
