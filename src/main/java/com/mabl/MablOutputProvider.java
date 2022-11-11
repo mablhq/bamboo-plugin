@@ -8,6 +8,7 @@ import com.atlassian.bamboo.resultsummary.tests.TestState;
 import com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 
 public class MablOutputProvider implements TestReportProvider {
@@ -31,7 +32,7 @@ public class MablOutputProvider implements TestReportProvider {
         return successfulTestResults.add(testResults);
     }
 
-    public boolean addSuccess(String className, String methodName, long duration) {
+    public boolean addSuccess(String className, String methodName, @Nullable Long duration) {
         return addSuccess(new TestResults(className, methodName, duration));
     }
 
@@ -40,7 +41,7 @@ public class MablOutputProvider implements TestReportProvider {
         return failedTestResults.add(testResults);
     }
 
-    public boolean addFailure(String className, String methodName, long duration) {
+    public boolean addFailure(String className, String methodName, @Nullable Long duration) {
         return addFailure(new TestResults(className, methodName, duration));
     }
 
