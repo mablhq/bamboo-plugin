@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 To be filled out.
 
+## [0.1.12]
+
+### Fixed
+
+* [MABL-8395](https://mabl.atlassian.net/browse/MABL-8395) Fix potential NPE when logging test run status
+
 ## [0.1.11] - May 3, 2022
 
 ### Changed
