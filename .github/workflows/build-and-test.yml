@@ -2,7 +2,7 @@ name: Build and Test
 on: push
 jobs:
   build-base:
-    timeout-minutes: 10
+    timeout-minutes: 15
     runs-on: ubuntu-20.04 # LTS EoL Apr 2025
     # Skip if contains [skip ci]
     if: "!contains(github.event.head_commit.message, 'skip ci')"
