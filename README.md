@@ -101,10 +101,11 @@ Uploading will require an admin to the mablhq Atlassian vendor account.
         Click on `Create version` button and upload the jar file. You will also need to set a unique build number for the release.
    2. Most of the default options will be pre-filled, but change them if they are no longer applicable.
    3. For the `compatible to` field, choose the latest version of Bamboo.
+4. Create a new branch and update the pom.xml plugin version to `{next-version}-SNAPSHOT`, and merge the branch.
+   - This step would normally be performed by the `atlas-mvn release:prepare` or part of the `atlas-release` command, but this has to be done manually since this is manually deploying instead of relying on `atlas-mvn release:prepare` or `atlas-release`.
 
 ### Deployment (does not work with the current pom.xml file)
 
 1. Merge code into default branch and push
 2. Run `atlas-mvn clean install`
-3. Run `atlas-mvn release:prepare` This will update pom.xml with new version and tag the release with current version minus `-SNAPSHOT`
-4. Run `atlas-mvn release:perform`
+3. Run `atlas-release` This will update pom.xml with new version and tag the release with current version minus `-SNAPSHOT`, before putting that back together with the latest version.
