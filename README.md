@@ -44,7 +44,7 @@ See the [Atlassian Docs](https://marketplace.atlassian.com/apps/1219102/mabl-dep
 
 ### Building from source and running locally
 
-NOTE: You need to run on Java 8 with a version less than 255. Otherwise, you will run into  [this issue](https://confluence.atlassian.com/bamkb/bamboo-fails-to-configure-embedded-database-in-environments-with-java-update-version-higher-than-255-1018269728.html).
+NOTE: You need to run on Java 8 with a version less than 255 (i.e. `1.8.0_345` will not work). Otherwise, you will run into  [this issue](https://confluence.atlassian.com/bamkb/bamboo-fails-to-configure-embedded-database-in-environments-with-java-update-version-higher-than-255-1018269728.html).
 
 Install the [Atlassian SDK](https://developer.atlassian.com/server/framework/atlassian-sdk/set-up-the-atlassian-plugin-sdk-and-build-a-project/)
 
