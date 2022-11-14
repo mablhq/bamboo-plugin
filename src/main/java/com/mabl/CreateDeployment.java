@@ -172,16 +172,17 @@ public class CreateDeployment implements TaskType {
                 buildLogger.addErrorLogEntry(formatPlanLog(true, summary));
             }
 
-            for (ExecutionResult.JourneyExecutionResult journeyResult : summary.journeyExecutions) {
+            for (ExecutionResult.TestRunResult testRunResult : summary.testRunResults) {
                 Long duration = null;
-                if (journeyResult.stopTime != null && journeyResult.startTime != null) {
-                    duration = journeyResult.stopTime - journeyResult.startTime;
+                if (testRunResult.stopTime != null && testRunResult.startTime != null) {
+                    duration = testRunResult.stopTime - testRunResult.startTime;
                 }
                 final String planName = safePlanName(summary);
-                final String testName = safeJourneyName(summary, journeyResult.id);
-                if (journeyResult.success) {
+                String testName = safeJourneyName(summary, testRunResult.id);
+                testName = maybeAppendDataTableScenarioName(testName, testRunResult);
+                if (testRunResult.success) {
                     outputProvider.addSuccess(planName, testName, duration);
-                } else if ("skipped".equals(journeyResult.status)) {
+                } else if ("skipped".equals(testRunResult.status)) {
                     outputProvider.addSkipped(planName, testName);
                 } else {
                     // suppress logging test run failures that are retries (i.e. only log the failure if the retry
@@ -224,11 +225,11 @@ public class CreateDeployment implements TaskType {
                 safePlanName(planSummary),
                 planSummary.status
         ));
-        for (ExecutionResult.JourneyExecutionResult journeyResult : planSummary.journeyExecutions) {
-            Optional.ofNullable(journeyResult.status).ifPresent(status ->
+        for (ExecutionResult.TestRunResult testRunResult : planSummary.testRunResults) {
+            Optional.ofNullable(testRunResult.status).ifPresent(status ->
                     buildLogger.addBuildLogEntry(createLogLine(
                             "    Test '%s' is in state '%s'",
-                            safeJourneyName(planSummary, journeyResult.id),
+                            safeJourneyName(planSummary, testRunResult.id),
                             status))
             );
         }
@@ -253,6 +254,13 @@ public class CreateDeployment implements TaskType {
         }
 
         return journeyName;
+    }
+
+    private static String maybeAppendDataTableScenarioName(final String testName, final ExecutionResult.TestRunResult testRunResult) {
+        if (testRunResult.scenarioName == null) {
+            return testName;
+        }
+        return testName + " (Scenario: " + testRunResult.scenarioName + ")";
     }
 
     private String createLogErrorLine(String template, Object... args) {
