@@ -44,6 +44,8 @@ See the [Atlassian Docs](https://marketplace.atlassian.com/apps/1219102/mabl-dep
 
 ### Building from source and running locally
 
+NOTE: You need to run on Java 8 with a version less than 255 (i.e. `1.8.0_345` will not work). Otherwise, you will run into  [this issue](https://confluence.atlassian.com/bamkb/bamboo-fails-to-configure-embedded-database-in-environments-with-java-update-version-higher-than-255-1018269728.html).
+
 Install the [Atlassian SDK](https://developer.atlassian.com/server/framework/atlassian-sdk/set-up-the-atlassian-plugin-sdk-and-build-a-project/)
 
 1. Clone this repo && cd into it
@@ -65,6 +67,13 @@ Run these commands
 ```bash
 docker volume create --name bambooVolume
 docker run -v bambooVolume:/var/atlassian/application-data/bamboo --name="bamboo" --init -d -p 54663:54663 -p 8085:8085 atlassian/bamboo-server
+docker start bamboo
+```
+
+If you are running on an M1 Mac, then you'll need an additional `--platform linux/amd64` flag on the `docker run` command.
+```bash
+docker volume create --name bambooVolume
+docker run --platform linux/amd64 -v bambooVolume:/var/atlassian/application-data/bamboo --name="bamboo" --init -d -p 54663:54663 -p 8085:8085 atlassian/bamboo-server
 docker start bamboo
 ```
 

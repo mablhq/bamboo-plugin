@@ -34,7 +34,7 @@ public class ExecutionResult implements ApiResult {
         public final PlanSummary plan;
         public final PlanExecutionResult planExecution;
         public final List<JourneySummary> journeys;
-        public final List<JourneyExecutionResult> journeyExecutions;
+        public final List<TestRunResult> testRunResults;
 
         @JsonCreator
         public ExecutionSummary(
@@ -46,7 +46,7 @@ public class ExecutionResult implements ApiResult {
                 @JsonProperty("plan") final PlanSummary plan,
                 @JsonProperty("plan_execution") final PlanExecutionResult planExecution,
                 @JsonProperty("journeys") final List<JourneySummary> journeys,
-                @JsonProperty("journey_executions") final List<JourneyExecutionResult> journeysExecutions
+                @JsonProperty("journey_executions") final List<TestRunResult> testRunResults
         ) {
             this.status = status;
             this.statusCause = statusCause;
@@ -56,7 +56,7 @@ public class ExecutionResult implements ApiResult {
             this.plan = plan;
             this.planExecution = planExecution;
             this.journeys = journeys;
-            this.journeyExecutions = journeysExecutions;
+            this.testRunResults = testRunResults;
         }
     }
 
@@ -107,7 +107,7 @@ public class ExecutionResult implements ApiResult {
     }
 
     @SuppressWarnings("WeakerAccess")
-    public static class JourneyExecutionResult {
+    public static class TestRunResult {
         public final String id;
         public final String executionId;
         public final String href;
@@ -118,9 +118,10 @@ public class ExecutionResult implements ApiResult {
         public final Long startTime;
         public final Long stopTime;
         public final List<TestCaseId> testCases;
+        public final String scenarioName;
 
         @JsonCreator
-        public JourneyExecutionResult(
+        public TestRunResult(
                 @JsonProperty("journey_id") final String id,
                 @JsonProperty("executionId") final String executionId,
                 @JsonProperty("href") final String href,
@@ -130,7 +131,8 @@ public class ExecutionResult implements ApiResult {
                 @JsonProperty("success") final boolean success,
                 @JsonProperty("start_time") final Long startTime,
                 @JsonProperty("stop_time") final Long stopTime,
-                @JsonProperty("test_cases") final List<TestCaseId> testCases
+                @JsonProperty("test_cases") final List<TestCaseId> testCases,
+                @JsonProperty("scenario_name") final String scenarioName
         ) {
             this.id = id;
             this.executionId = executionId;
@@ -142,6 +144,7 @@ public class ExecutionResult implements ApiResult {
             this.startTime = startTime;
             this.stopTime = stopTime;
             this.testCases = testCases;
+            this.scenarioName = scenarioName;
         }
     }
 

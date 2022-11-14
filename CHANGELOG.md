@@ -14,6 +14,7 @@ To be filled out.
 ### Fixed
 
 * [MABL-8395](https://mabl.atlassian.net/browse/MABL-8395) Fix potential NPE when logging test run status
+* [MABL-8542](https://mabl.atlassian.net/browse/MABL-8542) Fix multiple test runs triggered by DataTables being listed as a single test run
 
 ## [0.1.11] - May 3, 2022
 

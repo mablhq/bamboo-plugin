@@ -29,24 +29,24 @@ public class TestSuiteSerializer {
 
         final Map<String, SortedSet<String>> testCaseIDs = new HashMap<>();
 
-        for (ExecutionResult.JourneyExecutionResult journeyResult : summary.journeyExecutions) {
-            final String testName = safeJourneyName(summary, journeyResult.id);
+        for (ExecutionResult.TestRunResult testRunResult : summary.testRunResults) {
+            final String testName = safeJourneyName(summary, testRunResult.id);
             TestCase testCase = new TestCase(
                     planName,
                     testName,
-                    getDuration(journeyResult),
-                    journeyResult.appHref
+                    getDuration(testRunResult),
+                    testRunResult.appHref
             );
 
-            if (journeyResult.testCases != null && !journeyResult.testCases.isEmpty()) {
-                switch (journeyResult.status) {
+            if (testRunResult.testCases != null && !testRunResult.testCases.isEmpty()) {
+                switch (testRunResult.status) {
                     case "failed":
                     case "completed":
                     case "skipped":
                         final SortedSet<String> ids =
-                                testCaseIDs.computeIfAbsent(journeyResult.status + "-test-cases", k -> new TreeSet<>());
+                                testCaseIDs.computeIfAbsent(testRunResult.status + "-test-cases", k -> new TreeSet<>());
                         final SortedSet<String> newIds = new TreeSet<>();
-                        for (ExecutionResult.TestCaseId id : journeyResult.testCases) {
+                        for (ExecutionResult.TestCaseId id : testRunResult.testCases) {
                             newIds.add(id.caseId);
                         }
                         ids.addAll(newIds);
@@ -62,11 +62,11 @@ public class TestSuiteSerializer {
 
             testSuite.addToTestCases(testCase).incrementTests();
 
-            if (!journeyResult.success && null != journeyResult.status) {
-                switch (journeyResult.status) {
+            if (!testRunResult.success && null != testRunResult.status) {
+                switch (testRunResult.status) {
                     case "failed":
                     case "terminated":
-                        final Failure failure = new Failure(journeyResult.status, journeyResult.statusCause);
+                        final Failure failure = new Failure(testRunResult.status, testRunResult.statusCause);
                         testCase.setFailure(failure);
                         testSuite.incrementFailures();
                         break;
@@ -76,7 +76,7 @@ public class TestSuiteSerializer {
                         break;
                     default:
                         LOG.warn(String.format("unexpected status '%s' found for test '%s' in plan '%s'%n",
-                                journeyResult.status,
+                                testRunResult.status,
                                 planName,
                                 testName));
                 }
@@ -98,7 +98,7 @@ public class TestSuiteSerializer {
                 TimeUnit.SECONDS.convert( (summary.stopTime - summary.startTime), TimeUnit.MILLISECONDS) : 0;
     }
 
-    private static long getDuration(ExecutionResult.JourneyExecutionResult summary) {
+    private static long getDuration(ExecutionResult.TestRunResult summary) {
         return summary.stopTime != null ?
                 TimeUnit.SECONDS.convert( (summary.stopTime - summary.startTime), TimeUnit.MILLISECONDS) : 0;
     }
