@@ -173,7 +173,10 @@ public class CreateDeployment implements TaskType {
             }
 
             for (ExecutionResult.JourneyExecutionResult journeyResult : summary.journeyExecutions) {
-                final long duration = journeyResult.stopTime - journeyResult.startTime;
+                Long duration = null;
+                if (journeyResult.stopTime != null && journeyResult.startTime != null) {
+                    duration = journeyResult.stopTime - journeyResult.startTime;
+                }
                 final String planName = safePlanName(summary);
                 final String testName = safeJourneyName(summary, journeyResult.id);
                 if (journeyResult.success) {
