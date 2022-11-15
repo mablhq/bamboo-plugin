@@ -92,17 +92,18 @@ To login as an admin during testing, you can use the username "admin" and passwo
 
 ### Manual Deployment
 
-1. Merge code into default branch and push
-2. Run `atlas-mvn clean install` 
-3. Upload the resulting `target/bamboo-plugin-$VERSION.jar` to the [Atlassian marketplace](https://marketplace.atlassian.com/manage/apps/1219102/versions)
+1. 
+2. Merge code into default branch and push
+2. Create a new branch and update the pom.xml plugin version to `{next-version}-SNAPSHOT`, and merge the branch.
+    - This step would normally be performed by the `atlas-mvn release:prepare` or part of the `atlas-release` command, but this has to be done manually since this is manually deploying instead of relying on `atlas-mvn release:prepare` or `atlas-release`.
+3. Run `atlas-mvn clean install` 
+4. Upload the resulting `target/bamboo-plugin-$VERSION.jar` to the [Atlassian marketplace](https://marketplace.atlassian.com/manage/apps/1219102/versions)
 Make sure your version doesn't include `-SNAPSHOT` if you're uploading manually.
 Uploading will require an admin to the mablhq Atlassian vendor account.
    1. To manually upload a new version to the [Atlassian marketplace](https://marketplace.atlassian.com/manage/apps/1219102/versions),
         Click on `Create version` button and upload the jar file. You will also need to set a unique build number for the release.
    2. Most of the default options will be pre-filled, but change them if they are no longer applicable.
    3. For the `compatible to` field, choose the latest version of Bamboo.
-4. Create a new branch and update the pom.xml plugin version to `{next-version}-SNAPSHOT`, and merge the branch.
-   - This step would normally be performed by the `atlas-mvn release:prepare` or part of the `atlas-release` command, but this has to be done manually since this is manually deploying instead of relying on `atlas-mvn release:prepare` or `atlas-release`.
 
 ### Deployment (does not work with the current pom.xml file)
 
