@@ -94,12 +94,12 @@ public class TestSuiteSerializer {
     }
 
     private static long getDuration(ExecutionResult.ExecutionSummary summary) {
-        return summary.stopTime != null ?
+        return (summary.stopTime != null && summary.startTime != null) ?
                 TimeUnit.SECONDS.convert( (summary.stopTime - summary.startTime), TimeUnit.MILLISECONDS) : 0;
     }
 
     private static long getDuration(ExecutionResult.TestRunResult summary) {
-        return summary.stopTime != null ?
+        return (summary.stopTime != null && summary.startTime != null) ?
                 TimeUnit.SECONDS.convert( (summary.stopTime - summary.startTime), TimeUnit.MILLISECONDS) : 0;
     }
 

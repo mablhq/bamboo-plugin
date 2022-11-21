@@ -95,18 +95,19 @@ To login as an admin during testing, you can use the username "admin" and passwo
 1. Create a new branch for releasing the plugin.
 2. Remove `-SNAPSHOT` from the plugin version and update the `<scm>` `<tag>` version to `bamboo-plugin-{currentVersion}` in the pom.xml file. `currentVersion` should be in the form `0.1.12`.
 3. Commit and push changes (preferably with a commit message like `[maven-release-plugin] prepare release bamboo-plugin-{currentVersion}`).
-4. Run `atlas-mvn clean install`.
-5. Upload the resulting `target/bamboo-plugin-$VERSION.jar` to the [Atlassian marketplace](https://marketplace.atlassian.com/manage/apps/1219102/versions).
+4. Open branch for PR review and wait for approvals. Once ready to merge, perform the following steps.
+5. Run `atlas-mvn clean install`.
+6. Upload the resulting `target/bamboo-plugin-$VERSION.jar` to the [Atlassian marketplace](https://marketplace.atlassian.com/manage/apps/1219102/versions).
    Make sure your version doesn't include `-SNAPSHOT` if you're uploading manually since that is the development build.
    Uploading will require an admin to the mablhq Atlassian vendor account.
     1. To manually upload a new version to the [Atlassian marketplace](https://marketplace.atlassian.com/manage/apps/1219102/versions),
        Click on `Create version` button and upload the jar file. You will also need to set a unique build number for the release.
     2. Most of the default options will be pre-filled, but change them if they are no longer applicable.
     3. For the `compatible to` field, choose the latest version of Bamboo.
-6. Tag the current commit with `git tag -a bamboo-plugin-{currentVersion}` and push the tag by running `git push origin bamboo-plugin-{currentVersion}`.
-7. Update the plugin version to `{nextVersion}-SNAPSHOT`, where `nextVersion` should be in the form `0.1.13`.
+7. Tag the current commit with `git tag -a -m "[maven-release-plugin] bamboo-plugin-{currentVersion}" bamboo-plugin-{currentVersion}` and push the tag by running `git push origin bamboo-plugin-{currentVersion}`.
+8. Update the plugin version to `{nextVersion}-SNAPSHOT`, where `nextVersion` should be in the form `0.1.13`.
    Commit and push changes (preferably with a commit message like `[maven-release-plugin] prepare for next development iteration`).
-8. Open branch for PR approval and merge.
+9. Merge the branch. Alternatively, merge the branch after step 4, and open a new branch for step 8.
 
 ### Deployment (does not work with the current pom.xml file)
 

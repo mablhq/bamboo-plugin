@@ -9,11 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 To be filled out.
 
+## [0.1.13]
+
+### Fixed
+
+* [MABL-8395](https://mabl.atlassian.net/browse/MABL-8395) Fix logging error if there are skipped test runs
+
 ## [0.1.12]
 
 ### Fixed
 
-* [MABL-8395](https://mabl.atlassian.net/browse/MABL-8395) Fix potential NPE when logging test run status
 * [MABL-8542](https://mabl.atlassian.net/browse/MABL-8542) Fix multiple test runs triggered by DataTables being listed as a single test run
 
 ## [0.1.11] - May 3, 2022
