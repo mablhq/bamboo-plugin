@@ -104,7 +104,7 @@ To login as an admin during testing, you can use the username "admin" and passwo
        Click on `Create version` button and upload the jar file. You will also need to set a unique build number for the release.
     2. Most of the default options will be pre-filled, but change them if they are no longer applicable.
     3. For the `compatible to` field, choose the latest version of Bamboo.
-7. Tag the current commit with `git tag -a bamboo-plugin-{currentVersion}` and push the tag by running `git push origin bamboo-plugin-{currentVersion}`.
+7. Tag the current commit with `git tag -a -m "[maven-release-plugin] bamboo-plugin-{currentVersion}" bamboo-plugin-{currentVersion}` and push the tag by running `git push origin bamboo-plugin-{currentVersion}`.
 8. Update the plugin version to `{nextVersion}-SNAPSHOT`, where `nextVersion` should be in the form `0.1.13`.
    Commit and push changes (preferably with a commit message like `[maven-release-plugin] prepare for next development iteration`).
 9. Merge the branch. Alternatively, merge the branch after step 4, and open a new branch for step 8.
