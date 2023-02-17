@@ -82,7 +82,7 @@ class MablConstants {
     private static String getBambooVersion() {
         return Optional.ofNullable(System.getProperty("atlassian.sdk.version")).
                 orElseGet(() -> {
-                    final String pluginVersion = System.getenv("AMPS_PLUGIN_VERSION");
+                    final String pluginVersion = System.getenv("AMPS_PLUGIN_VERSION"); // it appears this env variable is no longer set.
                     return StringUtils.isEmpty(pluginVersion) ? "unknown" : pluginVersion;
                 });
     }
