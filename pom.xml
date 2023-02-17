@@ -26,7 +26,7 @@
     <properties>
         <bamboo.version>6.3.2</bamboo.version>
         <bamboo.data.version>6.3.2</bamboo.data.version>
-        <amps.version>6.3.21</amps.version> <!-- looking for new versions of this? try here: https://packages.atlassian.com/maven-external/com/atlassian/maven/plugins/maven-bamboo-plugin/ -->
+        <amps.version>8.9.0</amps.version>
         <plugin.testrunner.version>1.2.3</plugin.testrunner.version>
         <atlassian.spring.scanner.version>1.2.13</atlassian.spring.scanner.version>
         <!-- This key is used to keep the consistency between the key in atlassian-plugin.xml and the key to generate bundle. -->
@@ -115,6 +115,7 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.13</version>
+            <scope>provided</scope> <!-- this is a "banned" reference, meaning it is provided by Bamboo at runtime. See: https://community.developer.atlassian.com/t/more-info-on-amps-banned-plugin-dependency/46036 -->
         </dependency>
     </dependencies>
 
@@ -163,7 +164,7 @@
 
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
-                <artifactId>maven-bamboo-plugin</artifactId> <!-- note: this id changes (maven-bamboo-plugin -> bamboo-maven-plugin) in future versions. -->
+                <artifactId>bamboo-maven-plugin</artifactId>
                 <version>${amps.version}</version>
                 <extensions>true</extensions>
                 <configuration>
