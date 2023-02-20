@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 To be filled out.
 
+## [0.1.14]
+
+[MABL-9127](https://mabl.atlassian.net/browse/MABL-9127) Fix class loading errors on recent versions of Bamboo.
+
 ## [0.1.13]
 
 ### Fixed
