@@ -83,6 +83,7 @@ public class CreateDeployment implements TaskType {
         ExecutionResult executionResult;
         final ProxyConfiguration proxyConfig = new ProxyConfiguration(proxyAddress, proxyUsername, proxyPassword);
         try (RestApiClient apiClient = new RestApiClient(MABL_REST_API_BASE_URL, formApiKey, proxyConfig)) {
+
             CreateDeploymentResult deployment = apiClient.createDeploymentEvent(
                     environmentId, applicationId, planLabels, mablBranch, properties);
             buildLogger.addBuildLogEntry(
