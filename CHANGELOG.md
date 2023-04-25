@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 To be filled out.
 
+## [0.1.15]
+
+[MABL-9882](https://mabl.atlassian.net/browse/MABL-9882) Fix NullPointerException when triggered plan run data is not present.
+
 ## [0.1.14]
 
 [MABL-9127](https://mabl.atlassian.net/browse/MABL-9127) Fix class loading errors on recent versions of Bamboo.

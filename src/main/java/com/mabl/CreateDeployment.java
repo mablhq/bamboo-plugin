@@ -88,8 +88,8 @@ public class CreateDeployment implements TaskType {
                     environmentId, applicationId, planLabels, mablBranch, properties);
             buildLogger.addBuildLogEntry(
                     createLogLine(
-                            "Created deployment at https://app.mabl.com/workspaces/%s/events/%s and triggered '%d' plans.",
-                            deployment.workspaceId, deployment.id, deployment.triggeredPlanRunSummaries.size()));
+                            "Created deployment at https://app.mabl.com/workspaces/%s/events/%s",
+                            deployment.workspaceId, deployment.id));
             // Share the deployment event identifier with subsequent tasks
             customVariableContext.addCustomData("mabl.deployment.id", deployment.id);
             do {
