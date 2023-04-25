@@ -83,13 +83,12 @@ public class CreateDeployment implements TaskType {
         ExecutionResult executionResult;
         final ProxyConfiguration proxyConfig = new ProxyConfiguration(proxyAddress, proxyUsername, proxyPassword);
         try (RestApiClient apiClient = new RestApiClient(MABL_REST_API_BASE_URL, formApiKey, proxyConfig)) {
-
             CreateDeploymentResult deployment = apiClient.createDeploymentEvent(
                     environmentId, applicationId, planLabels, mablBranch, properties);
             buildLogger.addBuildLogEntry(
                     createLogLine(
-                            "Created deployment at https://app.mabl.com/workspaces/%s/events/%s and triggered '%d' plans.",
-                            deployment.workspaceId, deployment.id, deployment.triggeredPlanRunSummaries.size()));
+                            "Created deployment at https://app.mabl.com/workspaces/%s/events/%s",
+                            deployment.workspaceId, deployment.id));
             // Share the deployment event identifier with subsequent tasks
             customVariableContext.addCustomData("mabl.deployment.id", deployment.id);
             do {
